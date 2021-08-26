@@ -211,15 +211,19 @@ function network.read(client, len)
 if len == nil then len = '*l' end
 local line, err = client.network.socket:receive(len)
 if not err then return line else
-print("\27[36m"..[[                                           
- _____ _____ ___   _ ____  
-|_   _| ____| |  / \  | \ | |  _ \ 
-  | | |  _| | | / _ \ |  \| | | | |
-  | | | |___| |___ / ___ \| |\  | |_| |
-  |_| |_____|_____/_/   \_\_| \_|____/
-> CH › @IIIS1
-> CH › @TELANDTEAM
-~> DEVELOPER › @VVVZVV
+print("\27[36m"..[[
+ ______   _______  _        _______ 
+(  ___ \ (  ____ \| \    /\(  ___  )
+| (   ) )| (    \/|  \  / /| (   ) |
+| (__/ / | (__    |  (_/ / | (___) |
+|  __ (  |  __)   |   _ (  |  ___  |
+| (  \ \ | (      |  ( \ \ | (   ) |
+| )___) )| (____/\|  /  \ \| )   ( |
+|/ \___/ (_______/|_/    \/|/     \|
+
+> CH › @Bika99
+> CH › @Bika98
+~> DEVELOPER MAIN › @S00F4
 ]]..'\27[m')
 Info = dofile("Info.lua")
 User = Info.User
@@ -227,7 +231,7 @@ token = Info.token
 if User then
 https = require("ssl.https")
 URL = require("./library/url.lua")  
-https.request('https://api.telegram.org/bot'..token..'/sendMessage?chat_id='..User..'&text='..URL.escape("⌯︙لقد توقف البوت بسبب انهاير الريدز في السيرفر افتح الترمنال وارسل ↫ ⤈\n`service redis start` ")..'&parse_mode=Markdown')
+https.request('https://api.telegram.org/bot'..token..'/sendMessage?chat_id='..User..'&text='..URL.escape("⌁︙لقد توقف البوت بسبب انهاير الريدز في السيرفر افتح الترمنال وارسل ↫ ⤈\n`service redis start` ")..'&parse_mode=Markdown')
 end
 os.exit()
 end
@@ -621,7 +625,7 @@ local function connect_tcp(socket, parameters)
 local host, port = parameters.host, tonumber(parameters.port)
 local ok, err = socket:connect(host, port)
 if not ok then
-print("\27[34m"..[[BY : @VVVZVV:]].."\27[m")
+print("\27[34m"..[[BY : @S00F4:]].."\27[m")
 os.exit()
 end 
 socket:setoption('tcp-nodelay', parameters.tcp_nodelay)
