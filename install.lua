@@ -27,13 +27,6 @@ if not database:get(Server_Done.."Token_Write") then
 print('\27[0;31m\n ارسل لي توكن البوت الان ↓ :\na┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉\n\27')
 local token = io.read()
 if token ~= '' then
-data,res = https.request("https://vvvzvv.ml/index/Teland.php?p=TELANDTEAM")
-if res == 200 then
-tr = json:decode(data)
-if tr.Info.info == 'Is_Spam' then
-io.write('\n\27[1;31m'..tr.Info.info..'\n\27[0;39;49m')
-os.execute('lua install.lua')
-end 
 if tr.Info.info == 'Ok' then
 local url , res = https.request('https://api.telegram.org/bot'..token..'/getMe')
 if res ~= 200 then
