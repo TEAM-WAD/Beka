@@ -24,30 +24,20 @@ UserName = "]]..user..[["
 Write_Info_Sudo:close()
 end  
 if not database:get(Server_Done.."Token_Write") then
-print('\27[0;31m\n ارسل لي توكن البوت الان ↓ :\na┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉\n\27')
+print("\27[1;34m»» Send Your Token Bot :\27[m")
 local token = io.read()
 if token ~= '' then
-data,res = https.request("https://vvvzvv.ml/index/Teland.php?p=TELANDTEAM")
-if res == 200 then
-tr = json:decode(data)
-if tr.Info.info == 'Is_Spam' then
-io.write('\n\27[1;31m'..tr.Info.info..'\n\27[0;39;49m')
-os.execute('lua install.lua')
-end 
-if tr.Info.info == 'Ok' then
 local url , res = https.request('https://api.telegram.org/bot'..token..'/getMe')
 if res ~= 200 then
-io.write('\27[0;31m┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉\n التوكن غير صحيح تاكد منه ثم ارسله')
+io.write('\n\27[1;31mSorry The Token is not Correct \n\27[0;39;49m')
 else
-io.write('\27[0;31m تم حفظ التوكن بنجاح \na┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉\n27[0;39;49m')
+io.write('\n\27[1;31mThe Token Is Saved\n\27[0;39;49m')
 database:set(Server_Done.."Token_Write",token)
 end 
-end  
 else
-io.write('\27[0;35m┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉\n لم يتم حفظ التوكن ارسل لي التوكن الان')
+io.write('\n\27[1;31mThe Tokem was not Saved\n\27[0;39;49m')
 end 
-os.execute('lua install.lua')
-end 
+os.execute('lua start.lua')
 end
 if not database:get(Server_Done.."UserSudo_Write") then
 print('\27[0;35m\n ارسل لي ايدي المطور الاساسي ↓ :\na┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉\n\27[0;33;49m')
