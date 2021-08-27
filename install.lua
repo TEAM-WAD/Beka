@@ -40,6 +40,7 @@ end
 os.execute('lua install.lua')
 end
 if not database:get(Server_Done.."UserSudo_Write") then
+-------------------
 print('\27[0;35m\n ارسل لي ايدي المطور الاساسي ↓ :\na┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉\n\27[0;33;49m')
 local Id = io.read():gsub(' ','') 
 if tostring(Id):match('%d+') then
@@ -47,9 +48,11 @@ io.write('\27[1;35m تم حفظ ايدي المطور الاساسي \na┉ ┉ 
 database:set(Server_Done.."UserSudo_Write",Id)
 else
 io.write('\27[0;31m┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉\n لم يتم حفظ ايدي المطور الاساسي ارسله مره اخره')
+end 
 os.execute('lua install.lua')
 end
 if not database:get(Server_Done.."User_Write") then
+-------------------
 print('\27[1;31m ↓ ارسل معرف المطور الاساسي :\n SEND ID FOR SIDO : \27[0;39;49m')
 local User = io.read():gsub('@','') 
 if User ~= '' then
