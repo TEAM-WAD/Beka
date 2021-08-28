@@ -1138,7 +1138,7 @@ send(msg.chat_id_, msg.id_,' *⌁︙اصدار سورس بيكا* \n*⌁︙ال�
 end
 if text == 'قناه تحديثات البوت ⌁' and DevBekaW(msg) then 
 database:del(bot_id..'Srt:Bot') 
-send(msg.chat_id_, msg.id_,' ⌁︙[تحديثات البوت](t.me/Bika99) \n⌁︙[قناه السورس](t.me/Bika99)')
+send(msg.chat_id_, msg.id_,' ⌁︙[تحديثات البوت](t.me/Bika98) \n⌁︙[قناه السورس](t.me/Bika99)')
 end
 if text == "ضع اسم للبوت ⌁" and DevBekaW(msg) then  
 database:setex(bot_id..'Set:Name:Bot'..msg.sender_user_id_,300,true) 
@@ -9638,7 +9638,7 @@ if Time ~= os.date("%x") then
 local list = database:smembers(bot_id..'Chek:Groups') 
 local t = '{"BOT_ID": '..bot_id..',"GP_BOT":{'  
 for k,v in pairs(list) do   
-NAME = 'BekaW Chat'
+NAME = 'Beka Chat'
 link = database:get(bot_id.."Private:Group:Link"..msg.chat_id_) or ''
 CoSu = database:smembers(bot_id..'CoSu'..v)
 ASAS = database:smembers(bot_id..'Basic:Constructor'..v)
@@ -9646,9 +9646,9 @@ MNSH = database:smembers(bot_id..'Constructor'..v)
 MDER = database:smembers(bot_id..'Manager'..v)
 MOD = database:smembers(bot_id..'Mod:User'..v)
 if k == 1 then
-t = t..'"'..v..'":{"BekaW":"'..NAME..'",'
+t = t..'"'..v..'":{"Beka":"'..NAME..'",'
 else
-t = t..',"'..v..'":{"BekaW":"'..NAME..'",'
+t = t..',"'..v..'":{"Beka":"'..NAME..'",'
 end
 if #CoSu ~= 0 then 
 t = t..'"CoSu":['
