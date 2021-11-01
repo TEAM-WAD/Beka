@@ -1138,7 +1138,7 @@ send(msg.chat_id_, msg.id_,' *⌁︙اصدار سورس بيكا* \n*⌁︙ال�
 end
 if text == 'قناه تحديثات البوت ⌁' and DevBekaW(msg) then 
 database:del(bot_id..'Srt:Bot') 
-send(msg.chat_id_, msg.id_,' ⌁︙[تحديثات البوت](t.me/pp200k) \n⌁︙[قناه السورس](t.me/Z_ZW1)')
+send(msg.chat_id_, msg.id_,' ⌁︙[تحديثات البوت](t.me/BVVBV5) \n⌁︙[قناه السورس](t.me/BVVBV5)')
 end
 if text == "ضع اسم للبوت ⌁" and DevBekaW(msg) then  
 database:setex(bot_id..'Set:Name:Bot'..msg.sender_user_id_,300,true) 
