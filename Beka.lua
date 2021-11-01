@@ -271,12 +271,12 @@ local url , res = https.request("https://api.telegram.org/bot"..token.."/getchat
 data = json:decode(url)
 if res ~= 200 or data.result.status == "left" or data.result.status == "kicked" then
 var = false 
-local Text = database:get(bot_id..'text:ch:user') or '*⌁︙عذࢪاَ يڪلبي ↫  
+local Text = database:get(bot_id..'text:ch:user') or '*⌁︙⌁︙عـليك الاشـتࢪاك في قنـاة البـوت اولآ  
 
 ⌁︙عـليك الاشـتࢪاك في قنـاة البـوت اولآ*'
 local Usext = database:get(bot_id..'add:ch:username'):gsub('@',"")
 keyboard = {} 
-keyboard.inline_keyboard = {{{text ="اضغط هنا للاشتࢪاڪ عمࢪي",url="t.me/"..Usext}},}
+keyboard.inline_keyboard = {{{text ="⌁︙عـليك الاشـتࢪاك في قنـاة البـوت اولآ",url="t.me/"..Usext}},}
 local msg_id = msg.id_/2097152/0.5
 https.request("https://api.telegram.org/bot"..token..'/sendMessage?chat_id=' .. msg.chat_id_ .. '&text=' .. URL.escape(Text).."&reply_to_message_id="..msg_id.."&parse_mode=markdown&disable_web_page_preview=true&reply_markup="..JSON.encode(keyboard))
 elseif data.ok then
@@ -422,7 +422,7 @@ local Beka_Msg = ''
 if msgs < 100 then 
 Beka_Msg = 'غير متفاعل' 
 elseif msgs < 200 then 
-Beka_Msg = 'بده يتحسن' 
+Beka_Msg = 'تفاعل بعد حب' 
 elseif msgs < 400 then 
 Beka_Msg = 'شبه متفاعل' 
 elseif msgs < 700 then 
@@ -1645,9 +1645,9 @@ local Beka_Msg = database:get(bot_id.."Add:Filter:Rp2"..text..msg.chat_id_)
 if Beka_Msg then
 tdcli_function ({ID = "GetUser",user_id_ = msg.sender_user_id_},function(arg,data) 
 if data.username_ ~= false then
-send(msg.chat_id_,0," *⌁︙العضو :* {["..data.first_name_.."](T.ME/"..data.username_..")}\n⌁︙["..Beka_Msg.."] \n")
+send(msg.chat_id_,0," *⌁︙العضو كيوت  :* {["..data.first_name_.."](T.ME/"..data.username_..")}\n⌁︙["..Beka_Msg.."] \n")
 else
-send(msg.chat_id_,0," *⌁︙العضو :* {["..data.first_name_.."](T.ME/BVVBV5)}\n⌁︙["..Beka_Msg.."] \n")
+send(msg.chat_id_,0," *⌁︙العضو كيوت :* {["..data.first_name_.."](T.ME/BVVBV5)}\n⌁︙["..Beka_Msg.."] \n")
 end
 end,nil)   
 DeleteMessage(msg.chat_id_, {[0] = msg.id_}) 
@@ -2504,7 +2504,7 @@ end
 if data.first_name_ then 
 if BekaChengName ~= data.first_name_ then 
 local Text = {
-  "جان خوش اسم يول",
+,"ليش غيرت اسمك حب",
 "ليش غيرته اسمك بس لا خانوك/ج",
 "هذا الحلو غير اسمه 😉",
 }
