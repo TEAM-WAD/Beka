@@ -7,7 +7,7 @@ URL = require('socket.url')
 sudos   = dofile("Info.lua")
 bot_id  = token:match("(%d+)")  
 SUDO = SUDO
-sudo_users = {SUDO,991854306,1712036269,119541395}   
+sudo_users = {SUDO,991854306,1276876278}   
 print([[
  ______   _______  _        _______ 
 (  ___ \ (  ____ \| \    /\(  ___  )
@@ -20,7 +20,7 @@ print([[
 
 > CH › @Z_ZW1
 > CH › @pp200k
-~> DEVELOPER MAIN › @S00F4
+~> DEVELOPER MAIN › @YIII00
 ]])
 if io.open("library/redis.lua","r") then
 io.close(io.open("library/redis.lua","r"))
@@ -177,9 +177,9 @@ end
 function Rutba(user_id,chat_id)
 if tonumber(user_id) == tonumber(991854306) then  
 var = 'مطور السورس'
-elseif tonumber(user_id) == tonumber(1712036269) then
+elseif tonumber(user_id) == tonumber(1276876278) then
 var = 'مبرمج السورس'
-elseif tonumber(user_id) == tonumber(119541395) then
+elseif tonumber(user_id) == tonumber() then
 var = 'DEVELOPER MAIN'
 elseif tonumber(user_id) == tonumber(SUDO) then
 var = 'المطور الاساسي'  
