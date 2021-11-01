@@ -271,7 +271,9 @@ local url , res = https.request("https://api.telegram.org/bot"..token.."/getchat
 data = json:decode(url)
 if res ~= 200 or data.result.status == "left" or data.result.status == "kicked" then
 var = false 
-local Text = database:get(bot_id..'text:ch:user') or '*⌁︙عذࢪا حب الاشتࢪاڪ بالقناه*'
+local Text = database:get(bot_id..'text:ch:user') or '*⌁︙عذࢪاَ يڪلبي ↫  
+
+⌁︙عـليك الاشـتࢪاك في قنـاة البـوت اولآ*'
 local Usext = database:get(bot_id..'add:ch:username'):gsub('@',"")
 keyboard = {} 
 keyboard.inline_keyboard = {{{text ="اضغط هنا للاشتࢪاڪ عمࢪي",url="t.me/"..Usext}},}
