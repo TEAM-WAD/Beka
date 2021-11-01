@@ -2618,10 +2618,10 @@ end
 end,nil)   
 end
 if text == 'السورس' or text == 'سورس' or text == 'ياسورس' or text == 'يا سورس' then  
-Text = "ᴡᴇʟᴄᴏᴍᴇ ᴛᴏ sᴏᴜʀᴄᴇ ʙᴇᴋᴀ\n\n[⌁  ʙᴇᴋᴀ ᴄʜᴀɴɴᴇʟ](http://t.me/Z_ZW1)\n\n[⌁  ɪɴғᴏ sᴏᴜʀᴄᴇ](http://t.me/pp200k)\n\n[⌁  ʙᴇᴋᴀ ᴅᴇᴠᴇʟᴏᴘᴇʀ](http://t.me/ozozd)\n\n[⌁  ʙᴇᴋᴀ ᴅᴇᴠᴇʟᴏᴘᴇʀ](http://t.me/IIIAlIl)"
+Text = "ᴡᴇʟᴄᴏᴍᴇ ᴛᴏ sᴏᴜʀᴄᴇ ʙᴇᴋᴀ\n\n[⌁  ʙᴇᴋᴀ ᴄʜᴀɴɴᴇʟ](http://t.me/BVVBV5)\n\n[⌁  ɪɴғᴏ sᴏᴜʀᴄᴇ](http://t.me/BVVBV5)\n\n[⌁  ʙᴇᴋᴀ ᴅᴇᴠᴇʟᴏᴘᴇʀ](http://t.me/@JJJJOJJ)\n\n[⌁  ʙᴇᴋᴀ ᴅᴇᴠᴇʟᴏᴘᴇʀ](http://t.me/YIII00)"
 keyboard = {} 
 keyboard.inline_keyboard = {
-{{text = '⌁ sᴏᴜʀᴄʀ ʙᴇᴋᴀ',url="t.me/Z_ZW1"}},
+{{text = '⌁ sᴏᴜʀᴄʀ ʙᴇᴋᴀ',url="t.me/BVVBV5"}},
 }
 local msg_id = msg.id_/2097152/0.5
 https.request("https://api.telegram.org/bot"..token..'/sendPhoto?chat_id=' .. msg.chat_id_ .. '&photo=https://t.me/Z_ZW1&caption=' .. URL.escape(Text).."&reply_to_message_id="..msg_id.."&parse_mode=markdown&disable_web_page_preview=true&reply_markup="..JSON.encode(keyboard))
@@ -3776,7 +3776,7 @@ local Get_info, res = pcall(JSON.decode,Get_Files);
 vardump(res.plugins_)
 if Get_info then
 local TextS = "\n *⌁︙اهلا بك في متجر ملفات بيكا*\n*⌁︙ملفات السورس ↓*\n*•━━━━━━━ 𝐁𝐊 ━━━━━━━•*\n\n"
-local TextE = "\n*•━━━━━━━ 𝐁𝐊 ━━━━━━━•*\n *⌁︙علامة تعني { ✓ } ملف مفعل*\n *⌁︙علامة تعني { ✘ } ملف معطل*\n *⌁︙قناة سورس بيكا ↓*\n".." *⌁︙*[اضغط هنا لدخول](t.me/Z_ZW1) \n"
+local TextE = "\n*•━━━━━━━ 𝐁𝐊 ━━━━━━━•*\n *⌁︙علامة تعني { ✓ } ملف مفعل*\n *⌁︙علامة تعني { ✘ } ملف معطل*\n *⌁︙قناة سورس بيكا ↓*\n".." *⌁︙*[اضغط هنا لدخول](t.me/BVVBV5) \n"
 local NumFile = 0
 for name,Info in pairs(res.plugins_) do
 local Check_File_is_Found = io.open("File_Bot/"..name,"r")
