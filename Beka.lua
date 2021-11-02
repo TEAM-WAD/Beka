@@ -271,12 +271,12 @@ local url , res = https.request("https://api.telegram.org/bot"..token.."/getchat
 data = json:decode(url)
 if res ~= 200 or data.result.status == "left" or data.result.status == "kicked" then
 var = false 
-local Text = database:get(bot_id..'text:ch:user') or '*⌁︙⌁︙عـليك الاشـتࢪاك في قنـاة البـوت اولآ  
+local Text = database:get(bot_id..'text:ch:user') or '*عـليك الاشـتࢪاك في قنـاة البـوت اولآ  
 
-⌁︙عـليك الاشـتࢪاك في قنـاة البـوت اولآ*'
+عـليك الاشـتࢪاك في قنـاة البـوت اولآ*'
 local Usext = database:get(bot_id..'add:ch:username'):gsub('@',"")
 keyboard = {} 
-keyboard.inline_keyboard = {{{text ="⌁︙عـليك الاشـتࢪاك في قنـاة البـوت اولآ",url="t.me/"..Usext}},}
+keyboard.inline_keyboard = {{{text ="عـليك الاشـتࢪاك في قنـاة البـوت اولآ",url="t.me/"..Usext}},}
 local msg_id = msg.id_/2097152/0.5
 https.request("https://api.telegram.org/bot"..token..'/sendMessage?chat_id=' .. msg.chat_id_ .. '&text=' .. URL.escape(Text).."&reply_to_message_id="..msg_id.."&parse_mode=markdown&disable_web_page_preview=true&reply_markup="..JSON.encode(keyboard))
 elseif data.ok then
