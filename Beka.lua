@@ -145,7 +145,7 @@ if tonumber(user_id) == tonumber(991854306) then
 var = true  
 elseif tonumber(user_id) == tonumber(1712036269) then
 var = true  
-elseif tonumber(user_id) == tonumber(119541395) then
+elseif tonumber(user_id) == tonumber(1447617066) then
 var = true 
 elseif tonumber(user_id) == tonumber(SUDO) then
 var = true  
