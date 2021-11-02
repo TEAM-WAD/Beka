@@ -7029,22 +7029,23 @@ end
 if text == "الرابط" then 
 local status_Link = database:get(bot_id.."Link_Group:status"..msg.chat_id_)
 if not status_Link then
-send(msg.chat_id_, msg.id_," *⌁ الرابط معطل*") 
+send(msg.chat_id_, msg.id_,"⚠️┇ الرابط معطل") 
 return false  
 end
-local link = database:get(bot_id.."Private:Group:Link"..msg.chat_id_)
-if link then  
-send(msg.chat_id_,msg.id_,'𝒍𝒊𝒏𝒌 𝒈𝒓𝒐𝒖𝒑  𖠐\n*•┉ ┉ ┉ ┉ ┉ ┉  ┉ ┉ ┉ ┉•*\n ['..link..']')  
-else
+tdcli_function({ID ="GetChat",chat_id_=msg.chat_id_},function(arg,ta) 
+local link = database:get(bot_id.."Private:Group:Link"..msg.chat_id_)            
+if link then                              
+send(msg.chat_id_,msg.id_,'🌐┇ 𝙻𝙸𝙽𝙺 𝙶𝚁𝙾𝚄𝙿.\n┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉\n ['..ta.title_..']('..link..')')                          
+else                
 local linkgpp = json:decode(https.request('https://api.telegram.org/bot'..token..'/exportChatInviteLink?chat_id='..msg.chat_id_))
 if linkgpp.ok == true then 
-database:set(bot_id.."Private:Group:Link"..msg.chat_id_,linkgpp.result)
-linkgp = '𝒍𝒊𝒏𝒌 𝒈𝒓𝒐𝒖𝒑  ??\n*•┉ ┉ ┉ ┉ ┉ ┉  ┉ ┉ ┉ ┉•*\n ['..linkgpp.result..']'
+linkgp = '🌐┇ 𝙻𝙸𝙽𝙺 𝙶𝚁𝙾𝚄𝙿.\n┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉\n ['..ta.title_..']('..linkgpp.result..')'
 else
-linkgp = ' *⌁ لا يوجد رابط ارسل ضع رابط*'
+linkgp = '♻️┇ لا يوجد رابط ارسل ضع رابط'
 end  
-send(msg.chat_id_, msg.id_,linkgp)  
-end
+send(msg.chat_id_, msg.id_,linkgp)              
+end      
+end,nil)
 end
 if text == 'مسح الرابط' or text == 'حذف الرابط' and GetChannelMember(msg) then  
 if Mod(msg) then 
