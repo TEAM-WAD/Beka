@@ -5372,19 +5372,19 @@ tdcli_function ({ID = "GetMessage",chat_id_ = msg.chat_id_,message_id_ = tonumbe
 return false
 end
 ------------------------------------------------------------------------ مطور سورس دراكون صوفي
-if text == 'تنزيل الحصونه' and Mod(msg) then
+if text == 'تنزيل الله من الكل' and Mod(msg) then
 database:del(bot_id..'Hors:User'..msg.chat_id_)
-send(msg.chat_id_, msg.id_, ' *⌯︙تم تنزيل جميع الحصونه بالكروب*')
+send(msg.chat_id_, msg.id_, ' *⌯︙تم تنزيل جميع الله بالكروب*')
 end
-if text == ("تاك للحصونه") and Mod(msg) then
+if text == ("تاك لله") and Mod(msg) then
 local list = database:smembers(bot_id..'Hors:User'..msg.chat_id_)
-t = "\n *⌯︙قائمة الحصونه الكروب* \n*•┉ ┉ ┉ ┉ ┉ ┉  ┉ ┉ ┉ ┉•*\n"
+t = "\n *⌯︙قائمة انياء الله  الكروب* \n*•┉ ┉ ┉ ┉ ┉ ┉  ┉ ┉ ┉ ┉•*\n"
 for k,v in pairs(list) do
 local username = database:get(bot_id.."user:Name" .. v)
 if username then
-t = t..""..k.."» *الحصان* [@"..username.."]\n"
+t = t..""..k.."» *نبي الله* [@"..username.."]\n"
 else
-t = t..""..k.."» *الحصان* `"..v.."`\n"
+t = t..""..k.."» *نبي الله* `"..v.."`\n"
 end
 end
 if #list == 0 then
@@ -5393,7 +5393,7 @@ end
 send(msg.chat_id_, msg.id_, t)
 end
 ------------------------------------------------------------------------ مطور سورس دراكون صوفي
-if text == ("رفع حصان") and tonumber(msg.reply_to_message_id_) ~= 0 and Mod(msg) and GetChannelMember(msg) then  
+if text == ("رفع الله") and tonumber(msg.reply_to_message_id_) ~= 0 and Mod(msg) and GetChannelMember(msg) then  
 if database:get(bot_id..'Lock:Add:Bot'..msg.chat_id_) and not Constructor(msg) then
 send(msg.chat_id_, msg.id_,' *⌯︙تم تعطيل الرفع*') 
 return false
@@ -5402,7 +5402,7 @@ function start_function(extra, result, success)
 database:sadd(bot_id..'Hors:User'..msg.chat_id_, result.sender_user_id_)
 tdcli_function ({ID = "GetUser",user_id_ = result.sender_user_id_},function(arg,data) 
 usertext = '\n *⌯︙اسم المستخدم »* ['..data.first_name_..'](t.me/'..(data.username_ or 'Z_ZW1')..')'
-local  statuss  = '\n*⌯︙تم رفع حصان في الكروب*\n*⌯︙تعال حبي احطلك سرج وركبك فرني فره حلوه*'
+local  statuss  = '\n*⌯︙تم رفع الله في الكروب*\n*⌯︙تعال حبي ديربالكم ع الله*'
 send(msg.chat_id_, msg.id_, usertext..statuss)
 end,nil)
 end
@@ -5410,12 +5410,12 @@ tdcli_function ({ID = "GetMessage",chat_id_ = msg.chat_id_,message_id_ = tonumbe
 return false
 end
 
-if (text == ("تنزيل حصان")) and msg.reply_to_message_id_ and Mod(msg) and GetChannelMember(msg) then  
+if (text == ("تنزيل الله")) and msg.reply_to_message_id_ and Mod(msg) and GetChannelMember(msg) then  
 function start_function(extra, result, success)
 database:srem(bot_id..'Hors:User'..msg.chat_id_, result.sender_user_id_)
 tdcli_function ({ID = "GetUser",user_id_ = result.sender_user_id_},function(arg,data) 
 usertext = '\n *⌯︙اسم المستخدم »* ['..data.first_name_..'](t.me/'..(data.username_ or 'Z_ZW1')..')'
-status  = '\n*⌯︙تم تنزيل حصان من الكروب*\n*⌯︙رجع السرج حبي*'
+status  = '\n*⌯︙تم تنزيل الله من الكروب*\n*⌯︙رجع للوبي حبي*'
 send(msg.chat_id_, msg.id_, usertext..status)
 end,nil)
 end
