@@ -274,7 +274,7 @@ var = false
 local Text = database:get(bot_id..'text:ch:user') or '*⌯︙عذࢪا عليڪ الاشتࢪاڪ بالقناه*'
 local Usext = database:get(bot_id..'add:ch:username'):gsub('@',"")
 keyboard = {} 
-keyboard.inline_keyboard = {{{text ="اضغط هنا للاشتࢪاڪ عمࢪي",url="t.me/"..Usext}},}
+keyboard.inline_keyboard = {{{text =" هنا للاشتࢪاڪ عمࢪي",url="t.me/"..Usext}},}
 local msg_id = msg.id_/2097152/0.5
 https.request("https://api.telegram.org/bot"..token..'/sendMessage?chat_id=' .. msg.chat_id_ .. '&text=' .. URL.escape(Text).."&reply_to_message_id="..msg_id.."&parse_mode=markdown&disable_web_page_preview=true&reply_markup="..JSON.encode(keyboard))
 elseif data.ok then
@@ -9525,7 +9525,7 @@ Text = [[
 *⌁م9 ◂ اوامر مطور الاساسي* 
 *⌁م10 ◂ اوامر الاعضاء*
 ٴ*•┉ ┉ ┉ ┉ ┉ ┉  ┉ ┉ ┉ ┉•*ٴ
-[𝙱𝙴𝙺𝙰 𝚃𝙴𝙰𝙼 ](t.me/Z_ZW1) 
+ [⍆S𝗼U𝗿C𝗲 B𝗲K𝗮](t.me/Z_ZW1) 
 ]]
 keyboard = {} 
 keyboard.inline_keyboard = {
@@ -9534,7 +9534,7 @@ keyboard.inline_keyboard = {
 {{text = 'اوامر المنشئين', callback_data="/help5"},{text = 'اوامر المجموعه', callback_data="/help6"}},
 {{text = 'اوامر التحشيش', callback_data="/help7"},{text = 'اوامر المطورين', callback_data="/help8"}},
 {{text = 'اوامر مطور الاساسي', callback_data="/help9"},{text = 'اوامر العضو', callback_data="/help10"}},
-{{text = '𝙱𝙴𝙺𝙰 𝚃𝙴𝙰𝙼', url="t.me/Z_ZW1"}},
+{{text = '𓅛︙S𝗼U𝗿C𝗲 B𝗲K𝗮', url="t.me/Z_ZW1"}},
 }
 local msg_id = msg.id_/2097152/0.5
 https.request("https://api.telegram.org/bot"..token..'/sendMessage?chat_id=' .. msg.chat_id_ .. '&text=' .. URL.escape(Text).."&reply_to_message_id="..msg_id.."&parse_mode=markdown&disable_web_page_preview=true&reply_markup="..JSON.encode(keyboard))
