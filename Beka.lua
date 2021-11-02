@@ -8307,7 +8307,7 @@ return false
 end
 if text == 'بوت' then
 Namebot = (database:get(bot_id..'Name:Bot') or 'بيكا')
-send(msg.chat_id_, msg.id_,'*شتريد من '..Namebot..'*')
+send(msg.chat_id_, msg.id_,'*شتريد مني بس صيح بوت *''*ها يمعود*')
 end
 if text == 'الاحصائيات' then
 if Sudo(msg) then 
