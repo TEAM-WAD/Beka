@@ -20,7 +20,7 @@ print([[
 
 > CH › @BVVBV5
 > CH › @BVVBV5
-~> DEVELOPER MAIN › @YIII00
+~> DEVELOPER BEKA › @YIII00
 ]])
 if io.open("library/redis.lua","r") then
 io.close(io.open("library/redis.lua","r"))
