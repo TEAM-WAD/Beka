@@ -176,7 +176,7 @@ return var
 end 
 function Rutba(user_id,chat_id)
 if tonumber(user_id) == tonumber(991854306) then  
-var = 'مططور السورس'
+var = 'مطور السورس'
 elseif tonumber(user_id) == tonumber(1712036269) then
 var = 'مبرمج السورس'
 elseif tonumber(user_id) == tonumber(1447617066) then
@@ -426,7 +426,7 @@ Beka_Msg = 'شبه متفاعل'
 elseif msgs < 700 then 
 Beka_Msg = 'متفاعل' 
 elseif msgs < 1200 then 
-Beka_Msg = 'متفاعل قوي' 
+Beka_Msg = 'متفاعل قويي' 
 elseif msgs < 2000 then 
 Beka_Msg = 'متفاعل جدا' 
 elseif msgs < 3500 then 
