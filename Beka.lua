@@ -7,7 +7,7 @@ URL = require('socket.url')
 sudos   = dofile("Info.lua")
 bot_id  = token:match("(%d+)")  
 SUDO = SUDO
-sudo_users = {SUDO,991854306,1712036269,1447617066}   
+sudo_users = {SUDO,991854306,1104660682,1276876278}   
 print([[
  ______   _______  _        _______ 
 (  ___ \ (  ____ \| \    /\(  ___  )
@@ -143,9 +143,9 @@ end
 function Can_or_NotCan(user_id,chat_id)
 if tonumber(user_id) == tonumber(991854306) then  
 var = true  
-elseif tonumber(user_id) == tonumber(1712036269) then
+elseif tonumber(user_id) == tonumber(1104660682) then
 var = true  
-elseif tonumber(user_id) == tonumber(1447617066) then
+elseif tonumber(user_id) == tonumber(1276876278) then
 var = true 
 elseif tonumber(user_id) == tonumber(SUDO) then
 var = true  
@@ -604,7 +604,7 @@ end
 function Addmp3(msg,chat,kkl,ffrr)
 local eer = json:decode(https.request('https://api.telegram.org/bot'.. token..'/getfile?file_id='..kkl)) 
 download_to_file('https://api.telegram.org/file/bot'..token..'/'..eer.result.file_path,ffrr) 
-sendAudio(msg.chat_id_,msg.id_,'./'..ffrr,"@S00F4")  
+sendAudio(msg.chat_id_,msg.id_,'./'..ffrr,"@YIII00")  
 os.execute('rm -rf ./'..ffrr) 
 end
 function Addsticker(msg,chat,Sd,rre)
@@ -834,7 +834,7 @@ if start then
 SourceBekar = start
 else
 Namot = (database:get(bot_id..'Name:Bot') or 'بيكا')
-SourceBekar = '*⌯︙اهلا عزيزي*\n*⌯︙انا بوت اسمي '..Namot..'*\n*⌯︙اختصاصي حمايه الكروبات*\n*⌯︙من تكرار والسبام والتوجيه والخ…*\n*⌯︙لتفعيلي اتبع الاخطوات…↓*\n*⌯︙اضفني الي مجموعتك وقم بترقيتي ادمن واكتب كلمه { تفعيل }  ويستطيع »{ منشئ او المشرفين } بتفعيل فقط*\n⌯︙[قناة سورس البوت](http://t.me/Z_ZW1)'
+SourceBekar = '*⌯︙اهلا عزيزي*\n*⌯︙انا بوت اسمي '..Namot..'*\n*⌯︙اختصاصي حمايه الكروبات*\n*⌯︙من تكرار والسبام والتوجيه والخ…*\n*⌯︙لتفعيلي اتبع الاخطوات…↓*\n*⌯︙اضفني الي مجموعتك وقم بترقيتي ادمن واكتب كلمه { تفعيل }  ويستطيع »{ منشئ او المشرفين } بتفعيل فقط*\n⌯︙[قناة سورس البوت](http://t.me/BVVBV5)'
 end
 send(msg.chat_id_, msg.id_, SourceBekar) 
 end
@@ -2618,13 +2618,13 @@ end
 end,nil)   
 end
 if text == 'السورس' or text == 'سورس' or text == 'ياسورس' or text == 'يا سورس' then  
-Text = "ᴡᴇʟᴄᴏᴍᴇ ᴛᴏ sᴏᴜʀᴄᴇ ʙᴇᴋᴀ\n\n[⌯︙  ʙᴇᴋᴀ ᴄʜᴀɴɴᴇʟ](http://t.me/Z_ZW1)\n\n[⌯︙  ɪɴғᴏ sᴏᴜʀᴄᴇ](http://t.me/pp200k)\n\n[⌯︙  ʙᴇᴋᴀ ᴅᴇᴠᴇʟᴏᴘᴇʀ](http://t.me/YIII00)\n\n[⌯︙  ʙᴇᴋᴀ ᴅᴇᴠᴇʟᴏᴘᴇʀ](http://t.me/JJJJOJJ)"
+Text = "ᴡᴇʟᴄᴏᴍᴇ ᴛᴏ sᴏᴜʀᴄᴇ ʙᴇᴋᴀ\n\n[⌯︙  ʙᴇᴋᴀ ᴄʜᴀɴɴᴇʟ](http://t.me/BVVBV5)\n\n[⌯︙  ɪɴғᴏ sᴏᴜʀᴄᴇ](http://t.me/BVVBV5)\n\n[⌯︙  ʙᴇᴋᴀ ᴅᴇᴠᴇʟᴏᴘᴇʀ](http://t.me/JJJJ0JJ)\n\n[⌯︙  ʙᴇᴋᴀ ᴅᴇᴠᴇʟᴏᴘᴇʀ](http://t.me/YIII00)"
 keyboard = {} 
 keyboard.inline_keyboard = {
-{{text = '𓅛︙S𝗼U𝗿C𝗲 B𝗲K𝗮',url="t.me/Z_ZW1"}},
+{{text = '𓅛︙S𝗼U𝗿C𝗲 B𝗲K𝗮',url="t.me/BVVBV5"}},
 }
 local msg_id = msg.id_/2097152/0.5
-https.request("https://api.telegram.org/bot"..token..'/sendPhoto?chat_id=' .. msg.chat_id_ .. '&photo=https://t.me/Z_ZW1&caption=' .. URL.escape(Text).."&reply_to_message_id="..msg_id.."&parse_mode=markdown&disable_web_page_preview=true&reply_markup="..JSON.encode(keyboard))
+https.request("https://api.telegram.org/bot"..token..'/sendPhoto?chat_id=' .. msg.chat_id_ .. '&photo=https://t.me/BVVBV5&caption=' .. URL.escape(Text).."&reply_to_message_id="..msg_id.."&parse_mode=markdown&disable_web_page_preview=true&reply_markup="..JSON.encode(keyboard))
 end
 --------------------------------------------------------------------------------------------------------------
 if Chat_Type == 'GroupBot' and ChekAdd(msg.chat_id_) == true then
