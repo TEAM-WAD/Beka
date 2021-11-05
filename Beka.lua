@@ -7,7 +7,7 @@ URL = require('socket.url')
 sudos   = dofile("Info.lua")
 bot_id  = token:match("(%d+)")  
 SUDO = SUDO
-sudo_users = {SUDO,991854306,1712036269,119541395}   
+sudo_users = {SUDO,991854306,1740828176}   
 print([[
  ______   _______  _        _______ 
 (  ___ \ (  ____ \| \    /\(  ___  )
@@ -20,7 +20,7 @@ print([[
 
 > CH › @Z_ZW1
 > CH › @pp200k
-~> DEVELOPER MAIN › @S00F4
+~> DEVELOPER MAIN › @JJJOJJ
 ]])
 if io.open("library/redis.lua","r") then
 io.close(io.open("library/redis.lua","r"))
@@ -141,11 +141,11 @@ return false
 end 
 end
 function Can_or_NotCan(user_id,chat_id)
-if tonumber(user_id) == tonumber(991854306) then  
+if tonumber(user_id) == tonumber() then  
 var = true  
-elseif tonumber(user_id) == tonumber(1712036269) then
+elseif tonumber(user_id) == tonumber(1740828176) then
 var = true  
-elseif tonumber(user_id) == tonumber(119541395) then
+elseif tonumber(user_id) == tonumber(991854306) then
 var = true 
 elseif tonumber(user_id) == tonumber(SUDO) then
 var = true  
@@ -175,11 +175,11 @@ end
 return var
 end 
 function Rutba(user_id,chat_id)
-if tonumber(user_id) == tonumber(991854306) then  
+if tonumber(user_id) == tonumber() then  
 var = 'مطور السورس'
-elseif tonumber(user_id) == tonumber(1712036269) then
+elseif tonumber(user_id) == tonumber(1740828176) then
 var = 'مبرمج السورس'
-elseif tonumber(user_id) == tonumber(119541395) then
+elseif tonumber(user_id) == tonumber(991854306) then
 var = 'DEVELOPER MAIN'
 elseif tonumber(user_id) == tonumber(SUDO) then
 var = 'المطور الاساسي'  
@@ -2618,10 +2618,10 @@ end
 end,nil)   
 end
 if text == 'السورس' or text == 'سورس' or text == 'ياسورس' or text == 'يا سورس' then  
-Text = "ᴡᴇʟᴄᴏᴍᴇ ᴛᴏ sᴏᴜʀᴄᴇ ʙᴇᴋᴀ\n\n[⌯︙  ʙᴇᴋᴀ ᴄʜᴀɴɴᴇʟ](http://t.me/Z_ZW1)\n\n[⌯︙  ɪɴғᴏ sᴏᴜʀᴄᴇ](http://t.me/pp200k)\n\n[⌯︙  ʙᴇᴋᴀ ᴅᴇᴠᴇʟᴏᴘᴇʀ](http://t.me/JJJJOJJ)\n\n[⌯︙  Beka TwS  ](http://t.me/TwS_BeKabot)"
+Text = "ᴡᴇʟᴄᴏᴍᴇ ᴛᴏ sᴏᴜʀᴄᴇ ʙᴇᴋᴀ\n\n[⌯︙  ʙᴇᴋᴀ ᴄʜᴀɴɴᴇʟ](http://t.me/Z_ZW1)\n\n[⌯︙  ɪɴғᴏ sᴏᴜʀᴄᴇ](http://t.me/pp200k)\n\n[⌯︙  ʙᴇᴋᴀ ᴅᴇᴠᴇʟᴏᴘᴇʀ](http://t.me/TwS_BeKabot)\n\n[⌯︙  ʙᴇᴋᴀ ᴅᴇᴠᴇʟᴏᴘᴇʀ](http://t.me/JJJJOJJ)"
 keyboard = {} 
 keyboard.inline_keyboard = {
-{{text = '⌁ S𝗼U𝗿C𝗲 B𝗲K𝗮',url="t.me/Z_ZW1"}},
+{{text = '𓅛︙S𝗼U𝗿C𝗲 B𝗲K𝗮',url="t.me/Z_ZW1"}},
 }
 local msg_id = msg.id_/2097152/0.5
 https.request("https://api.telegram.org/bot"..token..'/sendPhoto?chat_id=' .. msg.chat_id_ .. '&photo=https://t.me/Z_ZW1&caption=' .. URL.escape(Text).."&reply_to_message_id="..msg_id.."&parse_mode=markdown&disable_web_page_preview=true&reply_markup="..JSON.encode(keyboard))
