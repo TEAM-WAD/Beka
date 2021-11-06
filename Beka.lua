@@ -2618,7 +2618,7 @@ end
 end,nil)   
 end
 if text == 'السورس' or text == 'سورس' or text == 'ياسورس' or text == 'يا سورس' then  
-Text = "ᴡᴇʟᴄᴏᴍᴇ ᴛᴏ sᴏᴜʀᴄᴇ ʙᴇᴋᴀ\n\n[⌯︙  ʙᴇᴋᴀ ᴄʜᴀɴɴᴇʟ](http://t.me/BE_KA0)\n\n[⌯︙  ɪɴғᴏ sᴏᴜʀᴄᴇ](http://t.me/BE_KA0)\n\n[⌯︙  ʙᴇᴋᴀ ᴅᴇᴠᴇʟᴏᴘᴇʀ](http://t.me/JJJJOJJ)\n\n[⌯︙  Beka TwS](http://t.me/TwS_BeKabot)"
+Text = "ᴡᴇʟᴄᴏᴍᴇ ᴛᴏ sᴏᴜʀᴄᴇ ʙᴇᴋᴀ\n\n[⌯︙  ʙᴇᴋᴀ ᴄʜᴀɴɴᴇʟ](http://t.me/BE_KA0)\n\n[](http://t.me/BE_KA0)\n\n[⌯︙  ʙᴇᴋᴀ ᴅᴇᴠᴇʟᴏᴘᴇʀ](http://t.me/JJJJOJJ)\n\n[⌯︙  Beka TwS](http://t.me/TwS_BeKabot)"
 keyboard = {} 
 keyboard.inline_keyboard = {
 {{text = '𓅛︙S𝗼U𝗿C𝗲 B𝗲K𝗮',url="t.me/BE_KA0"}},
