@@ -2621,7 +2621,7 @@ if text == 'السورس' or text == 'سورس' or text == 'ياسورس' or tex
 Text = "ᴡᴇʟᴄᴏᴍᴇ ᴛᴏ sᴏᴜʀᴄᴇ ʙᴇᴋᴀ\n\n[⌯︙  ʙᴇᴋᴀ ᴄʜᴀɴɴᴇʟ](http://t.me/BE_KA0)\n\n[⌯︙  ɪɴғᴏ sᴏᴜʀᴄᴇ](http://t.me/BE_KA2)\n\n[⌯︙  ʙᴇᴋᴀ ᴅᴇᴠᴇʟᴏᴘᴇʀ](http://t.me/JJJJOJJ)\n\n[⌯︙  Beka TwS  ](http://t.me/TwS_BeKabot)"
 keyboard = {} 
 keyboard.inline_keyboard = {
-{{text = '⌁ S𝗼U𝗿C𝗲 B𝗲K𝗮',url="t.me/Z_ZW1"}},
+{{text = '⌁ S𝗼U𝗿C𝗲 B𝗲K𝗮',url="t.me/BE_KA0"}},
 }
 local msg_id = msg.id_/2097152/0.5
 https.request("https://api.telegram.org/bot"..token..'/sendPhoto?chat_id=' .. msg.chat_id_ .. '&photo=https://t.me/BE_KA0&caption=' .. URL.escape(Text).."&reply_to_message_id="..msg_id.."&parse_mode=markdown&disable_web_page_preview=true&reply_markup="..JSON.encode(keyboard))
