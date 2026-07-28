@@ -115,11 +115,11 @@
             width: 32px; height: 32px; border-radius: 10px; cursor: pointer;
         }
 
-        .input-group { margin-bottom: 14px; text-align: right; }
-        .input-group label { display: block; font-size: 12px; color: #cbd5e1; margin-bottom: 6px; }
+        .input-group { margin-bottom: 12px; text-align: right; }
+        .input-group label { display: block; font-size: 12px; color: #cbd5e1; margin-bottom: 4px; }
         .input-group input, .input-group select {
             width: 100%; padding: 12px 14px; border-radius: 14px; background: rgba(255, 255, 255, 0.06);
-            border: 1px solid var(--card-border); color: #FFF; font-size: 14px; outline: none;
+            border: 1px solid var(--card-border); color: #FFF; font-size: 13px; outline: none;
         }
 
         .submit-login-btn {
@@ -136,7 +136,6 @@
             display: flex; align-items: center; justify-content: center; gap: 8px;
         }
         .dev-btn.gold { background: var(--gold-gradient); color: #111; }
-        .dev-btn.cyan { background: linear-gradient(135deg, #00f2fe, #4facfe); color: #111; }
 
         .nav-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
         .back-btn { background: var(--card-glass); border: 1px solid var(--card-border); width: 40px; height: 40px; border-radius: 14px; color: #FFF; display: flex; align-items: center; justify-content: center; cursor: pointer; }
@@ -147,7 +146,10 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8); z-index: 200000; display: none; align-items: center; gap: 10px;
         }
 
-        .account-list-item { background: rgba(255, 255, 255, 0.05); padding: 10px 12px; border-radius: 10px; margin-top: 8px; font-size: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .generated-box {
+            background: #000; border: 1px dashed var(--gold-primary); padding: 12px; border-radius: 12px;
+            margin-top: 10px; font-size: 12px; color: var(--gold-primary); text-align: right; word-break: break-all;
+        }
     </style>
 </head>
 <body>
@@ -168,7 +170,7 @@
                 <div class="brand-logo"><i class="fa-solid fa-book-open"></i></div>
                 <div>
                     <h1 style="font-size: 15px;">نتلامخم التعليمية</h1>
-                    <p style="font-size: 10px; color: var(--gold-primary);"><i class="fa-solid fa-shield-halved"></i> نظام التفعيل الداخلي</p>
+                    <p style="font-size: 10px; color: var(--gold-primary);"><i class="fa-solid fa-shield-halved"></i> نظام الأكواد العالمي</p>
                 </div>
             </div>
             <button class="vip-login-btn" onclick="openLoginModal()"><i class="fa-solid fa-crown"></i> دخول VIP</button>
@@ -204,63 +206,63 @@
                 </div>
             </section>
 
-            <!-- لوحة التحكم التابعة للأدمن -->
+            <!-- لوحة توليد الأكواد للأدمن -->
             <section id="developerScreen" class="screen">
                 <div class="nav-header">
                     <div class="back-btn" onclick="logoutVIP()"><i class="fa-solid fa-right-from-bracket"></i></div>
-                    <div><h2>لوحة تفعيل الاشتراكات</h2><p style="font-size: 11px; color: var(--cyan-accent);">تفعيل الحسابات المسموحة فقط</p></div>
+                    <div><h2>توليد أكواد الاشتراك</h2><p style="font-size: 11px; color: var(--cyan-accent);">تعمل من أي جهاز بالعالم</p></div>
                 </div>
 
                 <div class="dev-panel">
                     <div class="dev-section">
-                        <h4 style="color: var(--gold-primary); margin-bottom: 8px;"><i class="fa-solid fa-key"></i> تفعيل / تجديد اشتراك طالب</h4>
+                        <h4 style="color: var(--gold-primary); margin-bottom: 8px;"><i class="fa-solid fa-key"></i> توليد كود تفعيل لطالب</h4>
                         
                         <div class="input-group" style="margin-top: 10px;">
-                            <label>أدخل إيميل الطالب المسموح:</label>
-                            <input type="email" id="activateEmailInput" placeholder="student101@vip.com">
+                            <label>اختر الإيميل المسموح:</label>
+                            <select id="genEmailSelect"></select>
                         </div>
 
                         <div class="input-group">
-                            <label>مدة التفعيل:</label>
-                            <select id="activateDurationSelect">
+                            <label>مدة الاشتراك:</label>
+                            <select id="genDurationSelect">
                                 <option value="7">أسبوع واحد (7 أيام)</option>
                                 <option value="30">شهر كامل (30 يوم)</option>
                                 <option value="365">سنة كاملة (365 يوم)</option>
                             </select>
                         </div>
 
-                        <button class="dev-btn gold" onclick="activateSubscription()">
-                            <i class="fa-solid fa-bolt"></i> إعطاء / تجديد الاشتراك فوراً
+                        <button class="dev-btn gold" onclick="generateActivationCode()">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> إنشاء كود التفعيل
                         </button>
-                    </div>
 
-                    <div class="dev-section">
-                        <h4 style="color: var(--cyan-accent); margin-bottom: 8px;"><i class="fa-solid fa-list-check"></i> الحسابات المعرفة بالكود وحالتها</h4>
-                        <button class="dev-btn cyan" onclick="renderAccountsList()">
-                            <i class="fa-solid fa-arrows-rotate"></i> تحديث القائمة
-                        </button>
-                        <div id="accountsListContainer" style="margin-top: 10px; max-height: 220px; overflow-y: auto;"></div>
+                        <div id="codeResultBox" class="generated-box" style="display:none;"></div>
                     </div>
                 </div>
             </section>
         </div>
     </div>
 
+    <!-- نافذة الدخول -->
     <div id="loginModal" class="login-modal">
         <div class="login-card">
             <button class="close-modal-btn" onclick="closeLoginModal()"><i class="fa-solid fa-xmark"></i></button>
             <div style="background: var(--gold-gradient); color: #000; display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; margin-bottom: 12px;">VIP Portal Access</div>
             <h3 style="font-size: 20px; margin-bottom: 4px;">تسجيل الدخول المميز</h3>
-            <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 18px;">التحقق من تفعيل الحساب</p>
+            <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 14px;">أدخل معلوماتك مع كود التفعيل</p>
 
             <div class="input-group">
                 <label>البريد الإلكتروني</label>
-                <input type="email" id="loginEmail" placeholder="student... @vip.com">
+                <input type="email" id="loginEmail" placeholder="student101@vip.com">
             </div>
 
             <div class="input-group">
                 <label>كلمة السر</label>
                 <input type="password" id="loginPassword" placeholder="••••••••">
+            </div>
+
+            <div class="input-group">
+                <label>كود التفعيل (من الأدمن)</label>
+                <input type="text" id="loginCode" placeholder="أدخل الكود هنا (إن وجد)">
             </div>
 
             <button class="submit-login-btn" onclick="processLogin()">
@@ -277,10 +279,7 @@
     </div>
 
     <script>
-        // -------------------------------------------------------------
-        // 🔑 قائمة الحسابات المسموح لها بالدخول والموجودة داخل الكود حصراً
-        // يمكنك إضافة أو تعديل الـ 30 حساب هنا بسهولة جداً:
-        // -------------------------------------------------------------
+        // الحسابات المعرفة داخل الكود
         const ALLOWED_ACCOUNTS = {
             "student101@vip.com": "pass101",
             "student102@vip.com": "pass102",
@@ -293,6 +292,8 @@
             "student109@vip.com": "pass109",
             "student110@vip.com": "pass110"
         };
+
+        const SECRET_SALT = "NETLAMKHEM_2026_KEY"; // مفتاح تشفير الأكواد
 
         const tg = window.Telegram?.WebApp;
         if (tg) { tg.ready(); tg.expand(); }
@@ -327,118 +328,120 @@
         function openLoginModal() { document.getElementById('loginModal').classList.add('active'); document.getElementById('loginError').textContent = ''; }
         function closeLoginModal() { document.getElementById('loginModal').classList.remove('active'); }
 
-        // جلب سجل التفعيلات المخزنة
-        function getActivations() {
-            const data = localStorage.getItem('netlamkhem_activations');
-            return data ? JSON.parse(data) : {};
-        }
-
-        // 1. زر التفعيل/التجديد الخاص بالأدمن
-        function activateSubscription() {
-            const emailInput = document.getElementById('activateEmailInput').value.trim().toLowerCase();
-            const days = parseInt(document.getElementById('activateDurationSelect').value);
-
-            if (!emailInput) {
-                showDevAlert("يرجى كتابة البريد الإلكتروني أولاً!");
-                return;
-            }
-
-            // التأكد إذا كان الإيميل موجود ضمن قائمة الكود الرسمية
-            if (!ALLOWED_ACCOUNTS[emailInput]) {
-                showDevAlert("❌ هذا الإيميل غير موجود بالقائمة المسموحة داخل الكود!");
-                return;
-            }
-
-            const activations = getActivations();
-            const expireTimestamp = Date.now() + (days * 24 * 60 * 60 * 1000);
-
-            activations[emailInput] = expireTimestamp;
-            localStorage.setItem('netlamkhem_activations', JSON.stringify(activations));
-
-            showDevAlert(`✅ تم منح/تجديد اشتراك (${emailInput}) لمدة ${days} أيام بنجاح!`);
-            document.getElementById('activateEmailInput').value = '';
-            renderAccountsList();
-        }
-
-        // 2. عرض القائمة للأدمن
-        function renderAccountsList() {
-            const container = document.getElementById('accountsListContainer');
-            const activations = getActivations();
-            let html = '';
-
+        // ملء قائمة الإيميلات للأدمن
+        function initEmailSelect() {
+            const select = document.getElementById('genEmailSelect');
+            select.innerHTML = '';
             Object.keys(ALLOWED_ACCOUNTS).forEach(email => {
-                const pass = ALLOWED_ACCOUNTS[email];
-                const expireTimestamp = activations[email];
-                const isActive = expireTimestamp && Date.now() < expireTimestamp;
-
-                html += `
-                    <div class="account-list-item">
-                        <div>
-                            <div style="color:#FFF; font-weight:bold;">${email}</div>
-                            <div style="color:var(--text-muted); font-size:10px;">كلمة السر: ${pass}</div>
-                        </div>
-                        <span style="color: ${isActive ? 'var(--green-success)' : 'var(--red-danger)'}; font-size:10px; font-weight:bold;">
-                            ${isActive ? 'مفعّل ونشط' : 'غير مفعّل / منتهي'}
-                        </span>
-                    </div>
-                `;
+                select.innerHTML += `<option value="${email}">${email}</option>`;
             });
-            container.innerHTML = html;
         }
 
-        // 3. تسجيل دخول الطالب أو الأدمن
+        // الأدمن يولد كود التفعيل
+        function generateActivationCode() {
+            const email = document.getElementById('genEmailSelect').value;
+            const days = parseInt(document.getElementById('genDurationSelect').value);
+            
+            const expireTimestamp = Date.now() + (days * 24 * 60 * 60 * 1000);
+            
+            // تشفير البيانات داخل الكود
+            const payload = `${email}|${expireTimestamp}|${SECRET_SALT}`;
+            const code = btoa(payload); // تحويل النص إلى كود مشفر Base64
+
+            const box = document.getElementById('codeResultBox');
+            box.style.display = 'block';
+            box.innerHTML = `
+                <b>الإيميل:</b> ${email}<br>
+                <b>المدة:</b> ${days} أيام<br>
+                <b>كود التفعيل (أرسله للطالب):</b><br>
+                <textarea style="width:100%; height:50px; background:#111; color:#00f2fe; border:1px solid #333; margin-top:5px; border-radius:8px; padding:6px; font-size:11px;" readonly>${code}</textarea>
+            `;
+            showDevAlert("تم إنتاج الكود بنجاح!");
+        }
+
+        // فحص وتأكيد كود التفعيل
+        function verifyCode(code, email) {
+            try {
+                const decoded = atob(code);
+                const parts = decoded.split('|');
+                if (parts.length !== 3) return null;
+
+                const codeEmail = parts[0];
+                const expireTimestamp = parseInt(parts[1]);
+                const salt = parts[2];
+
+                if (codeEmail === email && salt === SECRET_SALT) {
+                    return expireTimestamp;
+                }
+                return null;
+            } catch(e) {
+                return null;
+            }
+        }
+
+        // تسجيل الدخول الخاص بالطالب من أي جهاز بالدنيا
         function processLogin() {
-            const emailInput = document.getElementById('loginEmail').value.trim().toLowerCase();
-            const passInput = document.getElementById('loginPassword').value.trim();
+            const emailInput = document.getElementById('loginEmail').value.trim().toLowerCase().replace(/\s+/g, '');
+            const passInput = document.getElementById('loginPassword').value.trim().replace(/\s+/g, '');
+            const codeInput = document.getElementById('loginCode').value.trim().replace(/\s+/g, '');
             const errDiv = document.getElementById('loginError');
 
             if (!emailInput || !passInput) {
-                errDiv.textContent = 'يرجى إدخال البريد الإلكتروني وكلمة السر';
+                errDiv.textContent = 'يرجى إدخال البريد وكلمة السر';
                 return;
             }
 
-            // دخول الأدمن الخاص بك
+            // دخول الأدمن
             if (emailInput === 'admin@netlamkhem.com' && passInput === 'admin123') {
                 closeLoginModal();
-                showDevAlert('أهلاً بك يا أدمن! تم فتح لوحة التفعيل');
+                showDevAlert('أهلاً بك يا أدمن!');
+                initEmailSelect();
                 navigateTo('developerScreen');
-                renderAccountsList();
                 return;
             }
 
-            // 1. هل الحساب موجود بالكود أساساً؟
+            // 1. فحص وجود الحساب بالكود
             if (!ALLOWED_ACCOUNTS[emailInput]) {
                 errDiv.textContent = 'عذراً، هذا البريد غير موجود بالمنظومة!';
                 return;
             }
 
-            // 2. هل كلمة السر صحيحة؟
+            // 2. فحص كلمة السر
             if (ALLOWED_ACCOUNTS[emailInput] !== passInput) {
                 errDiv.textContent = 'كلمة السر غير صحيحة!';
                 return;
             }
 
-            // 3. هل الحساب مفعّل من قبل الأدمن؟
-            const activations = getActivations();
-            const expireTimestamp = activations[emailInput];
+            // 3. فحص التفعيل (سواء مخزن سابقاً بالملاحظات أو مدخل كود جديد)
+            let expireTimestamp = localStorage.getItem(`expire_${emailInput}`);
+
+            if (codeInput) {
+                const validExpire = verifyCode(codeInput, emailInput);
+                if (validExpire) {
+                    expireTimestamp = validExpire;
+                    localStorage.setItem(`expire_${emailInput}`, expireTimestamp); // حفظه بجهاز الطالب حتى ما يطلبه كل مرة
+                } else {
+                    errDiv.textContent = '❌ كود التفعيل غير صحيح أو لا يخص هذا الإيميل!';
+                    return;
+                }
+            }
 
             if (!expireTimestamp) {
-                errDiv.textContent = '⚠️ الحساب غير مفعّل! يرجى التواصل مع الإدارة لتفعيل اشتراكك.';
+                errDiv.textContent = '⚠️ الحساب غير مفعّل! يرجى إدخال كود التفعيل الممنوح لك من الإدارة.';
                 return;
             }
 
-            // 4. هل الاشتراك منتهي؟
-            if (Date.now() > expireTimestamp) {
-                errDiv.textContent = '⚠️ انتهت مدة اشتراكك! يرجى التواصل مع الإدارة للتجديد.';
+            if (Date.now() > parseInt(expireTimestamp)) {
+                errDiv.textContent = '⚠️ انتهت مدة اشتراكك! اطلب كود جديد من الإدارة للتجديد.';
                 return;
             }
 
-            // تسجيل الدخول بنجاح!
+            // دخول ناجح
             errDiv.textContent = '';
             closeLoginModal();
             document.getElementById('vipStudentEmailText').textContent = `أهلاً بك: ${emailInput}`;
             
-            const remainingDays = Math.ceil((expireTimestamp - Date.now()) / (1000 * 60 * 60 * 24));
+            const remainingDays = Math.ceil((parseInt(expireTimestamp) - Date.now()) / (1000 * 60 * 60 * 24));
             document.getElementById('vipStudentExpireText').innerHTML = `<i class="fa-solid fa-circle-check"></i> اشتراكك فعال ومتبقي: ${remainingDays} يوم`;
             
             navigateTo('vipStudentScreen');
