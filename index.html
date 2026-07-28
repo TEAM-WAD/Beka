@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مكتبة الفيديوهات</title>
+    <!-- السكريبت الرسمي للتطبيقات المصغرة في تيليجرام -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: #0f0f10;
+            color: #ffffff;
+            padding: 15px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 22px;
+            font-weight: bold;
+            color: #0088cc;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .video-card {
+            background: #1c1c1e;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            border: 1px solid #2c2c2e;
+        }
+        video {
+            width: 100%;
+            max-height: 400px;
+            display: block;
+            background: #000;
+            object-fit: contain;
+        }
+        .video-title {
+            padding: 15px;
+            font-size: 17px;
+            font-weight: 600;
+            line-height: 1.4;
+            color: #f2f2f7;
+            text-align: right;
+            background: #1c1c1e;
+        }
+        .empty-state {
+            text-align: center;
+            color: #8e8e93;
+            padding: 50px 10px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">🎬 الفيديوهات المرفوعة</div>
+    
+    <div class="container" id="videoContainer">
+        <div class="empty-state">جاري تحميل الفيديوهات... ⏳</div>
+    </div>
+
+    <script>
+        // تهيئة واجهة تيليجرام وتوسيع الشاشة
+        const tg = window.Telegram?.WebApp;
+        if (tg) {
+            tg.ready();
+            tg.expand();
+        }
+
+        // ملاحظة: إذا رفعت هذا الملف على استضافة خارجية (مثل GitHub Pages أو Vercel)
+        // قم بتغيير '/api/videos' إلى رابط سيرفرك الكامل، مثال:
+        // const API_URL = 'https://your-domain.com/api/videos';
+        const API_URL = '/api/videos';
+
+        async function loadVideos() {
+            try {
+                const res = await fetch(API_URL);
+                const videos = await res.json();
+                const container = document.getElementById('videoContainer');
+                
+                if (!videos || videos.length === 0) {
+                    container.innerHTML = '<div class="empty-state">لا توجد فيديوهات مرفوعة حالياً 📭</div>';
+                    return;
+                }
+
+                container.innerHTML = videos.map(v => `
+                    <div class="video-card">
+                        <video src="${v.direct_url}" controls playsinline preload="metadata"></video>
+                        <div class="video-title">📌 ${v.title}</div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                console.error("خطأ في التحميل:", e);
+                document.getElementById('videoContainer').innerHTML = '<div class="empty-state">حدث خطأ أثناء جلب الفيديوهات!</div>';
+            }
+        }
+
+        // تشغيل التحميل عند فتح الصفحة
+        loadVideos();
+    </script>
+</body>
+</html>
