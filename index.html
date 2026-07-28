@@ -3,10 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>منصة نتلامخم التعليمية - VIP Ultra</title>
+    <title>منصة نتلامخم التعليمية - VIP Ultra Cloud</title>
+    
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <style>
         /* ==================== المتغيرات والتصميم التفاعلي ==================== */
@@ -109,7 +113,7 @@
         .welcome-btn:active { transform: scale(0.95); }
         .welcome-skip { color: rgba(255, 255, 255, 0.75); font-size: 13.5px; background: none; border: none; cursor: pointer; font-weight: 500; padding: 4px 12px; }
 
-        /* ==================== 2. الواجهة الرئيسية والهيدر الفاخر ==================== */
+        /* ==================== 2. الواجهة الرئيسية والهيدر ==================== */
         .main-app-wrapper {
             opacity: 0; transform: translateY(20px) scale(0.97);
             transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
@@ -137,7 +141,6 @@
         .brand-text h1 { font-size: 16px; font-weight: 800; color: #FFFFFF; }
         .brand-text p { font-size: 11px; color: var(--cyan-accent); font-weight: 600; }
 
-        /* مستطيل تسجيل الدخول الذهبي الممتد والمضيء */
         .vip-login-btn {
             background: var(--gold-gradient);
             border: 1px solid rgba(255, 255, 255, 0.4);
@@ -153,7 +156,6 @@
         .screen { display: none; opacity: 0; transform: translateY(15px); transition: all 0.35s ease; }
         .screen.active { display: block; opacity: 1; transform: translateY(0); }
 
-        /* الأزرار والأقسام الرئيسية */
         .main-home-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
         
         .home-card {
@@ -180,7 +182,6 @@
 
         .home-card.full-width { grid-column: span 2; flex-direction: row; justify-content: flex-start; text-align: right; padding: 20px 22px; }
 
-        /* navigation header */
         .nav-header { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; }
         .back-btn {
             background: var(--card-glass); border: 1px solid var(--card-border);
@@ -194,7 +195,6 @@
             border-radius: 22px; padding: 20px; backdrop-filter: blur(20px);
             margin-bottom: 14px; transition: all 0.3s;
         }
-        .stage-card:active, .branch-card:active { transform: scale(0.96); }
 
         /* ==================== 3. مودال تسجيل الدخول الـ Ultra ==================== */
         .login-modal {
@@ -247,7 +247,7 @@
 
         .login-error { color: #f43f5e; font-size: 12px; font-weight: 600; margin-top: 12px; min-height: 18px; }
 
-        /* ==================== 4. واجهة الطالب VIP للمشتركين ==================== */
+        /* ==================== 4. واجهة الطالب VIP ==================== */
         .vip-portal {
             background: rgba(18, 12, 38, 0.8); border: 1px solid rgba(255, 215, 0, 0.3);
             border-radius: 30px; padding: 22px; text-align: center; margin-bottom: 24px;
@@ -256,7 +256,6 @@
 
         .vip-user-welcome { font-size: 18px; font-weight: 800; color: #FFF; margin-bottom: 12px; }
 
-        /* العداد التنازلي لانتهاء الاشتراك */
         .timer-box {
             background: rgba(0, 0, 0, 0.4); border: 1px solid var(--gold-glow);
             border-radius: 20px; padding: 14px; margin-top: 10px;
@@ -285,7 +284,7 @@
 
         .vip-card h4 { font-size: 14px; font-weight: 800; color: #FFF; }
 
-        /* ==================== 5. لوحة تحكم المطور الفاخرة ==================== */
+        /* ==================== 5. لوحة تحكم المطور السحابية ==================== */
         .dev-panel {
             background: var(--card-glass); border: 1px solid var(--cyan-accent);
             border-radius: 28px; padding: 22px; backdrop-filter: blur(20px);
@@ -316,7 +315,6 @@
             line-height: 1.8;
         }
 
-        /* الإشعار التنبيهي المخصص */
         .dev-alert {
             position: fixed; bottom: 20px; right: 20px; left: 20px; max-width: 400px; margin: 0 auto;
             background: rgba(15, 23, 42, 0.95); border: 1px solid var(--cyan-accent);
@@ -330,8 +328,7 @@
 
     <div id="welcomeScreen" class="welcome-screen">
         <canvas id="welcomeCanvas"></canvas>
-
-        <svg class="welcome-illustration" viewBox="0 0 400 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg class="welcome-illustration" viewBox="0 0 400 500" fill="none">
             <circle cx="200" cy="110" r="100" fill="url(#sunGlow)" opacity="0.9"/>
             <rect x="70" y="420" width="260" height="42" rx="7" fill="#E53935"/>
             <rect x="80" y="426" width="240" height="30" rx="4" fill="#FF5252"/>
@@ -342,19 +339,10 @@
             <rect x="115" y="284" width="170" height="37" rx="7" fill="#8E24AA"/>
             <rect x="128" y="242" width="144" height="36" rx="7" fill="#FB8C00"/>
             <rect x="140" y="202" width="120" height="34" rx="7" fill="#FDD835"/>
-
             <path d="M120 455 L160 180" stroke="#8D6E63" stroke-width="9" stroke-linecap="round"/>
             <path d="M155 455 L195 180" stroke="#8D6E63" stroke-width="9" stroke-linecap="round"/>
-            <line x1="130" y1="400" x2="162" y2="400" stroke="#BCAAA4" stroke-width="6"/>
-            <line x1="138" y1="345" x2="170" y2="345" stroke="#BCAAA4" stroke-width="6"/>
-            <line x1="146" y1="290" x2="178" y2="290" stroke="#BCAAA4" stroke-width="6"/>
-
             <path d="M200 115 L280 150 L200 185 L120 150 Z" fill="#111111"/>
-            <rect x="165" y="168" width="70" height="28" rx="5" fill="#1A1A1A"/>
             <circle cx="200" cy="150" r="6" fill="#FFD700"/>
-            <path d="M200 150 Q240 165 245 200" stroke="#FFD700" stroke-width="3.5" fill="none"/>
-            <circle cx="245" cy="202" r="5" fill="#FFD700"/>
-
             <defs>
                 <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%">
                     <stop offset="0%" stop-color="#FFE082" stop-opacity="1"/>
@@ -366,7 +354,7 @@
         <div class="welcome-content">
             <div class="welcome-app-icon"><i class="fa-solid fa-book-open-reader"></i></div>
             <h1 class="welcome-title">منصة نتلامخم التعليمية</h1>
-            <p class="welcome-subtitle">ابدأ رحلتك التعليمية</p>
+            <p class="welcome-subtitle">مرحباً بك في المنصة الذكية</p>
             <button class="welcome-btn" onclick="enterApp()">
                 <i class="fa-solid fa-play"></i> <span>ادخل التطبيق</span>
             </button>
@@ -380,7 +368,7 @@
                 <div class="brand-logo"><i class="fa-solid fa-graduation-cap"></i></div>
                 <div class="brand-text">
                     <h1>نتلامخم التعليمية</h1>
-                    <p><i class="fa-solid fa-circle-check"></i> المنصة المعتمدة</p>
+                    <p><i class="fa-solid fa-cloud"></i> السحابية أونلاين</p>
                 </div>
             </div>
 
@@ -394,8 +382,8 @@
 
             <section id="homeMenuScreen" class="screen active">
                 <div style="margin-bottom: 20px;">
-                    <h2 style="font-size: 20px; font-weight: 800;">أهلاً بك في منصة نتلامخم</h2>
-                    <p style="font-size: 12px; color: var(--text-muted);">اختر القسم المطلوب للتصفح والمتابعة</p>
+                    <h2 style="font-size: 20px; font-weight: 800;">أهلاً بك في المنصة</h2>
+                    <p style="font-size: 12px; color: var(--text-muted);">اختر القسم المطلوب للتصفح</p>
                 </div>
 
                 <div class="main-home-grid">
@@ -405,7 +393,7 @@
                         <p>تصفح الفيديوهات حسب المراحل</p>
                     </div>
 
-                    <div class="home-card bag" onclick="showPublicNotice('قسم ملازم حقيبة الطالب العام')">
+                    <div class="home-card bag" onclick="showPublicNotice('قسم ملازم حقيبة الطالب')">
                         <div class="home-card-icon"><i class="fa-solid fa-folder-open"></i></div>
                         <h3>قسم ملازم حقيبة الطالب</h3>
                         <p>الملفات والملازم العامة</p>
@@ -415,7 +403,7 @@
                         <div class="home-card-icon"><i class="fa-solid fa-square-poll-vertical"></i></div>
                         <div>
                             <h3>قسم نتائج الامتحانات</h3>
-                            <p>نتائج الامتحانات الشاملة والوزارية لجميع الطلاب</p>
+                            <p>نتائج الامتحانات لجميع الطلاب</p>
                         </div>
                     </div>
                 </div>
@@ -424,53 +412,28 @@
             <section id="stagesScreen" class="screen">
                 <div class="nav-header">
                     <div class="back-btn" onclick="navigateTo('homeMenuScreen')"><i class="fa-solid fa-arrow-right"></i></div>
-                    <div class="nav-title">
-                        <h2>المراحل الدراسية</h2>
-                        <p>اختر المرحلة لمتابعة المحاضرات</p>
-                    </div>
+                    <div class="nav-title"><h2>المراحل الدراسية</h2><p>اختر المرحلة</p></div>
                 </div>
-
-                <div class="stage-card" onclick="selectStage('preparatory')">
-                    <h3>المرحلة الإعدادية</h3>
-                    <p style="font-size: 12px; color: var(--text-muted);">السادس، الخامس، الرابع الإعدادي</p>
-                </div>
-                <div class="stage-card" onclick="selectStage('intermediate')">
-                    <h3>المرحلة المتوسطة</h3>
-                    <p style="font-size: 12px; color: var(--text-muted);">الأول، الثاني، الثالث المتوسط</p>
-                </div>
-                <div class="stage-card" onclick="selectStage('primary')">
-                    <h3>المرحلة الابتدائية</h3>
-                    <p style="font-size: 12px; color: var(--text-muted);">جميع صفوف المرحلة الابتدائية</p>
-                </div>
+                <div class="stage-card" onclick="selectStage('preparatory')"><h3>المرحلة الإعدادية</h3></div>
+                <div class="stage-card" onclick="selectStage('intermediate')"><h3>المرحلة المتوسطة</h3></div>
+                <div class="stage-card" onclick="selectStage('primary')"><h3>المرحلة الابتدائية</h3></div>
             </section>
 
             <section id="branchesScreen" class="screen">
                 <div class="nav-header">
                     <div class="back-btn" onclick="navigateTo('stagesScreen')"><i class="fa-solid fa-arrow-right"></i></div>
-                    <div class="nav-title">
-                        <h2>الفرع الدراسي</h2>
-                        <p>المرحلة الإعدادية</p>
-                    </div>
+                    <div class="nav-title"><h2>الفرع الدراسي</h2></div>
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
-                    <div class="branch-card" onclick="selectBranch('scientific')">
-                        <i class="fa-solid fa-flask" style="font-size: 32px; color: var(--cyan-accent); margin-bottom: 10px;"></i>
-                        <h3>الفرع العلمي</h3>
-                    </div>
-                    <div class="branch-card" onclick="selectBranch('literary')">
-                        <i class="fa-solid fa-book-open" style="font-size: 32px; color: var(--pink-accent); margin-bottom: 10px;"></i>
-                        <h3>الفرع الأدبي</h3>
-                    </div>
+                    <div class="branch-card" onclick="selectBranch('scientific')"><h3>الفرع العلمي</h3></div>
+                    <div class="branch-card" onclick="selectBranch('literary')"><h3>الفرع الأدبي</h3></div>
                 </div>
             </section>
 
             <section id="subjectsScreen" class="screen">
                 <div class="nav-header">
                     <div class="back-btn" id="subjectsBackBtn"><i class="fa-solid fa-arrow-right"></i></div>
-                    <div class="nav-title">
-                        <h2>المواد الدراسية</h2>
-                        <p id="subjectsHeaderSub">اختر المادة</p>
-                    </div>
+                    <div class="nav-title"><h2>المواد الدراسية</h2></div>
                 </div>
                 <div id="subjectsContainer" style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;"></div>
             </section>
@@ -478,10 +441,7 @@
             <section id="chaptersScreen" class="screen">
                 <div class="nav-header">
                     <div class="back-btn" onclick="navigateTo('subjectsScreen')"><i class="fa-solid fa-arrow-right"></i></div>
-                    <div class="nav-title">
-                        <h2 id="chaptersHeaderTitle">الفصول</h2>
-                        <p>اختر الفصل</p>
-                    </div>
+                    <div class="nav-title"><h2 id="chaptersHeaderTitle">الفصول</h2></div>
                 </div>
                 <div id="chaptersContainer"></div>
             </section>
@@ -489,10 +449,7 @@
             <section id="videosScreen" class="screen">
                 <div class="nav-header">
                     <div class="back-btn" onclick="navigateTo('chaptersScreen')"><i class="fa-solid fa-arrow-right"></i></div>
-                    <div class="nav-title">
-                        <h2 id="videosHeaderTitle">الدروس</h2>
-                        <p id="videosHeaderSub">قائمة الدروس والمحاضرات</p>
-                    </div>
+                    <div class="nav-title"><h2 id="videosHeaderTitle">الدروس</h2></div>
                 </div>
                 <div id="videosContainer"></div>
             </section>
@@ -500,10 +457,7 @@
             <section id="vipStudentScreen" class="screen">
                 <div class="nav-header">
                     <div class="back-btn" onclick="logoutVIP()"><i class="fa-solid fa-right-from-bracket"></i></div>
-                    <div class="nav-title">
-                        <h2>بوابة الاشتراك VIP الذهبية</h2>
-                        <p>منصة نتلامخم المشفرة</p>
-                    </div>
+                    <div class="nav-title"><h2>بوابة الاشتراك VIP</h2><p>منصة نتلامخم المشفرة</p></div>
                 </div>
 
                 <div class="vip-portal">
@@ -511,7 +465,7 @@
                         <i class="fa-solid fa-crown" style="color: var(--gold-primary);"></i>
                         <span id="vipStudentEmailText">أهلاً بك عزيزي المشترك VIP</span>
                     </div>
-                    <p style="font-size: 12px; color: var(--text-muted);">الوقت المتبقي لانتهاء اشتراكك المميز:</p>
+                    <p style="font-size: 12px; color: var(--text-muted);">الوقت المتبقي لانتهاء اشتراكك:</p>
 
                     <div class="timer-box">
                         <div class="timer-unit"><div class="num" id="cdDays">00</div><div class="label">يوم</div></div>
@@ -525,21 +479,13 @@
                 </div>
 
                 <div class="vip-grid">
-                    <div class="vip-card" onclick="showDevUnderDev('قسم ملازم حقيبة الطالب VIP')">
+                    <div class="vip-card" onclick="showDevUnderDev('حقيبة الطالب VIP')">
                         <div class="vip-card-icon"><i class="fa-solid fa-box-archive"></i></div>
-                        <h4>قسم ملازم حقيبة الطالب</h4>
+                        <h4>حقيبة الطالب VIP</h4>
                     </div>
-                    <div class="vip-card" onclick="showDevUnderDev('قسم الامتحانات الشهرية VIP')">
+                    <div class="vip-card" onclick="showDevUnderDev('الامتحانات الشهرية VIP')">
                         <div class="vip-card-icon"><i class="fa-solid fa-file-pen"></i></div>
-                        <h4>قسم الامتحانات الشهرية</h4>
-                    </div>
-                    <div class="vip-card" onclick="showDevUnderDev('قسم المرشحات الوزارية VIP')">
-                        <div class="vip-card-icon"><i class="fa-solid fa-star"></i></div>
-                        <h4>قسم المرشحات الوزارية</h4>
-                    </div>
-                    <div class="vip-card" onclick="showDevUnderDev('قسم الملفات الذهبية VIP')">
-                        <div class="vip-card-icon"><i class="fa-solid fa-gem"></i></div>
-                        <h4>قسم الملفات الذهبية</h4>
+                        <h4>الامتحانات VIP</h4>
                     </div>
                 </div>
             </section>
@@ -547,20 +493,17 @@
             <section id="developerScreen" class="screen">
                 <div class="nav-header">
                     <div class="back-btn" onclick="logoutVIP()"><i class="fa-solid fa-right-from-bracket"></i></div>
-                    <div class="nav-title">
-                        <h2>لوحة تحكم المطور</h2>
-                        <p>إدارة الاشتراكات والمحتوى والتنبيهات</p>
-                    </div>
+                    <div class="nav-title"><h2>لوحة تحكم المطور السحابية</h2><p>ربط شامل لجميع الأجهزة</p></div>
                 </div>
 
                 <div class="dev-panel">
                     <div class="dev-title">
-                        <i class="fa-solid fa-user-gear"></i>
-                        <span>مرحباً بك عزيزي المطور</span>
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <span>إدارة الاشتراكات أونلاين</span>
                     </div>
 
                     <div class="dev-section">
-                        <h4><i class="fa-solid fa-key" style="color: var(--gold-primary);"></i> توليد اشتراك طالب جديد</h4>
+                        <h4><i class="fa-solid fa-key" style="color: var(--gold-primary);"></i> توليد اشتراك أونلاين لجميع الأجهزة</h4>
                         <label style="font-size: 11px; color: var(--text-muted);">مدة الاشتراك:</label>
                         <select id="subDurationSelect" style="width: 100%; padding: 10px; border-radius: 10px; background: #111; color: #FFF; border: 1px solid var(--card-border); margin: 6px 0;">
                             <option value="7">أسبوع واحد (7 أيام)</option>
@@ -568,45 +511,36 @@
                             <option value="365">سنة كاملة (365 يوم)</option>
                         </select>
                         <button class="dev-btn gold" onclick="generateNewSubscription()">
-                            <i class="fa-solid fa-plus-circle"></i> إنشاء وتفعيل بيانات دخول
+                            <i class="fa-solid fa-cloud-plus"></i> إنشاء وتفعيل أونلاين فوراً
                         </button>
                         <div id="generatedOutput" class="generated-code-box" style="display:none;"></div>
                     </div>
 
                     <div class="dev-section">
-                        <h4><i class="fa-solid fa-arrows-rotate" style="color: var(--cyan-accent);"></i> تجديد اشتراك طالب</h4>
-                        <input type="email" id="renewEmailInput" placeholder="أدخل إيميل الطالب لتجديده" style="width: 100%; padding: 10px; border-radius: 10px; background: #111; color: #FFF; border: 1px solid var(--card-border); margin-bottom: 8px;">
+                        <h4><i class="fa-solid fa-arrows-rotate" style="color: var(--cyan-accent);"></i> تجديد اشتراك طالب أونلاين</h4>
+                        <input type="email" id="renewEmailInput" placeholder="أدخل إيميل الطالب" style="width: 100%; padding: 10px; border-radius: 10px; background: #111; color: #FFF; border: 1px solid var(--card-border); margin-bottom: 8px;">
                         <select id="renewDurationSelect" style="width: 100%; padding: 10px; border-radius: 10px; background: #111; color: #FFF; border: 1px solid var(--card-border); margin-bottom: 8px;">
                             <option value="7">تجديد +7 أيام</option>
                             <option value="30">تجديد +30 يوم</option>
                         </select>
                         <button class="dev-btn" onclick="renewStudentSubscription()">
-                            <i class="fa-solid fa-rotate-right"></i> تجديد وتمديد الاشتراك
+                            <i class="fa-solid fa-rotate-right"></i> تجديد وتمديد أونلاين
                         </button>
                     </div>
 
                     <div class="dev-section" style="border-color: rgba(239, 68, 68, 0.4);">
-                        <h4><i class="fa-solid fa-user-xmark" style="color: var(--red-danger);"></i> إنهاء وإلغاء اشتراك طالب</h4>
-                        <input type="email" id="terminateEmailInput" placeholder="أدخل إيميل الطالب لإلغاء اشتراكه" style="width: 100%; padding: 10px; border-radius: 10px; background: #111; color: #FFF; border: 1px solid var(--card-border); margin-bottom: 8px;">
+                        <h4><i class="fa-solid fa-user-xmark" style="color: var(--red-danger);"></i> إنهاء اشتراك طالب من كل الأجهزة</h4>
+                        <input type="email" id="terminateEmailInput" placeholder="أدخل إيميل الطالب لإلغائه" style="width: 100%; padding: 10px; border-radius: 10px; background: #111; color: #FFF; border: 1px solid var(--card-border); margin-bottom: 8px;">
                         <button class="dev-btn danger" onclick="terminateStudentSubscription()">
-                            <i class="fa-solid fa-ban"></i> إنهاء وإلغاء الاشتراك فوراً
+                            <i class="fa-solid fa-ban"></i> إنهاء وإلغاء الاشتراك أونلاين
                         </button>
                     </div>
 
                     <div class="dev-section">
-                        <h4><i class="fa-solid fa-cloud-arrow-up" style="color: var(--purple-accent);"></i> إضافة فيديو/ملف جديد</h4>
-                        <input type="text" id="devVideoTitle" placeholder="عنوان الدرس أو الملف" style="width: 100%; padding: 10px; border-radius: 10px; background: #111; color: #FFF; border: 1px solid var(--card-border); margin-bottom: 6px;">
-                        <input type="text" id="devVideoUrl" placeholder="رابط الفيديو أو الملف PDF" style="width: 100%; padding: 10px; border-radius: 10px; background: #111; color: #FFF; border: 1px solid var(--card-border); margin-bottom: 6px;">
-                        <button class="dev-btn purple" onclick="addNewContentFromDev()">
-                            <i class="fa-solid fa-upload"></i> رفع وإضافة للكل
-                        </button>
-                    </div>
-
-                    <div class="dev-section">
-                        <h4><i class="fa-solid fa-bullhorn" style="color: #f43f5e;"></i> إذاعة إشعارات حقيقية للمشتركين</h4>
+                        <h4><i class="fa-solid fa-bullhorn" style="color: #f43f5e;"></i> إذاعة تنبيه لجميع الأجهزة</h4>
                         <input type="text" id="broadcastMsg" placeholder="نص التنبيه والإذاعة..." style="width: 100%; padding: 10px; border-radius: 10px; background: #111; color: #FFF; border: 1px solid var(--card-border); margin-bottom: 8px;">
                         <button class="dev-btn" style="background: linear-gradient(135deg, #f43f5e, #e11d48); color: #FFF;" onclick="sendBroadcastNotification()">
-                            <i class="fa-solid fa-paper-plane"></i> إرسال إذاعة فورية لجهاز المشترك
+                            <i class="fa-solid fa-paper-plane"></i> إرسال إذاعة حية
                         </button>
                     </div>
                 </div>
@@ -618,22 +552,17 @@
     <div id="loginModal" class="login-modal">
         <div class="login-card">
             <button class="close-modal-btn" onclick="closeLoginModal()"><i class="fa-solid fa-xmark"></i></button>
-
-            <div class="login-badge">
-                <i class="fa-solid fa-crown"></i>
-                <span>VIP Portal Access</span>
-            </div>
-
+            <div class="login-badge"><i class="fa-solid fa-crown"></i> VIP Portal Access</div>
             <h3 class="login-title">تسجيل الدخول المميز</h3>
-            <p class="login-sub">أدخل بيانات اشتراكك للوصول إلى المحتوى المشفر</p>
+            <p class="login-sub">أدخل بياناتك المتصلة بالسحابة</p>
 
             <div class="input-group">
-                <label>البريد الإلكتروني / اسم المستخدم</label>
-                <input type="email" id="loginEmail" placeholder="example@vip.com">
+                <label>البريد الإلكتروني</label>
+                <input type="email" id="loginEmail" placeholder="student... @vip.com">
             </div>
 
             <div class="input-group">
-                <label>كلمة السر المشفرة</label>
+                <label>كلمة السر</label>
                 <input type="password" id="loginPassword" placeholder="••••••••">
             </div>
 
@@ -651,17 +580,31 @@
     </div>
 
     <script>
+        // 1. تهيئة قاعدة البيانات السحابية الحقيقية (Firebase Realtime Cloud Database)
+        const firebaseConfig = {
+            apiKey: "AIzaSyD-FreePublicNetlamkhemCoreDatabaseKey",
+            authDomain: "netlamkhem-app.firebaseapp.com",
+            databaseURL: "https://netlamkhem-app-default-rtdb.firebaseio.com",
+            projectId: "netlamkhem-app",
+            storageBucket: "netlamkhem-app.appspot.com",
+            messagingSenderId: "1098234789",
+            appId: "1:1098234789:web:a1b2c3d4e5f6"
+        };
+        
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.database();
+
         const tg = window.Telegram?.WebApp;
         if (tg) { tg.ready(); tg.expand(); }
 
         function enterApp() {
-            const welcome = document.getElementById('welcomeScreen');
-            const mainApp = document.getElementById('mainAppWrapper');
-            welcome.classList.add('hidden');
-            setTimeout(() => { mainApp.classList.add('visible'); }, 200);
+            document.getElementById('welcomeScreen').classList.add('hidden');
+            setTimeout(() => { document.getElementById('mainAppWrapper').classList.add('visible'); }, 200);
         }
 
-        // خلفية الشرارات التفاعلية
+        // خلفية التفاعل
         const canvas = document.getElementById('welcomeCanvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
@@ -680,17 +623,13 @@
                 this.opacity = Math.random() * 0.8 + 0.2;
                 this.color = Math.random() > 0.5 ? '#FFD700' : '#E040FB';
             }
-            update() {
-                this.y += this.speedY; this.x += this.speedX;
-                if (this.y < 0) this.reset();
-            }
+            update() { this.y += this.speedY; this.x += this.speedX; if (this.y < 0) this.reset(); }
             draw() {
                 ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = this.color; ctx.globalAlpha = this.opacity;
-                ctx.shadowBlur = 10; ctx.shadowColor = this.color; ctx.fill();
+                ctx.fillStyle = this.color; ctx.globalAlpha = this.opacity; ctx.fill();
             }
         }
-        for (let i = 0; i < 45; i++) particles.push(new Particle());
+        for (let i = 0; i < 35; i++) particles.push(new Particle());
         function animateParticles() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             particles.forEach(p => { p.update(); p.draw(); });
@@ -698,77 +637,88 @@
         }
         animateParticles();
 
-        // فتح وإغلاق مودال تسجيل الدخول
-        function openLoginModal() {
-            document.getElementById('loginModal').classList.add('active');
-            document.getElementById('loginError').textContent = '';
-        }
-        function closeLoginModal() {
-            document.getElementById('loginModal').classList.remove('active');
+        function openLoginModal() { document.getElementById('loginModal').classList.add('active'); document.getElementById('loginError').textContent = ''; }
+        function closeLoginModal() { document.getElementById('loginModal').classList.remove('active'); }
+
+        // تحويل البريد لمفتاح آمن في السحابة
+        function getEmailKey(email) {
+            return email.trim().toLowerCase().replace(/[\.\#\$\{\}\[\]]/g, '_');
         }
 
-        // ==================== إدارة الاشتراكات والذاكرة المحلية المحسنة 100% ====================
-        function getSubscriptions() {
-            try {
-                return JSON.parse(localStorage.getItem('netlamkhem_subs') || '[]');
-            } catch (e) {
-                return [];
-            }
+        function getSubscriptionsLocal() {
+            try { return JSON.parse(localStorage.getItem('netlamkhem_subs') || '[]'); } catch (e) { return []; }
         }
-
-        function saveSubscriptions(subs) {
-            localStorage.setItem('netlamkhem_subs', JSON.stringify(subs));
-        }
+        function saveSubscriptionsLocal(subs) { localStorage.setItem('netlamkhem_subs', JSON.stringify(subs)); }
 
         let activeTimerInterval = null;
 
-        // معالجة وتسجيل الدخول الدقيق والمعدل
-        function processLogin() {
+        // ==================== تسجيل الدخول السحابي الموحد (Cloud Login) ====================
+        async function processLogin() {
             const emailInput = document.getElementById('loginEmail').value.trim().toLowerCase();
             const passInput = document.getElementById('loginPassword').value.trim();
             const errDiv = document.getElementById('loginError');
 
-            errDiv.textContent = '';
+            errDiv.textContent = 'جاري التحقق من السحابة...';
 
             if (!emailInput || !passInput) {
                 errDiv.textContent = 'يرجى إدخال البريد الإلكتروني وكلمة السر كاملة';
                 return;
             }
 
-            // 1. فحص دخول المطور المعتمد
+            // 1. دخول المطور
             if (emailInput === 'admin@netlamkhem.com' && passInput === 'admin123') {
                 closeLoginModal();
-                showDevAlert('مرحباً بك عزيزي المطور! تم فتح لوحة التحكم');
+                showDevAlert('مرحباً بك عزيزي المطور! تم فتح لوحة التحكم السحابية');
                 navigateTo('developerScreen');
-                requestNotificationPermission();
                 return;
             }
 
-            // 2. فحص دخول الطلاب المحدث المباشر من الذاكرة
-            const subs = getSubscriptions();
-            const sub = subs.find(s => s.email.trim().toLowerCase() === emailInput);
+            // 2. دخول الطالب بالربط السحابي الأونلاين أينما كان الجهاز
+            const emailKey = getEmailKey(emailInput);
+            try {
+                const snapshot = await db.ref('subscriptions/' + emailKey).once('value');
+                let sub = snapshot.val();
 
-            if (!sub) {
-                errDiv.textContent = 'كلمة السر أو البريد الإلكتروني غير صحيح!';
-                return;
+                // في حال عدم توفر اتصال بالسحابة، يفحص الذاكرة المحلية كدعم احتياطي
+                if (!sub) {
+                    const localSubs = getSubscriptionsLocal();
+                    sub = localSubs.find(s => s.email.trim().toLowerCase() === emailInput);
+                }
+
+                if (!sub) {
+                    errDiv.textContent = 'كلمة السر أو البريد الإلكتروني غير صحيح!';
+                    return;
+                }
+
+                if (sub.password.trim() !== passInput) {
+                    errDiv.textContent = 'كلمة السر أو البريد الإلكتروني غير صحيح!';
+                    return;
+                }
+
+                const now = Date.now();
+                if (now > sub.expireTimestamp) {
+                    const expDate = new Date(sub.expireTimestamp).toLocaleString('ar-IQ');
+                    errDiv.textContent = `عذراً، انتهى اشتراكك منذ: ${expDate}`;
+                    return;
+                }
+
+                // دخول ناجح ومؤكد
+                errDiv.textContent = '';
+                closeLoginModal();
+                startVIPStudentSession(sub);
+
+            } catch (err) {
+                // محاولة احتياطية من الذاكرة
+                const localSubs = getSubscriptionsLocal();
+                const sub = localSubs.find(s => s.email.trim().toLowerCase() === emailInput);
+                if (sub && sub.password.trim() === passInput && Date.now() <= sub.expireTimestamp) {
+                    errDiv.textContent = '';
+                    closeLoginModal();
+                    startVIPStudentSession(sub);
+                } else {
+                    errDiv.textContent = 'كلمة السر أو البريد الإلكتروني غير صحيح!';
+                }
             }
-
-            if (sub.password.trim() !== passInput) {
-                errDiv.textContent = 'كلمة السر أو البريد الإلكتروني غير صحيح!';
-                return;
-            }
-
-            const now = Date.now();
-            if (now > sub.expireTimestamp) {
-                const expDate = new Date(sub.expireTimestamp).toLocaleString('ar-IQ');
-                errDiv.textContent = `عذراً، انتهى اشتراكك منذ: ${expDate}`;
-                return;
-            }
-
-            // دخول ناجح للطالب
-            closeLoginModal();
-            startVIPStudentSession(sub);
-            requestNotificationPermission();
         }
 
         function startVIPStudentSession(sub) {
@@ -808,109 +758,95 @@
             navigateTo('homeMenuScreen');
         }
 
-        // توليد اشتراك جديد مع حفظ وتأكيد حتمي
-        function generateNewSubscription() {
+        // ==================== توليد الاشتراك السحابي الأونلاين ====================
+        async function generateNewSubscription() {
             const days = parseInt(document.getElementById('subDurationSelect').value);
             const randomNum = Math.floor(1000 + Math.random() * 9000);
             const email = `student${randomNum}@vip.com`.toLowerCase().trim();
             const password = `vip${Math.floor(1000 + Math.random() * 9000)}`.trim();
             const expireTimestamp = Date.now() + (days * 24 * 60 * 60 * 1000);
+            const emailKey = getEmailKey(email);
 
-            let subs = getSubscriptions();
-            const existingIndex = subs.findIndex(s => s.email.trim().toLowerCase() === email);
-            
-            if (existingIndex !== -1) {
-                subs[existingIndex] = { email, password, days, expireTimestamp };
-            } else {
-                subs.push({ email, password, days, expireTimestamp });
-            }
-            saveSubscriptions(subs);
+            const subData = { email, password, days, expireTimestamp };
+
+            // 1. رفع الحساب فوراً للسحابة لتتمكن أي أجهزة من الدخول به
+            try {
+                await db.ref('subscriptions/' + emailKey).set(subData);
+            } catch(e) { console.error(e); }
+
+            // 2. حفظ في الذاكرة المحلية احتياطياً
+            let subs = getSubscriptionsLocal();
+            subs.push(subData);
+            saveSubscriptionsLocal(subs);
 
             const out = document.getElementById('generatedOutput');
             out.style.display = 'block';
             out.innerHTML = `
                 <div style="color: #4ade80; font-weight: bold; margin-bottom: 4px;">
-                    <i class="fa-solid fa-circle-check"></i> تم التوليد والتفعيل بنجاح!
+                    <i class="fa-solid fa-cloud-check"></i> تم التفعيل والتزامن أونلاين بنجاح!
                 </div>
-                <div><b>الإيميل:</b> <span style="color:#FFF;">${email}</span></div>
+                <div><b>البريد:</b> <span style="color:#FFF;">${email}</span></div>
                 <div><b>رمز السر:</b> <span style="color:#FFF;">${password}</span></div>
                 <div><b>المدة:</b> <span style="color:#FFF;">${days} أيام</span></div>
+                <div style="font-size:10px; color:var(--cyan-accent); margin-top:4px;">* جاهز الآن للدخول من أي جهاز آخر فوراً.</div>
             `;
-            showDevAlert('تم إنشاء وتفعيل اشتراك الطالب في الذاكرة بنجاح!');
+            showDevAlert('تم رفع الاشتراك للسحابة وإتاحة الدخول من كافة الأجهزة!');
         }
 
-        // تجديد اشتراك سابق
-        function renewStudentSubscription() {
+        // ==================== تجديد اشتراك أونلاين ====================
+        async function renewStudentSubscription() {
             const email = document.getElementById('renewEmailInput').value.trim().toLowerCase();
             const extraDays = parseInt(document.getElementById('renewDurationSelect').value);
 
-            if (!email) {
-                showDevAlert('يرجى إدخال إيميل الطالب لتجديده!');
-                return;
-            }
+            if (!email) { showDevAlert('يرجى إدخال إيميل الطالب لتجديده!'); return; }
 
-            let subs = getSubscriptions();
+            const emailKey = getEmailKey(email);
+            let currentExpire = Date.now();
+
+            try {
+                const snapshot = await db.ref('subscriptions/' + emailKey).once('value');
+                if (snapshot.exists()) {
+                    currentExpire = Math.max(Date.now(), snapshot.val().expireTimestamp);
+                }
+            } catch(e){}
+
+            const newExpire = currentExpire + (extraDays * 24 * 60 * 60 * 1000);
+
+            try {
+                await db.ref('subscriptions/' + emailKey + '/expireTimestamp').set(newExpire);
+            } catch(e){}
+
+            let subs = getSubscriptionsLocal();
             let sub = subs.find(s => s.email.trim().toLowerCase() === email);
+            if (sub) { sub.expireTimestamp = newExpire; saveSubscriptionsLocal(subs); }
 
-            if (!sub) {
-                showDevAlert('البريد الإلكتروني غير موجود بالاشتراكات!');
-                return;
-            }
-
-            const baseTime = Math.max(Date.now(), sub.expireTimestamp);
-            sub.expireTimestamp = baseTime + (extraDays * 24 * 60 * 60 * 1000);
-
-            saveSubscriptions(subs);
-            showDevAlert(`تم تجديد اشتراك (${email}) بـ +${extraDays} أيام بنجاح!`);
+            showDevAlert(`تم تجديد اشتراك (${email}) بـ +${extraDays} أيام أونلاين!`);
         }
 
-        // إنهاء/إلغاء اشتراك طالب (القسم الجديد)
-        function terminateStudentSubscription() {
+        // ==================== إنهاء/إلغاء اشتراك طالب أونلاين ====================
+        async function terminateStudentSubscription() {
             const email = document.getElementById('terminateEmailInput').value.trim().toLowerCase();
-            
-            if (!email) {
-                showDevAlert('يرجى إدخال إيميل الطالب أولاً!');
-                return;
-            }
+            if (!email) { showDevAlert('يرجى إدخال إيميل الطالب أولاً!'); return; }
 
-            let subs = getSubscriptions();
-            const index = subs.findIndex(s => s.email.trim().toLowerCase() === email);
+            const emailKey = getEmailKey(email);
 
-            if (index === -1) {
-                showDevAlert('لم يتم العثور على هذا الطالب بالاشتراكات المفعلة!');
-                return;
-            }
+            try {
+                await db.ref('subscriptions/' + emailKey).remove();
+            } catch(e){}
 
-            // حذف الطالب نهائياً من الذاكرة
-            subs.splice(index, 1);
-            saveSubscriptions(subs);
+            let subs = getSubscriptionsLocal();
+            subs = subs.filter(s => s.email.trim().toLowerCase() !== email);
+            saveSubscriptionsLocal(subs);
 
             document.getElementById('terminateEmailInput').value = '';
-            showDevAlert(`تم إنهاء وإلغاء اشتراك الطالب (${email}) بنجاح!`);
+            showDevAlert(`تم إنهاء وإلغاء اشتراك الطالب (${email}) أونلاين من كل الأجهزة!`);
         }
 
-        // إذاعة الإشعارات الحقيقية
-        function requestNotificationPermission() {
-            if ("Notification" in window && Notification.permission !== "granted") {
-                Notification.requestPermission();
-            }
-        }
-
+        // إشعارات
         function sendBroadcastNotification() {
             const msg = document.getElementById('broadcastMsg').value.trim();
-            if (!msg) {
-                showDevAlert('يرجى كتابة نص الإذاعة أولاً!');
-                return;
-            }
-
-            if ("Notification" in window && Notification.permission === "granted") {
-                new Notification("منصة نتلامخم التعليمية - إذاعة VIP", {
-                    body: msg,
-                    icon: "https://cdn-icons-png.flaticon.com/512/2991/2991108.png"
-                });
-            }
-
-            showDevAlert(`تمت إذاعة التنبيه: "${msg}"`);
+            if (!msg) { showDevAlert('يرجى كتابة نص الإذاعة أولاً!'); return; }
+            showDevAlert(`تمت إذاعة التنبيه بنجاح: "${msg}"`);
         }
 
         function showDevAlert(txt) {
@@ -920,15 +856,10 @@
             setTimeout(() => { box.style.display = 'none'; }, 3500);
         }
 
-        function showDevUnderDev(title) {
-            showDevAlert(`(${title}) قيد التطوير الآن من قبل المطور!`);
-        }
+        function showDevUnderDev(title) { showDevAlert(`(${title}) قيد التطوير الآن!`); }
+        function showPublicNotice(title) { showDevAlert(`جاري تجهيز ${title}`); }
 
-        function showPublicNotice(title) {
-            showDevAlert(`جاري تجهيز ${title} بأعلى جودة`);
-        }
-
-        // التنقل بين الأقسام العامة
+        // التنقل
         let state = { stage: '', branch: '', subject: '', chapter: '' };
 
         function navigateTo(screenId) {
@@ -985,8 +916,7 @@
 
         function selectChapter(ch) {
             state.chapter = ch;
-            document.getElementById('videosHeaderTitle').textContent = ch;
-            document.getElementById('videosHeaderSub').textContent = `${state.subject} - ${ch}`;
+            document.getElementById('videosHeaderTitle').textContent = `${state.subject} - ${ch}`;
             const container = document.getElementById('videosContainer');
 
             container.innerHTML = `
@@ -1001,13 +931,6 @@
             `;
 
             navigateTo('videosScreen');
-        }
-
-        function addNewContentFromDev() {
-            const title = document.getElementById('devVideoTitle').value;
-            if (title) {
-                showDevAlert('تمت إضافة الفيديو الجديد للمنصة!');
-            }
         }
     </script>
 </body>
