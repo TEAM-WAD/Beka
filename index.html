@@ -160,10 +160,10 @@
 
         .push-notification {
             position: fixed; top: 20px; right: 20px; left: 20px; max-width: 380px; margin: 0 auto;
-            background: rgba(20, 24, 39, 0.95); backdrop-filter: blur(20px);
+            background: rgba(20, 24, 39, 0.98); backdrop-filter: blur(20px);
             border: 1px solid var(--gold-primary); border-radius: 18px; padding: 14px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8); z-index: 300000; display: flex; align-items: center; gap: 12px;
-            transform: translateY(-150%); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.85); z-index: 300000; display: flex; align-items: center; gap: 12px;
+            transform: translateY(-180%); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         .push-notification.show { transform: translateY(0); }
 
@@ -210,7 +210,7 @@
             <i class="fa-solid fa-bell"></i>
         </div>
         <div style="flex-grow: 1; text-align: right;">
-            <div style="font-size: 11px; color: var(--gold-primary); font-weight: bold;">منصة نتلامخم التعليمية</div>
+            <div style="font-size: 11px; color: var(--gold-primary); font-weight: bold;">منصة نتلامخم التعليمية (إذاعة VIP)</div>
             <div id="pushMsgText" style="font-size: 12px; color: #FFF; margin-top: 2px;"></div>
         </div>
     </div>
@@ -427,6 +427,18 @@
             }
             
             checkBroadcastMessages();
+
+            // فحص دوري كل 3 ثوانٍ لالتقاط أي إذاعة جديدة فور إرسالها دون الحاجة لتحديث الصفحة
+            setInterval(() => {
+                checkBroadcastMessages();
+            }, 3000);
+        });
+
+        // مراقبة أحداث التخزين بين التبويبات إن وجدت
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'netlamkhem_latest_broadcast' && e.newValue) {
+                triggerRealNotification(e.newValue);
+            }
         });
 
         function enterApp() {
@@ -456,7 +468,7 @@
         }
         drawParticles();
 
-        // زر دخول VIP الذكي (يتحقق إذا كان مسجل دخول مسبقاً)
+        // زر دخول VIP الذكي
         function handleVipClick() {
             const rememberedEmail = localStorage.getItem('netlamkhem_remembered_email');
             if (rememberedEmail && ALLOWED_ACCOUNTS[rememberedEmail]) {
@@ -641,7 +653,7 @@
             timerInterval = setInterval(updateTimer, 1000);
         }
 
-        // نظام الإذاعات المدعوم بإشعارات المتصفح الحقيقية (مثل الانستغرام)
+        // إرسال الإذاعة مع تفعيل التحديث الفوري
         function sendBroadcast() {
             const msg = document.getElementById('broadcastMsgInput').value.trim();
             if (!msg) {
@@ -649,21 +661,21 @@
                 return;
             }
             localStorage.setItem('netlamkhem_latest_broadcast', msg);
+            localStorage.removeItem('netlamkhem_seen_broadcast'); // مسح سجل المشاهدة لضمان وصولها للجميع فوراً
             document.getElementById('broadcastMsgInput').value = '';
             
-            // إرسال الإشعار للأدمن أيضاً كاختبار فوري
             triggerRealNotification(msg);
             showDevAlert("✅ تم بث الإذاعة بنجاح إلى جميع مشتركي VIP النشطين!");
         }
 
         function triggerRealNotification(text) {
-            // 1. إشعار داخل التطبيق (Banner)
+            // 1. إشعار داخل التطبيق (Banner مرئي)
             const box = document.getElementById('pushNotification');
             document.getElementById('pushMsgText').textContent = text;
             box.classList.add('show');
             setTimeout(() => { box.classList.remove('show'); }, 6000);
 
-            // 2. إشعار نظام حقيقي خارجي (Browser System Notification مثل تطبيقات التواصل)
+            // 2. إشعار نظام حقيقي خارجي (Browser System Notification)
             if ("Notification" in window) {
                 if (Notification.permission === "granted") {
                     new Notification("منصة نتلامخم التعليمية (إذاعة VIP)", {
@@ -688,13 +700,8 @@
             const seenMsg = localStorage.getItem('netlamkhem_seen_broadcast');
             
             if (lastMsg && lastMsg !== seenMsg) {
-                const remembered = localStorage.getItem('netlamkhem_remembered_email');
-                if (remembered) {
-                    setTimeout(() => {
-                        triggerRealNotification(lastMsg);
-                        localStorage.setItem('netlamkhem_seen_broadcast', lastMsg);
-                    }, 1500);
-                }
+                triggerRealNotification(lastMsg);
+                localStorage.setItem('netlamkhem_seen_broadcast', lastMsg);
             }
         }
 
@@ -713,6 +720,7 @@
         function navigateTo(screenId) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(screenId).classList.add('active');
+            checkBroadcastMessages();
         }
     </script>
 </body>
