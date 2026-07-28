@@ -2,53 +2,665 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تطبيق الفيديوهات</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>منصة نتلامخم التعليمية</title>
+    <!-- مكتبة تيليجرام وأيقونات FontAwesome وخط Alexandria -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: system-ui, sans-serif; background: #0f0f10; color: #fff; padding: 15px; }
-        .header { text-align: center; font-size: 20px; font-weight: bold; margin-bottom: 20px; color: #0088cc; }
-        .container { display: flex; flex-direction: column; gap: 15px; max-width: 500px; margin: 0 auto; }
-        .card { background: #1c1c1e; border-radius: 12px; overflow: hidden; border: 1px solid #2c2c2e; }
-        video { width: 100%; max-height: 350px; background: #000; display: block; }
-        .title { padding: 12px; font-size: 16px; font-weight: 600; text-align: right; }
-        .empty { text-align: center; color: #8e8e93; padding: 40px; }
+        /* ==================== المتغيرات والتنسيق العام ==================== */
+        :root {
+            --bg-speed: 20s;
+            --primary-accent: #00f2fe;
+            --prep-color: #7928ca;
+            --mid-color: #ff0080;
+            --prim-color: #00dfa2;
+            --card-glass: rgba(22, 27, 38, 0.65);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Alexandria', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* خلفية سحرية تتغير ألوانها ببطء شديد وبشكل طفيف */
+        body {
+            background: linear-gradient(-45deg, #070913, #0f172a, #1a0b2e, #061e29);
+            background-size: 400% 400%;
+            animation: ambientGradient var(--bg-speed) ease infinite;
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-bottom: 30px;
+            overflow-x: hidden;
+        }
+
+        @keyframes ambientGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* ==================== الهيدر الاحترافي ==================== */
+        .app-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(10, 14, 26, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-glass);
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-logo {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary-accent), var(--prep-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
+        }
+
+        .brand-text h1 {
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+
+        .brand-text p {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .search-trigger {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-glass);
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .search-trigger:active {
+            transform: scale(0.9);
+        }
+
+        /* ==================== الحاوية والشاشات ==================== */
+        .container {
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .screen {
+            display: none;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .screen.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ==================== شاشة اختيار المرحلة (المجلدات) ==================== */
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-subtitle {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        .folders-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* أزرار مجسمة منبثقة كأنها ملفات حقيقية */
+        .folder-card {
+            background: var(--card-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: 20px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            backdrop-filter: blur(12px);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .folder-card::before {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 0;
+            height: 100%;
+            width: 6px;
+            border-radius: 0 20px 20px 0;
+        }
+
+        .folder-card.prep::before { background: linear-gradient(to bottom, #7928ca, #ff0080); }
+        .folder-card.mid::before { background: linear-gradient(to bottom, #ff0080, #ff4d4d); }
+        .folder-card.prim::before { background: linear-gradient(to bottom, #00dfa2, #00f2fe); }
+        .folder-card.all::before { background: linear-gradient(to bottom, #3b82f6, #1d4ed8); }
+
+        /* تأثير التفاعل والكبس عند الضغط */
+        .folder-card:active {
+            transform: scale(0.96) translateY(2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .folder-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .folder-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-glass);
+        }
+
+        .prep .folder-icon { color: #b871ff; box-shadow: inset 0 0 15px rgba(121, 40, 202, 0.2); }
+        .mid .folder-icon { color: #ff66b2; box-shadow: inset 0 0 15px rgba(255, 0, 128, 0.2); }
+        .prim .folder-icon { color: #52ffe2; box-shadow: inset 0 0 15px rgba(0, 223, 162, 0.2); }
+        .all .folder-icon { color: #60a5fa; box-shadow: inset 0 0 15px rgba(59, 130, 246, 0.2); }
+
+        .folder-details h3 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .folder-details p {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .folder-badge {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border-glass);
+            padding: 6px 12px;
+            border-radius: 30px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        /* ==================== شاشة عرض الفيديوهات والمواد ==================== */
+        .navigation-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .back-btn {
+            background: var(--card-glass);
+            border: 1px solid var(--border-glass);
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .back-btn:active {
+            transform: scale(0.9) translateX(4px);
+        }
+
+        .stage-title-view h2 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        /* أزرار المواد الأفقية (Subject Pills) */
+        .subjects-wrapper {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            scrollbar-width: none;
+        }
+
+        .subjects-wrapper::-webkit-scrollbar { display: none; }
+
+        .subject-pill {
+            background: var(--card-glass);
+            border: 1px solid var(--border-glass);
+            padding: 10px 18px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .subject-pill:active {
+            transform: scale(0.92);
+        }
+
+        /* زر المادة المحددة المضيء */
+        .subject-pill.active {
+            background: linear-gradient(135deg, rgba(0, 242, 254, 0.2), rgba(121, 40, 202, 0.3));
+            border-color: var(--primary-accent);
+            color: #fff;
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.25);
+        }
+
+        /* ==================== كروت الفيديوهات العريضة ==================== */
+        .videos-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .video-card {
+            background: var(--card-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: 20px;
+            overflow: hidden;
+            backdrop-filter: blur(16px);
+            transition: all 0.3s ease;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+        }
+
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            background: #000;
+            aspect-ratio: 16 / 9;
+        }
+
+        .video-wrapper video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .video-body {
+            padding: 16px;
+        }
+
+        .video-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .tag-badge {
+            background: rgba(0, 242, 254, 0.1);
+            border: 1px solid rgba(0, 242, 254, 0.3);
+            color: var(--primary-accent);
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .video-title {
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.5;
+            color: var(--text-main);
+        }
+
+        /* حالة الفراغ */
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            background: var(--card-glass);
+            border: 1px dotted var(--border-glass);
+            border-radius: 20px;
+        }
+
+        .empty-state i {
+            font-size: 40px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .empty-state p {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
     </style>
 </head>
 <body>
-    <div class="header">🎬 الفيديوهات المرفوعة</div>
-    <div class="container" id="videosList">
-        <div class="empty">جاري تحميل الفيديوهات... ⏳</div>
+
+    <!-- الهيدر العلوي -->
+    <header class="app-header">
+        <div class="brand-info">
+            <div class="brand-logo"><i class="fa-solid fa-graduation-cap"></i></div>
+            <div class="brand-text">
+                <h1>نتلامخم التعليمية</h1>
+                <p>تطبيق الفيديوهات المصغر</p>
+            </div>
+        </div>
+        <div class="search-trigger" onclick="toggleSearch()">
+            <i class="fa-solid fa-magnifying-glass"></i>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- ==================== الشاشة الأولى: اختيار المرحلة ==================== -->
+        <section id="stagesScreen" class="screen active">
+            <div class="section-title">
+                <i class="fa-solid fa-folder-tree" style="color: var(--primary-accent);"></i>
+                المراحل الدراسية
+            </div>
+            <p class="section-subtitle">اختر المرحلة لعرض المواد والفيديوهات المرفوعة</p>
+
+            <div class="folders-grid">
+                <!-- المرحلة الإعدادية -->
+                <div class="folder-card prep" onclick="openStage('preparatory', 'المرحلة الإعدادية')">
+                    <div class="folder-info">
+                        <div class="folder-icon"><i class="fa-solid fa-book-bookmark"></i></div>
+                        <div class="folder-details">
+                            <h3>المرحلة الإعدادية</h3>
+                            <p>السادس، الخامس، الرابع العلمي والأدبي</p>
+                        </div>
+                    </div>
+                    <div class="folder-badge" id="count-preparatory">0 فيديو</div>
+                </div>
+
+                <!-- المرحلة المتوسطة -->
+                <div class="folder-card mid" onclick="openStage('intermediate', 'المرحلة المتوسطة')">
+                    <div class="folder-info">
+                        <div class="folder-icon"><i class="fa-solid fa-shapes"></i></div>
+                        <div class="folder-details">
+                            <h3>المرحلة المتوسطة</h3>
+                            <p>الأول، الثاني، والثالث المتوسط</p>
+                        </div>
+                    </div>
+                    <div class="folder-badge" id="count-intermediate">0 فيديو</div>
+                </div>
+
+                <!-- المرحلة الابتدائية -->
+                <div class="folder-card prim" onclick="openStage('primary', 'المرحلة الابتدائية')">
+                    <div class="folder-info">
+                        <div class="folder-icon"><i class="fa-solid fa-child-reaching"></i></div>
+                        <div class="folder-details">
+                            <h3>المرحلة الابتدائية</h3>
+                            <p>الصفوف الابتدائية كافة</p>
+                        </div>
+                    </div>
+                    <div class="folder-badge" id="count-primary">0 فيديو</div>
+                </div>
+
+                <!-- كافة الفيديوهات -->
+                <div class="folder-card all" onclick="openStage('all', 'جميع الفيديوهات')">
+                    <div class="folder-info">
+                        <div class="folder-icon"><i class="fa-solid fa-clapperboard"></i></div>
+                        <div class="folder-details">
+                            <h3>جميع الفيديوهات المرفوعة</h3>
+                            <p>تصفح كل المكتبة الشاملة</p>
+                        </div>
+                    </div>
+                    <div class="folder-badge" id="count-all">0 فيديو</div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ==================== الشاشة الثانية: قائمة الفيديوهات والمواد ==================== -->
+        <section id="videosScreen" class="screen">
+            <!-- شريط العودة والشاشة -->
+            <div class="navigation-bar">
+                <div class="back-btn" onclick="goBackToStages()">
+                    <i class="fa-solid fa-arrow-right"></i>
+                </div>
+                <div class="stage-title-view">
+                    <h2 id="currentStageTitle">المرحلة الدراسية</h2>
+                </div>
+            </div>
+
+            <!-- أزرار اختيار المادة (Subject Tabs) -->
+            <div class="subjects-wrapper" id="subjectsContainer">
+                <!-- يتم توليد الأزرار تلقائياً بواسطة الجافاسكريبت -->
+            </div>
+
+            <!-- قائمة الفيديوهات العريضة -->
+            <div class="videos-list" id="videosContainer">
+                <div class="empty-state">
+                    <i class="fa-solid fa-spinner fa-spin"></i>
+                    <p>جاري تحميل المحتوى...</p>
+                </div>
+            </div>
+        </section>
+
     </div>
 
+    <!-- ==================== المحرك البرمجي (JavaScript) ==================== -->
     <script>
+        // تهيئة تطبيق تيليجرام المصغر
         const tg = window.Telegram?.WebApp;
-        if (tg) { tg.ready(); tg.expand(); }
+        if (tg) {
+            tg.ready();
+            tg.expand();
+        }
 
-        async function loadVideos() {
+        // المخازن العامة للبيانات
+        let allRawVideos = [];
+        let categorizedVideos = [];
+        let activeStage = 'all';
+        let activeSubject = 'all';
+
+        // محرك التصنيف التلقائي الذكي بناءً على الكلمات المفتاحية في العنوان
+        function parseVideoMetadata(video) {
+            const title = (video.title || "").toLowerCase();
+            let stage = 'other';
+            let subject = 'عام';
+
+            // 1. تحديد المرحلة الدراسية
+            if (title.includes('إعدادي') || title.includes('اعدادي') || title.includes('سادس') || title.includes('خامس') || title.includes('رابع') || title.includes('علمي') || title.includes('ادبي')) {
+                stage = 'preparatory';
+            } else if (title.includes('متوسط') || title.includes('ثالث') || title.includes('ثاني متوسط') || title.includes('اول متوسط')) {
+                stage = 'intermediate';
+            } else if (title.includes('ابتدائي') || title.includes('اول ابتدائي') || title.includes('ثاني ابتدائي') || title.includes('رابع ابتدائي')) {
+                stage = 'primary';
+            } else {
+                stage = 'preparatory'; // الافتراضي
+            }
+
+            // 2. تحديد المادة
+            if (title.includes('رياضيات')) subject = 'الرياضيات';
+            else if (title.includes('فيزياء')) subject = 'الفيزياء';
+            else if (title.includes('كيمياء')) subject = 'الكيمياء';
+            else if (title.includes('احياء') || title.includes('أحياء')) subject = 'الأحياء';
+            else if (title.includes('عربي') || title.includes('قواعد') || title.includes('ادب')) subject = 'اللغة العربية';
+            else if (title.includes('انكليزي') || title.includes('انجليزي') || title.includes('انقليزي')) subject = 'اللغة الإنجليزية';
+            else if (title.includes('اسلامية') || title.includes('إسلامية')) subject = 'الإسلامية';
+
+            return { ...video, stage, subject };
+        }
+
+        // جلب الفيديوهات من videos.json
+        async function fetchVideos() {
             try {
-                // جلب البيانات مباشرة من ملف videos.json بداخل GitHub
-                const res = await fetch('./videos.json?t=' + Date.now());
-                const videos = await res.json();
-                const container = document.getElementById('videosList');
-
-                if (!videos || videos.length === 0) {
-                    container.innerHTML = '<div class="empty">لا توجد فيديوهات مرفوعة حالياً 📭</div>';
-                    return;
-                }
-
-                container.innerHTML = videos.map(v => `
-                    <div class="card">
-                        <video src="${v.url}" controls playsinline preload="metadata"></video>
-                        <div class="title">📌 ${v.title}</div>
-                    </div>
-                `).join('');
-            } catch (e) {
-                document.getElementById('videosList').innerHTML = '<div class="empty">حدث خطأ في تحميل الفيديوهات!</div>';
+                const res = await fetch('./videos.json?v=' + Date.now());
+                const data = await res.json();
+                allRawVideos = data || [];
+                categorizedVideos = allRawVideos.map(parseVideoMetadata);
+                
+                updateStageCounts();
+            } catch (err) {
+                console.error("خطأ في جلب البيانات:", err);
             }
         }
-        loadVideos();
+
+        // تحديث عداد الفيديوهات في كل مجلد
+        function updateStageCounts() {
+            const counts = { preparatory: 0, intermediate: 0, primary: 0, all: categorizedVideos.length };
+            
+            categorizedVideos.forEach(v => {
+                if (counts[v.stage] !== undefined) counts[v.stage]++;
+            });
+
+            document.getElementById('count-preparatory').textContent = `${counts.preparatory} فيديو`;
+            document.getElementById('count-intermediate').textContent = `${counts.intermediate} فيديو`;
+            document.getElementById('count-primary').textContent = `${counts.primary} فيديو`;
+            document.getElementById('count-all').textContent = `${counts.all} فيديو`;
+        }
+
+        // فتح مرحلة معينة
+        function openStage(stageKey, stageTitle) {
+            activeStage = stageKey;
+            activeSubject = 'all';
+            document.getElementById('currentStageTitle').textContent = stageTitle;
+
+            // بناء أزرار المواد الخاصة بهذه المرحلة
+            renderSubjectTabs();
+
+            // عرض الفيديوهات الخاصة بهذه المرحلة
+            renderVideos();
+
+            // التنقل بين الشاشات
+            document.getElementById('stagesScreen').classList.remove('active');
+            setTimeout(() => {
+                document.getElementById('videosScreen').classList.add('active');
+            }, 150);
+        }
+
+        // العودة لشاشة المراحل الرئيسية
+        function goBackToStages() {
+            document.getElementById('videosScreen').classList.remove('active');
+            setTimeout(() => {
+                document.getElementById('stagesScreen').classList.add('active');
+            }, 150);
+        }
+
+        // توليد أزرار المواد (Subject Pills)
+        function renderSubjectTabs() {
+            const container = document.getElementById('subjectsContainer');
+            
+            // استخراج المواد الموجودة فعلياً في هذه المرحلة
+            let filtered = activeStage === 'all' 
+                ? categorizedVideos 
+                : categorizedVideos.filter(v => v.stage === activeStage);
+
+            const subjectsSet = new Set(filtered.map(v => v.subject));
+            const subjectsList = ['all', ...Array.from(subjectsSet)];
+
+            container.innerHTML = subjectsList.map(subj => {
+                const label = subj === 'all' ? '📌 كل المواد' : subj;
+                const isActive = activeSubject === subj ? 'active' : '';
+                return `
+                    <div class="subject-pill ${isActive}" onclick="filterBySubject('${subj}')">
+                        ${label}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // تصفية الفيديوهات حسب المادة
+        function filterBySubject(subj) {
+            activeSubject = subj;
+            renderSubjectTabs();
+            renderVideos();
+        }
+
+        // عرض قائمة الفيديوهات
+        function renderVideos() {
+            const container = document.getElementById('videosContainer');
+            
+            let filtered = categorizedVideos;
+
+            if (activeStage !== 'all') {
+                filtered = filtered.filter(v => v.stage === activeStage);
+            }
+
+            if (activeSubject !== 'all') {
+                filtered = filtered.filter(v => v.subject === activeSubject);
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fa-regular fa-folder-open"></i>
+                        <p>لا توجد فيديوهات مرفوعة في هذا القسم حالياً</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(v => `
+                <div class="video-card">
+                    <div class="video-wrapper">
+                        <video src="${v.url}" controls playsinline preload="metadata"></video>
+                    </div>
+                    <div class="video-body">
+                        <div class="video-meta">
+                            <span class="tag-badge"><i class="fa-solid fa-bookmark"></i> ${v.subject}</span>
+                        </div>
+                        <div class="video-title">${v.title}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // تشغيل التصفح عند التحميل
+        fetchVideos();
     </script>
 </body>
 </html>
