@@ -178,6 +178,16 @@
             };
         }
 
+        // دالة مساعدة متوافقة مع كافة متصفحات الهواتف لقراءة الملفات
+        function readFileAsBuffer(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = () => reject(reader.error);
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
         document.getElementById('searchForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const roll = document.getElementById('rollNumber').value.trim();
@@ -210,7 +220,6 @@
             };
         });
 
-        // دالة استخراج ملفات PDF من ZIP أو RAR
         async function extractPdfBuffers(file, updateStatus) {
             const fileName = file.name.toLowerCase();
             const pdfFiles = [];
@@ -227,24 +236,16 @@
                 }
             } else if (fileName.endsWith('.rar')) {
                 updateStatus("جاري قراءة ملف RAR...");
-                const arrayBuffer = await file.arraybuffer();
-                const extractor = readRARContent(arrayBuffer);
-                for (const item of extractor) {
+                const arrayBuffer = await readFileAsBuffer(file);
+                const extractor = readArchive({ buffer: arrayBuffer });
+                const files = extractor.files || [];
+                for (const item of files) {
                     if (item.filename.toLowerCase().endsWith('.pdf')) {
                         pdfFiles.push({ name: item.filename, buffer: item.fileData.buffer });
                     }
                 }
             }
             return pdfFiles;
-        }
-
-        function readRARContent(arrayBuffer) {
-            try {
-                const extractor = readArchive({ buffer: arrayBuffer });
-                return extractor.files || [];
-            } catch (e) {
-                throw new Error("تعذر قراءة ملف RAR. يُفضل تحويله إلى ZIP للسرعة.");
-            }
         }
 
         async function startProcessing() {
