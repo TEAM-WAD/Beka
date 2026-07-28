@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>منصة نتلامخم التعليمية - VIP Accounts System</title>
+    <title>منصة نتلامخم التعليمية - VIP Universal Cloud</title>
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -45,7 +45,7 @@
             overflow-x: hidden;
         }
 
-        /* الشاشة الترحيبية */
+        /* 1. الشاشة الترحيبية والشعار */
         .welcome-screen {
             position: fixed; inset: 0; z-index: 99999;
             background: radial-gradient(circle at 50% 30%, #FF9800 0%, #6A1B9A 45%, #12002B 90%);
@@ -81,7 +81,7 @@
             box-shadow: 0 12px 28px rgba(217, 70, 239, 0.45);
         }
 
-        /* الهيدر والواجهات */
+        /* 2. الهيدر والواجهة العامة */
         .main-app-wrapper { opacity: 0; transform: translateY(20px); transition: all 0.8s ease; }
         .main-app-wrapper.visible { opacity: 1; transform: translateY(0); }
 
@@ -122,7 +122,7 @@
             display: flex; align-items: center; justify-content: center; font-size: 26px;
         }
 
-        /* المودال لوحة الدخول */
+        /* 3. نافذة تسجيل الدخول (Modal) */
         .login-modal {
             position: fixed; inset: 0; z-index: 100000;
             background: rgba(2, 4, 10, 0.88); backdrop-filter: blur(25px);
@@ -160,7 +160,7 @@
 
         .login-error { color: #f43f5e; font-size: 12px; margin-top: 12px; font-weight: 600; min-height: 20px; }
 
-        /* لوحة التحكم المطور السحابية وإدارة الملفات */
+        /* 4. لوحة المطور وإدارة الحسابات للسحابة */
         .dev-panel {
             background: var(--card-glass); border: 1px solid var(--cyan-accent);
             border-radius: 24px; padding: 20px; backdrop-filter: blur(20px);
@@ -175,7 +175,6 @@
         }
         .dev-btn.gold { background: var(--gold-gradient); color: #111; }
         .dev-btn.cyan { background: linear-gradient(135deg, #00f2fe, #4facfe); color: #111; }
-        .dev-btn.purple { background: linear-gradient(135deg, #a855f7, #6366f1); color: #FFF; }
 
         .generated-code-box {
             background: #000; border: 1px dashed var(--gold-primary);
@@ -201,6 +200,11 @@
             padding: 14px; border-radius: 16px; color: #FFF; font-size: 13px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8); z-index: 200000; display: none; align-items: center; gap: 10px;
         }
+
+        .account-list-item {
+            background: rgba(255, 255, 255, 0.05); padding: 10px 12px; border-radius: 10px;
+            margin-top: 8px; font-size: 12px; display: flex; justify-content: space-between; align-items: center;
+        }
     </style>
 </head>
 <body>
@@ -223,7 +227,7 @@
                 <div class="brand-logo"><i class="fa-solid fa-book-open"></i></div>
                 <div>
                     <h1 style="font-size: 15px;">نتلامخم التعليمية</h1>
-                    <p style="font-size: 10px; color: var(--cyan-accent);"><i class="fa-solid fa-file-code"></i> نظام إدارة الحسابات والملفات</p>
+                    <p style="font-size: 10px; color: var(--cyan-accent);"><i class="fa-solid fa-cloud"></i> السحابة العامة الشاملة</p>
                 </div>
             </div>
 
@@ -259,25 +263,25 @@
             <section id="vipStudentScreen" class="screen">
                 <div class="nav-header">
                     <div class="back-btn" onclick="logoutVIP()"><i class="fa-solid fa-right-from-bracket"></i></div>
-                    <div><h2>بوابة VIP الخاصة</h2><p style="font-size: 11px; color: var(--gold-primary);">اشتراك فعال ومؤكد</p></div>
+                    <div><h2>بوابة VIP الخاصة</h2><p style="font-size: 11px; color: var(--gold-primary);">اشتراك فعال ومربوط بالسحابة</p></div>
                 </div>
 
                 <div style="background: rgba(20, 15, 35, 0.9); border: 1px solid var(--gold-primary); border-radius: 22px; padding: 20px; text-align: center;">
                     <i class="fa-solid fa-crown" style="font-size: 36px; color: var(--gold-primary); margin-bottom: 10px;"></i>
                     <h3 id="vipStudentEmailText" style="font-size: 16px; color: #FFF;"></h3>
-                    <p style="font-size: 12px; color: var(--green-success); margin-top: 6px;"><i class="fa-solid fa-circle-check"></i> حسابك مفعّل وجاهز للاستخدام</p>
+                    <p style="font-size: 12px; color: var(--green-success); margin-top: 6px;"><i class="fa-solid fa-circle-check"></i> تم التحقق من السيرفر أونلاين بنجاح</p>
                 </div>
             </section>
 
             <section id="developerScreen" class="screen">
                 <div class="nav-header">
                     <div class="back-btn" onclick="logoutVIP()"><i class="fa-solid fa-right-from-bracket"></i></div>
-                    <div><h2>لوحة إدارة الحسابات والملفات</h2><p style="font-size: 11px; color: var(--cyan-accent);">إنشاء، تصدير واستيراد ملف الحسابات</p></div>
+                    <div><h2>لوحة تحكم المطور</h2><p style="font-size: 11px; color: var(--cyan-accent);">ربط السيرفر أونلاين لكافة الأجهزة</p></div>
                 </div>
 
                 <div class="dev-panel">
                     <div class="dev-section">
-                        <h4 style="color: var(--gold-primary); margin-bottom: 8px;"><i class="fa-solid fa-user-plus"></i> إنشاء حساب جديد</h4>
+                        <h4 style="color: var(--gold-primary); margin-bottom: 8px;"><i class="fa-solid fa-user-plus"></i> إنشاء حساب جديد بالسحابة</h4>
                         
                         <label style="font-size: 11px; color: var(--text-muted);">مدة الاشتراك:</label>
                         <select id="subDurationSelect" style="width: 100%; padding: 10px; border-radius: 10px; background: #111; color: #FFF; border: 1px solid var(--card-border); margin: 6px 0;">
@@ -286,25 +290,19 @@
                             <option value="365">سنة كاملة (365 يوم)</option>
                         </select>
 
-                        <button class="dev-btn gold" onclick="generateNewAccount()">
-                            <i class="fa-solid fa-plus-circle"></i> إنشاء الحساب وتثبيته
+                        <button class="dev-btn gold" onclick="generateNewAccountCloud()">
+                            <i class="fa-solid fa-cloud-arrow-up"></i> إنشاء وتثبيت في السحابة فوراً
                         </button>
 
                         <div id="generatedOutput" class="generated-code-box" style="display:none;"></div>
                     </div>
 
                     <div class="dev-section">
-                        <h4 style="color: var(--cyan-accent); margin-bottom: 8px;"><i class="fa-solid fa-file-export"></i> إدارة ملف الحسابات (accounts.json)</h4>
-                        <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px;">قم بتصدير ملف الحسابات لنقله لأي جهاز آخر أو قم باستيراده مباشرة:</p>
-
-                        <button class="dev-btn cyan" onclick="downloadAccountsFile()">
-                            <i class="fa-solid fa-download"></i> تحميل/تصدير ملف الحسابات (accounts.json)
+                        <h4 style="color: var(--cyan-accent); margin-bottom: 8px;"><i class="fa-solid fa-list-check"></i> جميع الحسابات المفعلة بالسحابة</h4>
+                        <button class="dev-btn cyan" onclick="loadAllAccountsFromCloud()">
+                            <i class="fa-solid fa-arrows-rotate"></i> جلب وتحديث قائمة الحسابات
                         </button>
-
-                        <button class="dev-btn purple" onclick="triggerImportFileInput()">
-                            <i class="fa-solid fa-upload"></i> استيراد وتحديث ملف الحسابات
-                        </button>
-                        <input type="file" id="importFileInput" accept=".json" style="display:none;" onchange="handleImportAccountsFile(event)">
+                        <div id="accountsListContainer" style="margin-top: 10px; max-height: 200px; overflow-y: auto;"></div>
                     </div>
                 </div>
             </section>
@@ -314,9 +312,9 @@
     <div id="loginModal" class="login-modal">
         <div class="login-card">
             <button class="close-modal-btn" onclick="closeLoginModal()"><i class="fa-solid fa-xmark"></i></button>
-            <div style="background: var(--gold-gradient); color: #000; display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; margin-bottom: 12px;">VIP Access</div>
+            <div style="background: var(--gold-gradient); color: #000; display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; margin-bottom: 12px;">VIP Portal Access</div>
             <h3 style="font-size: 20px; margin-bottom: 4px;">تسجيل الدخول المميز</h3>
-            <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 18px;">ادخل بيانات الحساب المفعل</p>
+            <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 18px;">التحقق السحابي المباشر لأي جهاز</p>
 
             <div class="input-group">
                 <label>البريد الإلكتروني</label>
@@ -350,7 +348,7 @@
             setTimeout(() => { document.getElementById('mainAppWrapper').classList.add('visible'); }, 200);
         }
 
-        // انيميشن الخلفية
+        // خلفية الجسيمات
         const canvas = document.getElementById('welcomeCanvas');
         const ctx = canvas.getContext('2d');
         canvas.width = window.innerWidth; canvas.height = window.innerHeight;
@@ -376,85 +374,118 @@
         function openLoginModal() { document.getElementById('loginModal').classList.add('active'); document.getElementById('loginError').textContent = ''; }
         function closeLoginModal() { document.getElementById('loginModal').classList.remove('active'); }
 
-        // --- إدارة قاعدة بيانات الحسابات الموحدة ---
-        function getStoredAccounts() {
+        // رابط Firebase المباشر للحفظ السحابي
+        const FIREBASE_BASE_URL = "https://netlamkhem-vip-default-rtdb.firebaseio.com/accounts";
+
+        function getSafeKey(email) {
+            return email.trim().toLowerCase().replace(/[^a-zA-Z0-9]/g, '_');
+        }
+
+        // 1. كتابة الحساب بالسحابة العامة أونلاين
+        async function saveAccountToCloud(accountData) {
+            const safeKey = getSafeKey(accountData.email);
+            const targetUrl = `${FIREBASE_BASE_URL}/${safeKey}.json`;
+
             try {
-                const data = localStorage.getItem('vip_accounts_db');
-                return data ? JSON.parse(data) : {};
-            } catch(e) {
-                return {};
+                const res = await fetch(targetUrl, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(accountData)
+                });
+                return res.ok;
+            } catch (e) {
+                console.error("Cloud Error:", e);
+                return false;
             }
         }
 
-        function saveAccountsToStore(accounts) {
-            localStorage.setItem('vip_accounts_db', JSON.stringify(accounts));
+        // 2. فحص وجود الحساب بالسحابة من أي جهاز
+        async function fetchAccountFromCloud(email) {
+            const safeKey = getSafeKey(email);
+            const targetUrl = `${FIREBASE_BASE_URL}/${safeKey}.json`;
+
+            try {
+                const res = await fetch(targetUrl);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && data.email) return data;
+                }
+            } catch (e) {
+                console.error("Cloud Fetch Error:", e);
+            }
+            return null;
         }
 
-        // إنشاء حساب جديد بواسطة المطور
-        function generateNewAccount() {
-            const durationSelect = document.getElementById('subDurationSelect');
-            const days = parseInt(durationSelect.value);
+        // 3. إنشاء حساب جديد بواسطة الادمن
+        async function generateNewAccountCloud() {
+            const days = parseInt(document.getElementById('subDurationSelect').value);
             const randomNum = Math.floor(1000 + Math.random() * 9000);
             const email = `student${randomNum}@vip.com`.toLowerCase().trim();
             const password = `vip${Math.floor(1000 + Math.random() * 9000)}`.trim();
             const expireTimestamp = Date.now() + (days * 24 * 60 * 60 * 1000);
 
-            const accounts = getStoredAccounts();
-            accounts[email] = { email, password, days, expireTimestamp };
-            saveAccountsToStore(accounts);
+            const accountData = { email, password, days, expireTimestamp, createdAt: Date.now() };
 
             const outBox = document.getElementById('generatedOutput');
             outBox.style.display = 'block';
-            outBox.innerHTML = `
-                <div style="color: var(--green-success); font-weight: bold; margin-bottom: 6px;">
-                    <i class="fa-solid fa-circle-check"></i> تم إنشاء الحساب وحفظه بنجاح!
-                </div>
-                <div><b>البريد:</b> <span style="color:#FFF;">${email}</span> <button class="copy-btn" onclick="copyText('${email}')">نسخ</button></div>
-                <div><b>الكلمة:</b> <span style="color:#FFF;">${password}</span> <button class="copy-btn" onclick="copyText('${password}')">نسخ</button></div>
-                <div><b>المدة:</b> <span style="color:#FFF;">${days} أيام</span></div>
-            `;
-            showDevAlert("تم حفظ الحساب بنجاح في النظام!");
-        }
+            outBox.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> جاري حفظ وتثبيت الحساب في السحابة لكل الأجهزة...`;
 
-        // تصدير وتحميل ملف الحسابات accounts.json
-        function downloadAccountsFile() {
-            const accounts = getStoredAccounts();
-            if (Object.keys(accounts).length === 0) {
-                showDevAlert("لا توجد حسابات مسجلة حالياً للتصدير!");
-                return;
+            const success = await saveAccountToCloud(accountData);
+
+            if (success) {
+                outBox.innerHTML = `
+                    <div style="color: var(--green-success); font-weight: bold; margin-bottom: 6px;">
+                        <i class="fa-solid fa-cloud-check"></i> تم التثبيت بالسحابة بنجاح! يعمل على كل الأجهزة الآن.
+                    </div>
+                    <div><b>البريد:</b> <span style="color:#FFF;">${email}</span> <button class="copy-btn" onclick="copyText('${email}')">نسخ</button></div>
+                    <div><b>الكلمة:</b> <span style="color:#FFF;">${password}</span> <button class="copy-btn" onclick="copyText('${password}')">نسخ</button></div>
+                    <div><b>المدة:</b> <span style="color:#FFF;">${days} أيام</span></div>
+                `;
+                showDevAlert("تم حفظ الحساب أونلاين بنجاح!");
+                loadAllAccountsFromCloud();
+            } else {
+                outBox.innerHTML = `
+                    <div style="color: var(--red-danger); font-size: 12px; line-height: 1.6;">
+                        <i class="fa-solid fa-circle-exclamation"></i> متعذر الاتصال بالسحابة!<br>
+                        يرجى التأكد من ضبط قواعد Firebase Rules إلى <b>true</b>.
+                    </div>
+                `;
             }
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(accounts, null, 2));
-            const downloadAnchor = document.createElement('a');
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", "accounts.json");
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
-            showDevAlert("تم تحميل ملف الحسابات accounts.json بنجاح!");
         }
 
-        function triggerImportFileInput() {
-            document.getElementById('importFileInput').click();
-        }
+        // 4. استعراض كافة الحسابات المنشأة أونلاين
+        async function loadAllAccountsFromCloud() {
+            const container = document.getElementById('accountsListContainer');
+            container.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري التحميل...';
 
-        // استيراد ملف الحسابات من الجهاز
-        function handleImportAccountsFile(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const importedAccounts = JSON.parse(e.target.result);
-                    const currentAccounts = getStoredAccounts();
-                    const merged = { ...currentAccounts, ...importedAccounts };
-                    saveAccountsToStore(merged);
-                    showDevAlert("تم استيراد ودمج ملف الحسابات بنجاح!");
-                } catch(err) {
-                    alert("خطأ في قراءة الملف، تأكد من اختيار ملف accounts.json صحيح.");
+            try {
+                const res = await fetch(`${FIREBASE_BASE_URL}.json`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data) {
+                        let html = '';
+                        Object.values(data).forEach(acc => {
+                            const isExpired = Date.now() > acc.expireTimestamp;
+                            html += `
+                                <div class="account-list-item">
+                                    <div>
+                                        <div style="color:#FFF; font-weight:bold;">${acc.email}</div>
+                                        <div style="color:var(--text-muted); font-size:10px;">رمز السر: ${acc.password}</div>
+                                    </div>
+                                    <span style="color: ${isExpired ? 'var(--red-danger)' : 'var(--green-success)'}; font-size:10px; font-weight:bold;">
+                                        ${isExpired ? 'منتهي' : 'مفعل'}
+                                    </span>
+                                </div>
+                            `;
+                        });
+                        container.innerHTML = html;
+                        return;
+                    }
                 }
-            };
-            reader.readAsText(file);
+                container.innerHTML = '<div style="font-size:12px; color:var(--text-muted);">لا توجد حسابات مسجلة أونلاين بعد.</div>';
+            } catch(e) {
+                container.innerHTML = '<div style="font-size:12px; color:var(--red-danger);">تأكد من إعدادات قواعد Firebase.</div>';
+            }
         }
 
         function copyText(txt) {
@@ -462,8 +493,8 @@
             showDevAlert(`تم النسخ: ${txt}`);
         }
 
-        // عملية تسجيل الدخول للطالب
-        function processLogin() {
+        // 5. تسجيل الدخول من أي جهاز
+        async function processLogin() {
             const emailInput = document.getElementById('loginEmail').value.trim().toLowerCase();
             const passInput = document.getElementById('loginPassword').value.trim();
             const errDiv = document.getElementById('loginError');
@@ -473,36 +504,38 @@
                 return;
             }
 
-            // حساب المطور الرئيسي
+            errDiv.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري فحص الحساب من السحابة...';
+
+            // حساب المطور Admin
             if (emailInput === 'admin@netlamkhem.com' && passInput === 'admin123') {
                 closeLoginModal();
-                showDevAlert('أهلاً بالمطور! تم فتح لوحة التحكم وإدارة الملفات');
+                showDevAlert('أهلاً بالمطور! تم فتح لوحة التحكم');
                 navigateTo('developerScreen');
+                loadAllAccountsFromCloud();
                 return;
             }
 
-            // فحص قاعدة الحسابات
-            const accounts = getStoredAccounts();
-            const sub = accounts[emailInput];
+            // فحص السحابة العامة
+            const acc = await fetchAccountFromCloud(emailInput);
 
-            if (!sub) {
-                errDiv.textContent = 'عذراً، هذا البريد غير موجود! تأكد من إنشائه أو استيراد ملف الحسابات أولاً.';
+            if (!acc) {
+                errDiv.textContent = 'عذراً، هذا البريد غير موجود أونلاين! تأكد من إنشائه من لوحة المطور أولاً.';
                 return;
             }
 
-            if (sub.password !== passInput) {
+            if (acc.password !== passInput) {
                 errDiv.textContent = 'كلمة السر غير صحيحة!';
                 return;
             }
 
-            if (Date.now() > sub.expireTimestamp) {
+            if (Date.now() > acc.expireTimestamp) {
                 errDiv.textContent = 'عذراً، انتهت مدة هذا الاشتراك!';
                 return;
             }
 
             errDiv.textContent = '';
             closeLoginModal();
-            document.getElementById('vipStudentEmailText').textContent = `أهلاً بك: ${sub.email}`;
+            document.getElementById('vipStudentEmailText').textContent = `أهلاً بك: ${acc.email}`;
             navigateTo('vipStudentScreen');
         }
 
