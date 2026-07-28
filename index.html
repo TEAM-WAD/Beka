@@ -2,344 +2,972 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منظومة النتائج الامتحانية الذكية</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    
-    <!-- مكتبة JSZip للـ ZIP -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <!-- مكتبة UNRAR المباشرة للمتصفح -->
-    <script src="https://cdn.jsdelivr.net/npm/node-unrar-js@1.0.1/dist/node-unrar.min.js"></script>
-    <!-- مكتبة قراءة PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>منصة نتلامخم التعليمية</title>
+    <!-- مكتبة تيليجرام وأيقونات FontAwesome وخط Alexandria -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 
     <style>
-        body { font-family: 'Cairo', sans-serif; background: #080c14; color: #f1f5f9; min-height: 100vh; }
-        .bg-glow { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 500px; height: 500px; background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, rgba(139, 92, 246, 0.08) 50%, transparent 70%); z-index: 0; filter: blur(80px); pointer-events: none; }
-        .glass-card { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6); }
-        .spinner { border: 3px solid rgba(255, 255, 255, 0.1); border-left-color: #3b82f6; border-radius: 50%; width: 20px; height: 20px; animation: spin 0.8s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        /* ==================== المتغيرات والتنسيق الفاخر ==================== */
+        :root {
+            --bg-speed: 25s;
+            --primary-accent: #00f2fe;
+            --science-glow: #00d2ff;
+            --literary-glow: #f53844;
+            --card-glass: rgba(15, 21, 33, 0.75);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Alexandria', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: linear-gradient(-45deg, #04060f, #0a101d, #140822, #03161d);
+            background-size: 400% 400%;
+            animation: ambientGradient var(--bg-speed) ease infinite;
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-bottom: 40px;
+            overflow-x: hidden;
+        }
+
+        @keyframes ambientGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* ==================== شاشة الترحيب المميزة (Welcome Screen) ==================== */
+        .welcome-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 9999;
+            background: radial-gradient(circle at 50% 35%, #18122B 0%, #090A0F 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 25px;
+            text-align: center;
+            transition: opacity 0.6s ease, visibility 0.6s ease;
+            overflow: hidden;
+        }
+
+        .welcome-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        /* توهج متدرج خلف اللوجو */
+        .welcome-glow {
+            position: absolute;
+            width: 320px;
+            height: 320px;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.35) 0%, rgba(99, 102, 241, 0.15) 50%, transparent 70%);
+            filter: blur(50px);
+            animation: pulseGlow 5s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulseGlow {
+            0% { transform: scale(0.85); opacity: 0.6; }
+            100% { transform: scale(1.25); opacity: 0.9; }
+        }
+
+        /* أيقونات دراسية وجامعية طافية ومتحركة بالخلفية */
+        .floating-icon {
+            position: absolute;
+            color: rgba(255, 255, 255, 0.12);
+            animation: floatUpDown 6s ease-in-out infinite;
+        }
+
+        .icon-1 { top: 12%; left: 15%; font-size: 32px; animation-delay: 0s; }
+        .icon-2 { top: 22%; right: 12%; font-size: 28px; animation-delay: 1.5s; }
+        .icon-3 { bottom: 25%; left: 10%; font-size: 36px; animation-delay: 3s; }
+        .icon-4 { bottom: 18%; right: 15%; font-size: 30px; animation-delay: 2s; }
+
+        @keyframes floatUpDown {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-18px) rotate(12deg); }
+        }
+
+        /* كارت اللوجو الرئيسي */
+        .welcome-logo-box {
+            width: 90px;
+            height: 90px;
+            border-radius: 28px;
+            background: linear-gradient(135deg, #a855f7, #6366f1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 42px;
+            color: #ffffff;
+            box-shadow: 0 15px 35px rgba(168, 85, 247, 0.45);
+            margin-bottom: 24px;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* نصوص الشاشة الترحيبية */
+        .welcome-title {
+            font-size: 28px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 2;
+            letter-spacing: -0.5px;
+        }
+
+        .welcome-subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 38px;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* زر الدخول المضاء */
+        .welcome-btn {
+            width: 100%;
+            max-width: 290px;
+            padding: 16px 24px;
+            border-radius: 22px;
+            border: 1px solid rgba(168, 85, 247, 0.5);
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(99, 102, 241, 0.3));
+            backdrop-filter: blur(12px);
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 10px 30px rgba(168, 85, 247, 0.3);
+            transition: all 0.25s ease;
+            position: relative;
+            z-index: 2;
+        }
+
+        .welcome-btn:active {
+            transform: scale(0.94);
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.5), rgba(99, 102, 241, 0.5));
+        }
+
+        /* رابط التخطي */
+        .welcome-skip {
+            margin-top: 20px;
+            color: var(--text-muted);
+            font-size: 13px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.2s ease;
+            position: relative;
+            z-index: 2;
+        }
+
+        .welcome-skip:hover {
+            color: #ffffff;
+        }
+
+        /* ==================== الهيدر الرئيسي ==================== */
+        .app-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(8, 12, 22, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-glass);
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-logo {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #00f2fe, #4facfe);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: #fff;
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.4);
+        }
+
+        .brand-text h1 {
+            font-size: 16px;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+        }
+
+        .brand-text p {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        /* ==================== الحاوية العامة ==================== */
+        .container {
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .screen {
+            display: none;
+            opacity: 0;
+            transform: translateY(12px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .screen.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* شريط العودة والمسار */
+        .nav-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .back-btn {
+            background: var(--card-glass);
+            border: 1px solid var(--border-glass);
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .back-btn:active {
+            transform: scale(0.9) translateX(4px);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-title h2 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .nav-title p {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        /* ==================== 1. كروت المراحل الدراسية ==================== */
+        .grid-vertical {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .stage-card {
+            background: var(--card-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: 22px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            backdrop-filter: blur(15px);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .stage-card:active {
+            transform: scale(0.96);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .stage-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .stage-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-glass);
+        }
+
+        .prep .stage-icon { color: #b871ff; box-shadow: inset 0 0 15px rgba(184, 113, 255, 0.2); }
+        .mid .stage-icon { color: #ff66b2; box-shadow: inset 0 0 15px rgba(255, 102, 178, 0.2); }
+        .prim .stage-icon { color: #00dfa2; box-shadow: inset 0 0 15px rgba(0, 223, 162, 0.2); }
+
+        .stage-details h3 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .stage-details p {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* ==================== 2. أزرار الفروع (العلمي والأدبي) ==================== */
+        .branches-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 10px;
+        }
+
+        .branch-card {
+            background: var(--card-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: 24px;
+            padding: 26px 16px;
+            text-align: center;
+            cursor: pointer;
+            backdrop-filter: blur(15px);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .branch-card:active {
+            transform: scale(0.93) translateY(3px);
+        }
+
+        .branch-card.science {
+            border-color: rgba(0, 210, 255, 0.35);
+        }
+
+        .branch-card.science .branch-icon {
+            background: rgba(0, 210, 255, 0.12);
+            color: #00d2ff;
+            box-shadow: 0 0 25px rgba(0, 210, 255, 0.25);
+        }
+
+        .branch-card.literary {
+            border-color: rgba(245, 56, 68, 0.35);
+        }
+
+        .branch-card.literary .branch-icon {
+            background: rgba(245, 56, 68, 0.12);
+            color: #f53844;
+            box-shadow: 0 0 25px rgba(245, 56, 68, 0.25);
+        }
+
+        .branch-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+        }
+
+        .branch-card h3 {
+            font-size: 17px;
+            font-weight: 800;
+        }
+
+        /* ==================== 3. كروت المواد الدراسية ==================== */
+        .subjects-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+        }
+
+        .subject-card {
+            background: var(--card-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: 20px;
+            padding: 20px 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            backdrop-filter: blur(15px);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .subject-card:active {
+            transform: scale(0.92);
+            border-color: var(--primary-accent);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
+        }
+
+        .subj-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-glass);
+        }
+
+        .subject-card h4 {
+            font-size: 15px;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        /* ==================== 4. أزرار الفصول المستطيلة ==================== */
+        .chapters-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .chapter-card {
+            background: var(--card-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: 18px;
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            backdrop-filter: blur(15px);
+            transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        .chapter-card:active {
+            transform: scale(0.96) translateY(2px);
+            background: rgba(0, 242, 254, 0.12);
+            border-color: var(--primary-accent);
+        }
+
+        .chapter-info {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .chapter-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(0, 242, 254, 0.15), rgba(79, 172, 254, 0.15));
+            color: var(--primary-accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            border: 1px solid rgba(0, 242, 254, 0.3);
+        }
+
+        .chapter-card h4 {
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        /* ==================== 5. كروت الفيديوهات العريضة ==================== */
+        .videos-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .video-card {
+            background: var(--card-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: 20px;
+            overflow: hidden;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+        }
+
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            background: #000;
+            aspect-ratio: 16 / 9;
+        }
+
+        .video-wrapper video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .video-body {
+            padding: 16px;
+        }
+
+        .video-badge {
+            display: inline-block;
+            background: rgba(0, 242, 254, 0.1);
+            border: 1px solid rgba(0, 242, 254, 0.3);
+            color: var(--primary-accent);
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .video-title {
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.5;
+            color: var(--text-main);
+        }
+
+        /* صندوق التحميل/الفراغ */
+        .empty-box {
+            text-align: center;
+            padding: 50px 20px;
+            background: var(--card-glass);
+            border: 1px dashed var(--border-glass);
+            border-radius: 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-box i {
+            font-size: 40px;
+            margin-bottom: 12px;
+            color: var(--primary-accent);
+        }
     </style>
 </head>
-<body class="flex flex-col justify-between relative selection:bg-blue-500 selection:text-white">
+<body>
 
-    <div class="bg-glow"></div>
+    <!-- ==================== الشاشة الترحيبية (Splash Screen) ==================== -->
+    <div id="welcomeScreen" class="welcome-screen">
+        <div class="welcome-glow"></div>
+        
+        <!-- أيقونات طافية بالخلفية لجو دراسي وجامعي -->
+        <i class="fa-solid fa-graduation-cap floating-icon icon-1"></i>
+        <i class="fa-solid fa-book-open floating-icon icon-2"></i>
+        <i class="fa-solid fa-user-graduate floating-icon icon-3"></i>
+        <i class="fa-solid fa-chalkboard-user floating-icon icon-4"></i>
 
-    <header class="relative z-10 w-full py-5 px-4 border-b border-slate-800/80 bg-slate-950/60 backdrop-blur-md">
-        <div class="max-w-5xl mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <div class="p-2.5 bg-blue-600/20 border border-blue-500/30 rounded-2xl text-blue-400">
-                    <i data-lucide="graduation-cap" class="w-7 h-7"></i>
-                </div>
-                <div>
-                    <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-300">
-                        منظومة النتائج الامتحانية
-                    </h1>
-                    <p class="text-xs text-slate-400">استعلام ومعالجة فورية داخل المتصفح</p>
-                </div>
+        <div class="welcome-logo-box">
+            <i class="fa-solid fa-book-bookmark"></i>
+        </div>
+
+        <h1 class="welcome-title">منصة نتلامخم التعليمية</h1>
+        <p class="welcome-subtitle">ابدأ رحلتك التعليمية</p>
+
+        <button class="welcome-btn" onclick="enterApp()">
+            <i class="fa-solid fa-play"></i>
+            <span>ادخل التطبيق</span>
+        </button>
+
+        <a class="welcome-skip" onclick="enterApp()">تخطي</a>
+    </div>
+
+    <!-- الهيدر العلوي -->
+    <header class="app-header">
+        <div class="brand-info">
+            <div class="brand-logo"><i class="fa-solid fa-graduation-cap"></i></div>
+            <div class="brand-text">
+                <h1>نتلامخم التعليمية</h1>
+                <p>تطبيق الدروس المصغر</p>
             </div>
-
-            <button onclick="toggleAdminModal(true)" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-bold transition flex items-center gap-2">
-                <i data-lucide="shield-check" class="w-4 h-4 text-blue-400"></i>
-                لوحة الأدمن
-            </button>
         </div>
     </header>
 
-    <main class="relative z-10 flex-grow flex flex-col items-center justify-center p-4 my-8">
-        <div class="w-full max-w-2xl">
-            <div class="glass-card rounded-3xl p-6 sm:p-10 mb-8">
-                <div class="text-center mb-8">
-                    <span id="dbStatusBadge" class="inline-block px-4 py-1.5 rounded-full text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20 mb-3">
-                        ⚠️ بانتظار رفع القوائم من الأدمن
-                    </span>
-                    <h2 class="text-2xl sm:text-3xl font-extrabold text-white mb-2">أدخل رقمك الامتحاني</h2>
-                    <p class="text-slate-400 text-sm">سيتم عرض صورة القائمة الرسمية المشتملة على درجتك فوراً</p>
-                </div>
+    <div class="container">
 
-                <form id="searchForm" class="space-y-4">
-                    <div class="relative rounded-2xl bg-slate-900/90 border border-slate-700/80 p-2 flex items-center gap-2">
-                        <div class="p-3 text-slate-400">
-                            <i data-lucide="search" class="w-6 h-6"></i>
+        <!-- ==================== 1. شاشة اختيار المرحلة ==================== -->
+        <section id="stagesScreen" class="screen active">
+            <div class="nav-title" style="margin-bottom: 16px;">
+                <h2>اختر المرحلة الدراسية</h2>
+                <p>تصفح الدروس والمحاضرات حسب مرحلتك</p>
+            </div>
+
+            <div class="grid-vertical">
+                <!-- المرحلة الإعدادية -->
+                <div class="stage-card prep" onclick="selectStage('preparatory')">
+                    <div class="stage-info">
+                        <div class="stage-icon"><i class="fa-solid fa-book-bookmark"></i></div>
+                        <div class="stage-details">
+                            <h3>المرحلة الإعدادية</h3>
+                            <p>السادس، الخامس، الرابع الإعدادي</p>
                         </div>
-                        <input type="text" id="rollNumber" required placeholder="مثال: 25241005001" 
-                            class="w-full bg-transparent text-white text-lg font-bold placeholder-slate-500 focus:outline-none tracking-widest text-right px-2">
-                        <button type="submit" id="searchBtn" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold px-6 py-3.5 rounded-xl transition flex items-center gap-2 shrink-0">
-                            <span>بحث</span>
-                            <i data-lucide="arrow-left" class="w-5 h-5"></i>
-                        </button>
                     </div>
-                </form>
-
-                <div id="alertBox" class="hidden mt-4 p-4 rounded-xl text-sm font-semibold flex items-center gap-3"></div>
-            </div>
-
-            <div id="resultContainer" class="hidden space-y-4">
-                <div class="glass-card rounded-3xl p-5 border border-slate-700/50">
-                    <div class="flex flex-wrap justify-between items-center gap-4 mb-4 pb-4 border-b border-slate-800">
-                        <h3 class="text-lg font-bold text-emerald-400 flex items-center gap-2">
-                            <i data-lucide="check-circle-2" class="w-5 h-5"></i>
-                            تم العثور على القائمة الرسمية!
-                        </h3>
-                        <a id="downloadBtn" download="result_page.png" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5">
-                            <i data-lucide="download" class="w-4 h-4"></i>
-                            تحميل القائمة
-                        </a>
-                    </div>
-                    <div class="rounded-2xl overflow-hidden bg-slate-950 border border-slate-800 flex justify-center">
-                        <img id="resultImage" src="" alt="قائمة النتيجة" class="w-full h-auto object-contain max-h-[800px]">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <div id="adminModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4">
-        <div class="glass-card rounded-3xl p-6 sm:p-8 max-w-lg w-full border border-slate-700">
-            <div class="flex justify-between items-center mb-6 pb-3 border-b border-slate-800">
-                <h3 class="text-lg font-bold text-white flex items-center gap-2">
-                    <i data-lucide="file-archive" class="w-5 h-5 text-blue-400"></i>
-                    رفع وتفكيك الملف المضغوط
-                </h3>
-                <button onclick="toggleAdminModal(false)" class="text-slate-400 hover:text-white">
-                    <i data-lucide="x" class="w-6 h-6"></i>
-                </button>
-            </div>
-
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold text-slate-300 mb-2">اختر الملف المضغوط (RAR أو ZIP)</label>
-                    <input type="file" id="archiveFile" accept=".rar,.zip" 
-                        class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white file:font-bold hover:file:bg-blue-500 cursor-pointer">
+                    <i class="fa-solid fa-chevron-left" style="color: var(--text-muted);"></i>
                 </div>
 
-                <div id="processBox" class="hidden space-y-2">
-                    <div class="flex justify-between text-xs text-slate-300 font-bold">
-                        <span id="processStatus">جاري المعالجة...</span>
-                        <span id="processPercent">0%</span>
+                <!-- المرحلة المتوسطة -->
+                <div class="stage-card mid" onclick="selectStage('intermediate')">
+                    <div class="stage-info">
+                        <div class="stage-icon"><i class="fa-solid fa-shapes"></i></div>
+                        <div class="stage-details">
+                            <h3>المرحلة المتوسطة</h3>
+                            <p>الأول، الثاني، والثالث المتوسط</p>
+                        </div>
                     </div>
-                    <div class="w-full bg-slate-800 rounded-full h-3 overflow-hidden border border-slate-700">
-                        <div id="progressBar" class="bg-gradient-to-r from-blue-500 to-indigo-500 h-full w-0 transition-all duration-200"></div>
-                    </div>
+                    <i class="fa-solid fa-chevron-left" style="color: var(--text-muted);"></i>
                 </div>
 
-                <div id="adminAlert" class="hidden p-3 rounded-xl text-xs font-bold"></div>
-
-                <button onclick="startProcessing()" id="startBtn" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-3.5 rounded-xl transition flex items-center justify-center gap-2">
-                    <i data-lucide="cpu" class="w-5 h-5"></i>
-                    <span>بدء التفكيك والفهرسة</span>
-                </button>
-
-                <button onclick="clearDatabase()" class="w-full bg-red-500/10 hover:bg-red-500/20 text-red-400 font-bold py-2.5 rounded-xl border border-red-500/20 text-xs transition">
-                    مسح جميع النتائج المخزنة سابقاً
-                </button>
+                <!-- المرحلة الابتدائية -->
+                <div class="stage-card prim" onclick="selectStage('primary')">
+                    <div class="stage-info">
+                        <div class="stage-icon"><i class="fa-solid fa-child-reaching"></i></div>
+                        <div class="stage-details">
+                            <h3>المرحلة الابتدائية</h3>
+                            <p>صفوف المرحلة الابتدائية كافة</p>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-left" style="color: var(--text-muted);"></i>
+                </div>
             </div>
-        </div>
+        </section>
+
+
+        <!-- ==================== 2. شاشة اختيار الفرع (علمي / أدبي) ==================== -->
+        <section id="branchesScreen" class="screen">
+            <div class="nav-header">
+                <div class="back-btn" onclick="navigateTo('stagesScreen')"><i class="fa-solid fa-arrow-right"></i></div>
+                <div class="nav-title">
+                    <h2>اختر الفرع الدراسي</h2>
+                    <p>المرحلة الإعدادية</p>
+                </div>
+            </div>
+
+            <div class="branches-grid">
+                <!-- الفرع العلمي -->
+                <div class="branch-card science" onclick="selectBranch('scientific')">
+                    <div class="branch-icon"><i class="fa-solid fa-flask-vial"></i></div>
+                    <h3>الفرع العلمي</h3>
+                    <p style="font-size: 11px; color: var(--text-muted);">الرياضيات، الفيزياء، الكيمياء...</p>
+                </div>
+
+                <!-- الفرع الأدبي -->
+                <div class="branch-card literary" onclick="selectBranch('literary')">
+                    <div class="branch-icon"><i class="fa-solid fa-scroll"></i></div>
+                    <h3>الفرع الأدبي</h3>
+                    <p style="font-size: 11px; color: var(--text-muted);">الجغرافيا، التاريخ، الاقتصاد...</p>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ==================== 3. شاشة اختيار المادة ==================== -->
+        <section id="subjectsScreen" class="screen">
+            <div class="nav-header">
+                <div class="back-btn" id="subjectsBackBtn"><i class="fa-solid fa-arrow-right"></i></div>
+                <div class="nav-title">
+                    <h2>المواد الدراسية</h2>
+                    <p id="subjectsHeaderSub">اختر المادة لعرض الفصول</p>
+                </div>
+            </div>
+
+            <div class="subjects-grid" id="subjectsContainer">
+                <!-- توليد المواد تلقائياً -->
+            </div>
+        </section>
+
+
+        <!-- ==================== 4. شاشة اختيار الفصل الدراسي ==================== -->
+        <section id="chaptersScreen" class="screen">
+            <div class="nav-header">
+                <div class="back-btn" onclick="navigateTo('subjectsScreen')"><i class="fa-solid fa-arrow-right"></i></div>
+                <div class="nav-title">
+                    <h2 id="chaptersHeaderTitle">الفصول الدراسية</h2>
+                    <p id="chaptersHeaderSub">اختر الفصل لمشاهدة الدروس</p>
+                </div>
+            </div>
+
+            <div class="chapters-list" id="chaptersContainer">
+                <!-- توليد الفصول تلقائياً -->
+            </div>
+        </section>
+
+
+        <!-- ==================== 5. شاشة عرض الفيديوهات ==================== -->
+        <section id="videosScreen" class="screen">
+            <div class="nav-header">
+                <div class="back-btn" onclick="navigateTo('chaptersScreen')"><i class="fa-solid fa-arrow-right"></i></div>
+                <div class="nav-title">
+                    <h2 id="videosHeaderTitle">الفيديوهات المرفوعة</h2>
+                    <p id="videosHeaderSub">قائمة دروس الفصل</p>
+                </div>
+            </div>
+
+            <div class="videos-list" id="videosContainer">
+                <!-- توليد كروت الفيديوهات -->
+            </div>
+        </section>
+
     </div>
 
+
+    <!-- ==================== البرمجة والمحرك الذكي (JavaScript) ==================== -->
     <script>
-        lucide.createIcons();
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        const tg = window.Telegram?.WebApp;
+        if (tg) { tg.ready(); tg.expand(); }
 
-        const DB_NAME = "ResultsSystemDB";
-        let db;
-
-        function initDB() {
-            return new Promise((resolve, reject) => {
-                const request = indexedDB.open(DB_NAME, 1);
-                request.onupgradeneeded = (e) => {
-                    db = e.target.result;
-                    if (!db.objectStoreNames.contains("results")) {
-                        db.createObjectStore("results", { keyPath: "roll" });
-                    }
-                };
-                request.onsuccess = (e) => { db = e.target.result; updateStatusBadge(); resolve(db); };
-                request.onerror = (e) => reject(e);
-            });
-        }
-        initDB();
-
-        function toggleAdminModal(show) {
-            document.getElementById('adminModal').classList.toggle('hidden', !show);
-        }
-
-        async function updateStatusBadge() {
-            const tx = db.transaction("results", "readonly");
-            const store = tx.objectStore("results");
-            const countRequest = store.count();
-            countRequest.onsuccess = () => {
-                const count = countRequest.result;
-                const badge = document.getElementById('dbStatusBadge');
-                if (count > 0) {
-                    badge.className = "inline-block px-4 py-1.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mb-3";
-                    badge.innerHTML = `✅ النظام جاهز - يحتوي على (${count}) رقم امتحاني مفهرس`;
-                }
-            };
-        }
-
-        function readFileAsBuffer(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = () => reject(reader.error);
-                reader.readAsArrayBuffer(file);
-            });
-        }
-
-        document.getElementById('searchForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const roll = document.getElementById('rollNumber').value.trim();
-            const btn = document.getElementById('searchBtn');
-            const alertBox = document.getElementById('alertBox');
-            const resultContainer = document.getElementById('resultContainer');
-
-            btn.disabled = true;
-            btn.innerHTML = `<div class="spinner"></div>`;
-            alertBox.classList.add('hidden');
-            resultContainer.classList.add('hidden');
-
-            const tx = db.transaction("results", "readonly");
-            const store = tx.objectStore("results");
-            const request = store.get(roll);
-
-            request.onsuccess = () => {
-                if (request.result) {
-                    document.getElementById('resultImage').src = request.result.imageData;
-                    document.getElementById('downloadBtn').href = request.result.imageData;
-                    resultContainer.classList.remove('hidden');
-                } else {
-                    alertBox.className = "p-4 rounded-xl text-sm font-semibold bg-red-500/10 text-red-400 border border-red-500/20";
-                    alertBox.innerHTML = `<i data-lucide="alert-circle" class="w-5 h-5 inline"></i> لم يتم العثور على الرقم الامتحاني (${roll}).`;
-                    alertBox.classList.remove('hidden');
-                }
-                btn.disabled = false;
-                btn.innerHTML = `<span>بحث</span><i data-lucide="arrow-left" class="w-5 h-5"></i>`;
-                lucide.createIcons();
-            };
-        });
-
-        async function extractPdfFiles(file, updateStatus) {
-            const fileName = file.name.toLowerCase();
-            const pdfList = [];
-
-            if (fileName.endsWith('.zip')) {
-                updateStatus("جاري تفكيك ملف ZIP...");
-                const zip = new JSZip();
-                const zipContent = await zip.loadAsync(file);
-                for (const [path, entry] of Object.entries(zipContent.files)) {
-                    if (!entry.dir && path.toLowerCase().endsWith('.pdf')) {
-                        const buffer = await entry.async("arraybuffer");
-                        pdfList.push({ name: path, buffer: buffer });
-                    }
-                }
-            } else if (fileName.endsWith('.rar')) {
-                updateStatus("جاري قراءة وتفكيك ملف RAR...");
-                const arrayBuffer = await readFileAsBuffer(file);
-                const unrar = await window.readArchive({ data: arrayBuffer });
-                const files = await unrar.extractFiles();
-                
-                for (const extractedFile of files) {
-                    if (extractedFile.name.toLowerCase().endsWith('.pdf')) {
-                        pdfList.push({ name: extractedFile.name, buffer: extractedFile.buffer });
-                    }
-                }
+        // دالة إخفاء الشاشة الترحيبية عند الضغط على "ادخل التطبيق" أو "تخطي"
+        function enterApp() {
+            const welcome = document.getElementById('welcomeScreen');
+            if (welcome) {
+                welcome.classList.add('hidden');
             }
-            return pdfList;
         }
 
-        async function startProcessing() {
-            const fileInput = document.getElementById('archiveFile');
-            const startBtn = document.getElementById('startBtn');
-            const processBox = document.getElementById('processBox');
-            const progressBar = document.getElementById('progressBar');
-            const processPercent = document.getElementById('processPercent');
-            const processStatus = document.getElementById('processStatus');
-            const adminAlert = document.getElementById('adminAlert');
+        let categorizedVideos = [];
+        let state = { stage: '', branch: '', subject: '', chapter: '' };
 
-            if (!fileInput.files.length) {
-                alert("يرجى اختيار ملف أولاً!");
-                return;
+        // دليل الأيقونات والألوان المخصصة للمواد
+        const subjectIcons = {
+            'الرياضيات': { icon: 'fa-solid fa-calculator', color: '#00d2ff' },
+            'الفيزياء': { icon: 'fa-solid fa-bolt-lightning', color: '#ffbd2e' },
+            'الكيمياء': { icon: 'fa-solid fa-flask', color: '#ff5c8d' },
+            'الأحياء': { icon: 'fa-solid fa-dna', color: '#00dfa2' },
+            'اللغة العربية': { icon: 'fa-solid fa-pen-nib', color: '#b871ff' },
+            'اللغة الإنجليزية': { icon: 'fa-solid fa-language', color: '#00f2fe' },
+            'الإسلامية': { icon: 'fa-solid fa-kaaba', color: '#27ae60' },
+            'الجغرافيا': { icon: 'fa-solid fa-earth-americas', color: '#e67e22' },
+            'التاريخ': { icon: 'fa-solid fa-landmark', color: '#e74c3c' },
+            'الاقتصاد': { icon: 'fa-solid fa-chart-line', color: '#f1c40f' },
+            'العلوم': { icon: 'fa-solid fa-microscope', color: '#1abc9c' },
+            'الاجتماعيات': { icon: 'fa-solid fa-users-rectangle', color: '#e67e22' }
+        };
+
+        // المحلل الخارق المحسن للعناوين
+        function parseMetadata(v) {
+            const title = (v.title || '').toLowerCase().trim();
+
+            let stage = 'preparatory';
+            if (title.includes('ابتدائي') || title.includes('ابتدائية') || title.includes('ابتدائيه')) {
+                stage = 'primary';
+            } else if (title.includes('متوسط') || title.includes('متوسطة') || title.includes('متوسطه')) {
+                stage = 'intermediate';
+            } else if (title.includes('إعدادي') || title.includes('اعدادي') || title.includes('علمي') || title.includes('أدبي') || title.includes('ادبي') || title.includes('سادس') || title.includes('خامس') || title.includes('رابع')) {
+                stage = 'preparatory';
             }
 
-            const file = fileInput.files[0];
-            startBtn.disabled = true;
-            processBox.classList.remove('hidden');
-            adminAlert.classList.add('hidden');
+            let branch = 'all';
+            if (title.includes('علمي') || title.includes('تطبيقي') || title.includes('احيائي') || title.includes('أحيائي')) {
+                branch = 'scientific';
+            } else if (title.includes('أدبي') || title.includes('ادبي')) {
+                branch = 'literary';
+            }
 
+            let subject = 'عام';
+
+            if (title.includes('جغرافيا') || title.includes('جغرافية')) {
+                subject = 'الجغرافيا';
+            } else if (title.includes('تاريخ')) {
+                subject = 'التاريخ';
+            } else if (title.includes('اقتصاد')) {
+                subject = 'الاقتصاد';
+            } else if (title.includes('رياضيات')) {
+                subject = 'الرياضيات';
+            } else if (title.includes('فيزياء')) {
+                subject = 'الفيزياء';
+            } else if (title.includes('كيمياء')) {
+                subject = 'الكيمياء';
+            } else if (title.includes('احياء') || title.includes('أحياء')) {
+                subject = 'الأحياء';
+            } else if (title.includes('عربي') || title.includes('قواعد') || title.includes('بلاغة') || (title.includes('ادب') && !title.includes('ادبي') && !title.includes('أدبي'))) {
+                subject = 'اللغة العربية';
+            } else if (title.includes('انكليزي') || title.includes('انجليزي') || title.includes('انقليزي') || title.includes('english')) {
+                subject = 'اللغة الإنجليزية';
+            } else if (title.includes('اسلامية') || title.includes('إسلامية') || title.includes('قرآن')) {
+                subject = 'الإسلامية';
+            } else if (title.includes('علوم')) {
+                subject = 'العلوم';
+            } else if (title.includes('اجتماعيات')) {
+                subject = 'الاجتماعيات';
+            }
+
+            let chapter = 'دروس عامة';
+            const chapterMatch = title.match(/(فصل|الفصل)\s*(الأول|الاول|الثاني|الثالث|الرابع|الخامس|السادس|السابع|الثامن|التاسع|العاشر|١|٢|٣|٤|٥|٦|٧|٨|٩|١٠|1|2|3|4|5|6|7|8|9|10)/);
+
+            if (chapterMatch) {
+                let num = chapterMatch[2];
+                if (num === 'الأول' || num === 'الاول' || num === '1' || num === '١') chapter = 'الفصل الأول';
+                else if (num === 'الثاني' || num === '2' || num === '٢') chapter = 'الفصل الثاني';
+                else if (num === 'الثالث' || num === '3' || num === '٣') chapter = 'الفصل الثالث';
+                else if (num === 'الرابع' || num === '4' || num === '٤') chapter = 'الفصل الرابع';
+                else if (num === 'الخامس' || num === '5' || num === '٥') chapter = 'الفصل الخامس';
+                else if (num === 'السادس' || num === '6' || num === '٦') chapter = 'الفصل السادس';
+                else if (num === 'السابع' || num === '7' || num === '٧') chapter = 'الفصل السابع';
+                else if (num === 'الثامن' || num === '8' || num === '٨') chapter = 'الفصل الثامن';
+                else if (num === 'التاسع' || num === '9' || num === '٩') chapter = 'الفصل التاسع';
+                else if (num === 'العاشر' || num === '10' || num === '١٠') chapter = 'الفصل العاشر';
+                else chapter = `الفصل ${num}`;
+            }
+
+            return { ...v, stage, branch, subject, chapter };
+        }
+
+        async function loadData() {
             try {
-                const pdfList = await extractPdfFiles(file, (msg) => processStatus.innerText = msg);
-
-                if (pdfList.length === 0) {
-                    throw new Error("لم يتم العثور على ملفات PDF داخل أرشيف RAR/ZIP.");
-                }
-
-                let indexedCount = 0;
-                const totalFiles = pdfList.length;
-
-                for (let i = 0; i < totalFiles; i++) {
-                    const item = pdfList[i];
-                    processStatus.innerText = `تحليل الملف (${i + 1} من ${totalFiles}): ${item.name}`;
-
-                    const pdfDoc = await pdfjsLib.getDocument({ data: item.buffer }).promise;
-
-                    for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
-                        const page = await pdfDoc.getPage(pageNum);
-                        const textContent = await page.getTextContent();
-                        const pageText = textContent.items.map(it => it.str).join(" ");
-                        const rollNumbers = pageText.match(/\b\d{8,12}\b/g) || [];
-
-                        if (rollNumbers.length > 0) {
-                            const viewport = page.getViewport({ scale: 1.8 });
-                            const canvas = document.createElement('canvas');
-                            const context = canvas.getContext('2d');
-                            canvas.height = viewport.height;
-                            canvas.width = viewport.width;
-
-                            await page.render({ canvasContext: context, viewport: viewport }).promise;
-                            const imageData = canvas.toDataURL('image/png');
-
-                            const tx = db.transaction("results", "readwrite");
-                            const store = tx.objectStore("results");
-
-                            const uniqueRolls = [...new Set(rollNumbers)];
-                            for (const roll of uniqueRolls) {
-                                store.put({ roll: roll, imageData: imageData });
-                                indexedCount++;
-                            }
-                        }
-                    }
-
-                    const progress = Math.round(((i + 1) / totalFiles) * 100);
-                    progressBar.style.width = progress + "%";
-                    processPercent.innerText = progress + "%";
-                }
-
-                adminAlert.className = "p-3 rounded-xl text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
-                adminAlert.innerText = `✅ اكتملت العملية! تمت فهرسة (${indexedCount}) رقم امتحاني من ملف الـ RAR بنجاح.`;
-                adminAlert.classList.remove('hidden');
-                updateStatusBadge();
-
-            } catch (err) {
-                adminAlert.className = "p-3 rounded-xl text-xs font-bold bg-red-500/10 text-red-400 border border-red-500/20";
-                adminAlert.innerText = "حدث خطأ: " + err.message;
-                adminAlert.classList.remove('hidden');
-            } finally {
-                startBtn.disabled = false;
+                const res = await fetch('./videos.json?v=' + Date.now());
+                const raw = await res.json();
+                categorizedVideos = (raw || []).map(parseMetadata);
+            } catch (e) {
+                console.error("خطأ في تحميل الملفات", e);
             }
         }
 
-        function clearDatabase() {
-            if (confirm("هل أنت تأكد من مسح كافة البيانات المخزنة؟")) {
-                const tx = db.transaction("results", "readwrite");
-                tx.objectStore("results").clear();
-                tx.oncomplete = () => {
-                    alert("تم مسح كافة البيانات بنجاح!");
-                    updateStatusBadge();
-                };
+        function navigateTo(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            setTimeout(() => {
+                document.getElementById(screenId).classList.add('active');
+            }, 100);
+        }
+
+        function selectStage(stageKey) {
+            state.stage = stageKey;
+            if (stageKey === 'preparatory') {
+                navigateTo('branchesScreen');
+            } else {
+                state.branch = 'all';
+                document.getElementById('subjectsBackBtn').onclick = () => navigateTo('stagesScreen');
+                renderSubjects();
             }
         }
+
+        function selectBranch(branchKey) {
+            state.branch = branchKey;
+            document.getElementById('subjectsBackBtn').onclick = () => navigateTo('branchesScreen');
+            renderSubjects();
+        }
+
+        function renderSubjects() {
+            const container = document.getElementById('subjectsContainer');
+            document.getElementById('subjectsHeaderSub').textContent = state.stage === 'preparatory' 
+                ? (state.branch === 'scientific' ? 'مواد الفرع العلمي' : 'مواد الفرع الأدبي')
+                : 'المواد الدراسية المتاحة';
+
+            let filtered = categorizedVideos.filter(v => v.stage === state.stage);
+            if (state.stage === 'preparatory' && state.branch !== 'all') {
+                filtered = filtered.filter(v => v.branch === state.branch || v.branch === 'all');
+            }
+
+            const subjectsFound = Array.from(new Set(filtered.map(v => v.subject)));
+
+            if (subjectsFound.length === 0) {
+                container.innerHTML = `<div class="empty-box" style="grid-column: 1/-1;"><i class="fa-solid fa-folder-open"></i><p>لا توجد مواد مرفوعة لهذا الفرع حالياً</p></div>`;
+            } else {
+                container.innerHTML = subjectsFound.map(sub => {
+                    const info = subjectIcons[sub] || { icon: 'fa-solid fa-book', color: '#00f2fe' };
+                    return `
+                        <div class="subject-card" onclick="selectSubject('${sub}')">
+                            <div class="subj-icon" style="color: ${info.color};"><i class="${info.icon}"></i></div>
+                            <h4>${sub}</h4>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            navigateTo('subjectsScreen');
+        }
+
+        function selectSubject(subjectName) {
+            state.subject = subjectName;
+            document.getElementById('chaptersHeaderTitle').textContent = subjectName;
+
+            let filtered = categorizedVideos.filter(v => v.stage === state.stage && v.subject === subjectName);
+            if (state.stage === 'preparatory' && state.branch !== 'all') {
+                filtered = filtered.filter(v => v.branch === state.branch || v.branch === 'all');
+            }
+
+            const chaptersFound = Array.from(new Set(filtered.map(v => v.chapter)));
+            const container = document.getElementById('chaptersContainer');
+
+            if (chaptersFound.length === 0) {
+                container.innerHTML = `<div class="empty-box"><i class="fa-solid fa-layer-group"></i><p>لا توجد فصول مرفوعة لهذه المادة</p></div>`;
+            } else {
+                container.innerHTML = chaptersFound.map(chap => `
+                    <div class="chapter-card" onclick="selectChapter('${chap}')">
+                        <div class="chapter-info">
+                            <div class="chapter-icon"><i class="fa-solid fa-bookmark"></i></div>
+                            <h4>${chap}</h4>
+                        </div>
+                        <i class="fa-solid fa-chevron-left" style="color: var(--text-muted); font-size: 13px;"></i>
+                    </div>
+                `).join('');
+            }
+
+            navigateTo('chaptersScreen');
+        }
+
+        function selectChapter(chapterName) {
+            state.chapter = chapterName;
+            document.getElementById('videosHeaderTitle').textContent = chapterName;
+            document.getElementById('videosHeaderSub').textContent = `${state.subject} - ${chapterName}`;
+
+            let filtered = categorizedVideos.filter(v => 
+                v.stage === state.stage && 
+                v.subject === state.subject && 
+                v.chapter === chapterName
+            );
+
+            if (state.stage === 'preparatory' && state.branch !== 'all') {
+                filtered = filtered.filter(v => v.branch === state.branch || v.branch === 'all');
+            }
+
+            const container = document.getElementById('videosContainer');
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="empty-box"><i class="fa-solid fa-clapperboard"></i><p>لا توجد فيديوهات في هذا الفصل</p></div>`;
+            } else {
+                container.innerHTML = filtered.map(v => `
+                    <div class="video-card">
+                        <div class="video-wrapper">
+                            <video src="${v.url}" controls playsinline preload="metadata"></video>
+                        </div>
+                        <div class="video-body">
+                            <span class="video-badge"><i class="fa-solid fa-circle-play"></i> ${v.subject}</span>
+                            <div class="video-title">${v.title}</div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            navigateTo('videosScreen');
+        }
+
+        loadData();
     </script>
 </body>
 </html>
