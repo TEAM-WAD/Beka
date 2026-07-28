@@ -3,24 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>منصة نتلامخم التعليمية - VIP Ultra Cloud</title>
+    <title>منصة نتلامخم التعليمية - VIP Live Cloud</title>
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <style>
-        /* ==================== المتغيرات والتصميم التفاعلي ==================== */
         :root {
             --gold-primary: #FFD700;
             --gold-gradient: linear-gradient(135deg, #FFE259 0%, #FFA751 100%);
             --gold-glow: rgba(255, 215, 0, 0.45);
             --cyan-accent: #00f2fe;
             --purple-accent: #8b5cf6;
-            --pink-accent: #ec4899;
             --red-danger: #ef4444;
+            --green-success: #10b981;
             --bg-dark: #05070e;
-            --card-glass: rgba(15, 21, 37, 0.75);
+            --card-glass: rgba(15, 21, 37, 0.85);
             --card-border: rgba(255, 255, 255, 0.12);
             --text-main: #ffffff;
             --text-muted: #94a3b8;
@@ -28,8 +27,7 @@
 
         * {
             box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             font-family: 'Alexandria', sans-serif;
             -webkit-tap-highlight-color: transparent;
         }
@@ -47,43 +45,22 @@
             overflow-x: hidden;
         }
 
-        /* ==================== 1. الشاشة الترحيبية (Splash Screen) ==================== */
+        /* الشاشة الترحيبية */
         .welcome-screen {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            z-index: 99999;
+            position: fixed; inset: 0; z-index: 99999;
             background: radial-gradient(circle at 50% 30%, #FF9800 0%, #6A1B9A 45%, #12002B 90%);
             display: flex; align-items: center; justify-content: center;
-            overflow: hidden;
             transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.8s ease, visibility 0.8s;
         }
-
-        .welcome-screen.hidden {
-            opacity: 0; transform: scale(1.15); visibility: hidden; pointer-events: none;
-        }
-
-        #welcomeCanvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
-
-        .welcome-illustration {
-            position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 440px; max-width: 92vw; height: auto; z-index: 2;
-            filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.6));
-            animation: pulseFloat 4s ease-in-out infinite alternate;
-        }
-
-        @keyframes pulseFloat {
-            0% { transform: translate(-50%, -50%) translateY(0px) scale(1); }
-            100% { transform: translate(-50%, -50%) translateY(-10px) scale(1.02); }
-        }
+        .welcome-screen.hidden { opacity: 0; transform: scale(1.15); visibility: hidden; pointer-events: none; }
+        #welcomeCanvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 
         .welcome-content {
             position: relative; z-index: 3;
             width: 88vw; max-width: 380px; padding: 28px 22px; text-align: center;
-            background: rgba(15, 10, 30, 0.55);
-            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            background: rgba(15, 10, 30, 0.65); backdrop-filter: blur(16px);
             border-radius: 32px; border: 1px solid rgba(255, 255, 255, 0.25);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 30px rgba(168, 85, 247, 0.3);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
             display: flex; flex-direction: column; align-items: center; gap: 12px;
         }
 
@@ -93,237 +70,135 @@
             display: flex; align-items: center; justify-content: center;
             font-size: 34px; color: #FFFFFF;
             box-shadow: 0 10px 25px rgba(168, 85, 247, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
-        .welcome-title { font-size: 24px; font-weight: 800; color: #FFFFFF; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8); }
-        .welcome-subtitle { font-size: 13.5px; color: rgba(255, 255, 255, 0.9); font-weight: 500; margin-bottom: 8px; }
-
+        .welcome-title { font-size: 22px; font-weight: 800; color: #FFFFFF; }
         .welcome-btn {
             width: 100%; padding: 16px; border-radius: 50px; border: none;
             background: linear-gradient(90deg, #8B5CF6 0%, #D946EF 100%);
             color: #FFFFFF; font-size: 16px; font-weight: 800; cursor: pointer;
             display: flex; align-items: center; justify-content: center; gap: 10px;
-            box-shadow: 0 12px 28px rgba(217, 70, 239, 0.45); transition: all 0.25s ease;
+            box-shadow: 0 12px 28px rgba(217, 70, 239, 0.45);
         }
 
-        .welcome-btn:active { transform: scale(0.95); }
-        .welcome-skip { color: rgba(255, 255, 255, 0.75); font-size: 13.5px; background: none; border: none; cursor: pointer; font-weight: 500; padding: 4px 12px; }
-
-        /* ==================== 2. الواجهة الرئيسية والهيدر ==================== */
-        .main-app-wrapper {
-            opacity: 0; transform: translateY(20px) scale(0.97);
-            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .main-app-wrapper.visible { opacity: 1; transform: translateY(0) scale(1); }
+        /* الهيدر والواجهات */
+        .main-app-wrapper { opacity: 0; transform: translateY(20px); transition: all 0.8s ease; }
+        .main-app-wrapper.visible { opacity: 1; transform: translateY(0); }
 
         .app-header {
             position: sticky; top: 0; z-index: 100;
-            background: rgba(10, 14, 26, 0.85);
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            background: rgba(10, 14, 26, 0.88); backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--card-border);
             padding: 14px 20px; display: flex; align-items: center; justify-content: space-between;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
 
         .brand-info { display: flex; align-items: center; gap: 12px; }
         .brand-logo {
-            width: 44px; height: 44px; border-radius: 14px;
+            width: 42px; height: 42px; border-radius: 14px;
             background: linear-gradient(135deg, #00f2fe, #4facfe);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 20px; color: #fff; box-shadow: 0 0 20px rgba(0, 242, 254, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            display: flex; align-items: center; justify-content: center; font-size: 20px; color: #fff;
         }
-
-        .brand-text h1 { font-size: 16px; font-weight: 800; color: #FFFFFF; }
-        .brand-text p { font-size: 11px; color: var(--cyan-accent); font-weight: 600; }
 
         .vip-login-btn {
-            background: var(--gold-gradient);
-            border: 1px solid rgba(255, 255, 255, 0.4);
+            background: var(--gold-gradient); border: none;
             color: #12002B; padding: 8px 18px; border-radius: 12px;
             font-size: 13px; font-weight: 800; cursor: pointer;
-            display: flex; align-items: center; gap: 8px;
-            box-shadow: 0 0 18px var(--gold-glow); transition: all 0.3s;
+            box-shadow: 0 0 15px var(--gold-glow);
         }
-        .vip-login-btn:active { transform: scale(0.93); box-shadow: 0 0 25px var(--gold-primary); }
 
-        .container { padding: 22px; max-width: 600px; margin: 0 auto; }
+        .container { padding: 20px; max-width: 600px; margin: 0 auto; }
+        .screen { display: none; }
+        .screen.active { display: block; }
 
-        .screen { display: none; opacity: 0; transform: translateY(15px); transition: all 0.35s ease; }
-        .screen.active { display: block; opacity: 1; transform: translateY(0); }
-
-        .main-home-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
-        
+        .main-home-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
         .home-card {
             background: var(--card-glass); border: 1px solid var(--card-border);
-            border-radius: 24px; padding: 24px 16px; text-align: center;
-            cursor: pointer; backdrop-filter: blur(20px); transition: all 0.3s;
-            display: flex; flex-direction: column; align-items: center; gap: 14px;
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+            border-radius: 22px; padding: 22px 14px; text-align: center; cursor: pointer;
+            display: flex; flex-direction: column; align-items: center; gap: 12px;
         }
-        .home-card:active { transform: scale(0.94); border-color: var(--cyan-accent); }
 
         .home-card-icon {
-            width: 64px; height: 64px; border-radius: 20px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 30px;
+            width: 58px; height: 58px; border-radius: 18px;
+            display: flex; align-items: center; justify-content: center; font-size: 26px;
         }
 
-        .home-card.lectures .home-card-icon { background: rgba(139, 92, 246, 0.15); color: #8b5cf6; border: 1px solid rgba(139, 92, 246, 0.3); box-shadow: 0 0 20px rgba(139, 92, 246, 0.3); }
-        .home-card.bag .home-card-icon { background: rgba(0, 242, 254, 0.15); color: #00f2fe; border: 1px solid rgba(0, 242, 254, 0.3); box-shadow: 0 0 20px rgba(0, 242, 254, 0.3); }
-        .home-card.results .home-card-icon { background: rgba(236, 72, 153, 0.15); color: #ec4899; border: 1px solid rgba(236, 72, 153, 0.3); box-shadow: 0 0 20px rgba(236, 72, 153, 0.3); }
-
-        .home-card h3 { font-size: 15px; font-weight: 800; color: #FFF; }
-        .home-card p { font-size: 11px; color: var(--text-muted); }
-
-        .home-card.full-width { grid-column: span 2; flex-direction: row; justify-content: flex-start; text-align: right; padding: 20px 22px; }
-
-        .nav-header { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; }
-        .back-btn {
-            background: var(--card-glass); border: 1px solid var(--card-border);
-            width: 44px; height: 44px; border-radius: 16px; color: var(--text-main);
-            display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.25s;
-        }
-        .back-btn:active { transform: scale(0.9); border-color: var(--cyan-accent); }
-
-        .stage-card, .branch-card, .subject-card, .chapter-card, .video-card {
-            background: var(--card-glass); border: 1px solid var(--card-border);
-            border-radius: 22px; padding: 20px; backdrop-filter: blur(20px);
-            margin-bottom: 14px; transition: all 0.3s;
-        }
-
-        /* ==================== 3. مودال تسجيل الدخول الـ Ultra ==================== */
+        /* المودال لوحة الدخول */
         .login-modal {
             position: fixed; inset: 0; z-index: 100000;
-            background: rgba(2, 4, 10, 0.85); backdrop-filter: blur(25px);
+            background: rgba(2, 4, 10, 0.88); backdrop-filter: blur(25px);
             display: flex; align-items: center; justify-content: center; padding: 20px;
-            opacity: 0; pointer-events: none; transition: all 0.4s ease;
+            opacity: 0; pointer-events: none; transition: all 0.3s ease;
         }
         .login-modal.active { opacity: 1; pointer-events: all; }
 
         .login-card {
-            background: linear-gradient(160deg, rgba(20, 27, 47, 0.95), rgba(8, 12, 22, 0.98));
-            border: 1px solid rgba(255, 215, 0, 0.3); border-radius: 32px;
-            width: 100%; max-width: 420px; padding: 32px 24px; text-align: center;
-            box-shadow: 0 30px 70px rgba(0,0,0,0.8), 0 0 40px rgba(255, 215, 0, 0.2);
-            position: relative; transform: translateY(30px); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: linear-gradient(160deg, rgba(20, 27, 47, 0.98), rgba(8, 12, 22, 0.98));
+            border: 1px solid rgba(255, 215, 0, 0.4); border-radius: 28px;
+            width: 100%; max-width: 400px; padding: 28px 20px; text-align: center;
+            position: relative;
         }
-        .login-modal.active .login-card { transform: translateY(0); }
 
         .close-modal-btn {
-            position: absolute; top: 18px; left: 18px;
-            background: rgba(255, 255, 255, 0.08); border: none; color: #FFF;
-            width: 36px; height: 36px; border-radius: 12px; cursor: pointer; font-size: 16px;
+            position: absolute; top: 16px; left: 16px;
+            background: rgba(255, 255, 255, 0.1); border: none; color: #FFF;
+            width: 32px; height: 32px; border-radius: 10px; cursor: pointer;
         }
 
-        .login-badge {
-            display: inline-flex; align-items: center; gap: 6px;
-            background: var(--gold-gradient); color: #111; padding: 6px 16px;
-            border-radius: 30px; font-size: 12px; font-weight: 800; margin-bottom: 16px;
-        }
-
-        .login-title { font-size: 22px; font-weight: 800; color: #FFF; margin-bottom: 6px; }
-        .login-sub { font-size: 12px; color: var(--text-muted); margin-bottom: 24px; }
-
-        .input-group { position: relative; margin-bottom: 16px; text-align: right; }
-        .input-group label { display: block; font-size: 12px; font-weight: 600; color: #cbd5e1; margin-bottom: 6px; }
+        .input-group { margin-bottom: 14px; text-align: right; }
+        .input-group label { display: block; font-size: 12px; color: #cbd5e1; margin-bottom: 6px; }
         .input-group input {
-            width: 100%; padding: 14px 16px; border-radius: 16px;
-            background: rgba(255, 255, 255, 0.05); border: 1px solid var(--card-border);
-            color: #FFF; font-size: 14px; outline: none; transition: border 0.3s;
+            width: 100%; padding: 12px 14px; border-radius: 14px;
+            background: rgba(255, 255, 255, 0.06); border: 1px solid var(--card-border);
+            color: #FFF; font-size: 14px; outline: none;
         }
-        .input-group input:focus { border-color: var(--gold-primary); box-shadow: 0 0 12px var(--gold-glow); }
 
         .submit-login-btn {
-            width: 100%; padding: 16px; border-radius: 18px; border: none;
-            background: var(--gold-gradient); color: #111; font-size: 16px; font-weight: 800;
-            cursor: pointer; box-shadow: 0 10px 25px var(--gold-glow); transition: all 0.25s; margin-top: 10px;
-        }
-        .submit-login-btn:active { transform: scale(0.96); }
-
-        .login-error { color: #f43f5e; font-size: 12px; font-weight: 600; margin-top: 12px; min-height: 18px; line-height: 1.5; }
-
-        /* ==================== 4. واجهة الطالب VIP ==================== */
-        .vip-portal {
-            background: rgba(18, 12, 38, 0.8); border: 1px solid rgba(255, 215, 0, 0.3);
-            border-radius: 30px; padding: 22px; text-align: center; margin-bottom: 24px;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6); backdrop-filter: blur(20px);
+            width: 100%; padding: 14px; border-radius: 16px; border: none;
+            background: var(--gold-gradient); color: #111; font-size: 15px; font-weight: 800;
+            cursor: pointer; margin-top: 10px;
         }
 
-        .vip-user-welcome { font-size: 18px; font-weight: 800; color: #FFF; margin-bottom: 12px; }
+        .login-error { color: #f43f5e; font-size: 12px; margin-top: 12px; font-weight: 600; min-height: 20px; }
 
-        .timer-box {
-            background: rgba(0, 0, 0, 0.4); border: 1px solid var(--gold-glow);
-            border-radius: 20px; padding: 14px; margin-top: 10px;
-            display: flex; justify-content: center; align-items: center; gap: 12px;
-        }
-        .timer-unit { text-align: center; }
-        .timer-unit .num { font-size: 20px; font-weight: 900; color: var(--gold-primary); text-shadow: 0 0 10px var(--gold-glow); }
-        .timer-unit .label { font-size: 10px; color: var(--text-muted); }
-
-        .vip-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-
-        .vip-card {
-            background: var(--card-glass); border: 1px solid rgba(255, 215, 0, 0.25);
-            border-radius: 24px; padding: 22px 14px; text-align: center;
-            cursor: pointer; transition: all 0.3s; display: flex; flex-direction: column;
-            align-items: center; gap: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-        }
-        .vip-card:active { transform: scale(0.94); border-color: var(--gold-primary); }
-
-        .vip-card-icon {
-            width: 58px; height: 58px; border-radius: 18px;
-            background: rgba(255, 215, 0, 0.12); color: var(--gold-primary);
-            display: flex; align-items: center; justify-content: center; font-size: 26px;
-            border: 1px solid var(--gold-glow); box-shadow: 0 0 15px var(--gold-glow);
-        }
-
-        .vip-card h4 { font-size: 14px; font-weight: 800; color: #FFF; }
-
-        /* ==================== 5. لوحة تحكم المطور السحابية ==================== */
+        /* لوحة التحكم المطور السحابية */
         .dev-panel {
             background: var(--card-glass); border: 1px solid var(--cyan-accent);
-            border-radius: 28px; padding: 22px; backdrop-filter: blur(20px);
-            box-shadow: 0 0 30px rgba(0, 242, 254, 0.2); margin-bottom: 24px;
+            border-radius: 24px; padding: 20px; backdrop-filter: blur(20px);
         }
 
-        .dev-title { font-size: 18px; font-weight: 800; color: var(--cyan-accent); margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
-
-        .dev-section { background: rgba(0, 0, 0, 0.3); border-radius: 18px; padding: 16px; margin-bottom: 16px; border: 1px solid var(--card-border); }
-        .dev-section h4 { font-size: 14px; font-weight: 700; color: #FFF; margin-bottom: 12px; }
-
+        .dev-section { background: rgba(0, 0, 0, 0.4); border-radius: 16px; padding: 16px; margin-bottom: 14px; border: 1px solid var(--card-border); }
+        
         .dev-btn {
-            width: 100%; padding: 14px; border-radius: 14px; border: none;
-            background: linear-gradient(135deg, #00f2fe, #4facfe); color: #111;
-            font-size: 14px; font-weight: 800; cursor: pointer; transition: all 0.2s;
-            display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 8px;
+            width: 100%; padding: 12px; border-radius: 12px; border: none;
+            font-size: 14px; font-weight: 800; cursor: pointer; margin-top: 8px;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
         }
-        .dev-btn:active { transform: scale(0.96); }
-
-        .dev-btn.purple { background: linear-gradient(135deg, #a855f7, #6366f1); color: #FFF; }
         .dev-btn.gold { background: var(--gold-gradient); color: #111; }
-        .dev-btn.danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: #FFF; }
+        .dev-btn.cyan { background: linear-gradient(135deg, #00f2fe, #4facfe); color: #111; }
 
         .generated-code-box {
             background: #000; border: 1px dashed var(--gold-primary);
-            border-radius: 14px; padding: 16px; font-family: monospace;
-            font-size: 13px; color: var(--gold-primary); margin-top: 12px; word-break: break-all; text-align: right;
-            line-height: 1.8; box-shadow: 0 0 15px rgba(255, 215, 0, 0.15);
+            border-radius: 14px; padding: 14px; font-size: 13px; color: var(--gold-primary);
+            margin-top: 12px; text-align: right; line-height: 1.8;
         }
 
-        .copy-btn-sm {
+        .copy-btn {
             background: rgba(255, 215, 0, 0.2); border: 1px solid var(--gold-primary);
-            color: #FFF; padding: 3px 8px; border-radius: 6px; font-size: 11px;
-            cursor: pointer; margin-right: 6px; font-family: 'Alexandria', sans-serif;
+            color: #FFF; padding: 2px 8px; border-radius: 6px; font-size: 11px; cursor: pointer; margin-right: 6px;
+        }
+
+        .nav-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+        .back-btn {
+            background: var(--card-glass); border: 1px solid var(--card-border);
+            width: 40px; height: 40px; border-radius: 14px; color: #FFF;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
         }
 
         .dev-alert {
             position: fixed; bottom: 20px; right: 20px; left: 20px; max-width: 400px; margin: 0 auto;
             background: rgba(15, 23, 42, 0.95); border: 1px solid var(--cyan-accent);
-            padding: 16px; border-radius: 18px; color: #FFF; font-size: 13px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8); z-index: 200000; display: none;
-            align-items: center; gap: 12px; backdrop-filter: blur(15px);
+            padding: 14px; border-radius: 16px; color: #FFF; font-size: 13px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8); z-index: 200000; display: none; align-items: center; gap: 10px;
         }
     </style>
 </head>
@@ -331,233 +206,102 @@
 
     <div id="welcomeScreen" class="welcome-screen">
         <canvas id="welcomeCanvas"></canvas>
-        <svg class="welcome-illustration" viewBox="0 0 400 500" fill="none">
-            <circle cx="200" cy="110" r="100" fill="url(#sunGlow)" opacity="0.9"/>
-            <rect x="70" y="420" width="260" height="42" rx="7" fill="#E53935"/>
-            <rect x="80" y="426" width="240" height="30" rx="4" fill="#FF5252"/>
-            <rect x="85" y="373" width="230" height="40" rx="7" fill="#1E88E5"/>
-            <rect x="95" y="379" width="210" height="28" rx="4" fill="#42A5F5"/>
-            <rect x="100" y="328" width="200" height="38" rx="7" fill="#00ACC1"/>
-            <rect x="110" y="333" width="180" height="26" rx="4" fill="#26C6DA"/>
-            <rect x="115" y="284" width="170" height="37" rx="7" fill="#8E24AA"/>
-            <rect x="128" y="242" width="144" height="36" rx="7" fill="#FB8C00"/>
-            <rect x="140" y="202" width="120" height="34" rx="7" fill="#FDD835"/>
-            <path d="M120 455 L160 180" stroke="#8D6E63" stroke-width="9" stroke-linecap="round"/>
-            <path d="M155 455 L195 180" stroke="#8D6E63" stroke-width="9" stroke-linecap="round"/>
-            <path d="M200 115 L280 150 L200 185 L120 150 Z" fill="#111111"/>
-            <circle cx="200" cy="150" r="6" fill="#FFD700"/>
-            <defs>
-                <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" stop-color="#FFE082" stop-opacity="1"/>
-                    <stop offset="100%" stop-color="#FF8F00" stop-opacity="0"/>
-                </radialGradient>
-            </defs>
-        </svg>
-
         <div class="welcome-content">
-            <div class="welcome-app-icon"><i class="fa-solid fa-book-open-reader"></i></div>
-            <h1 class="welcome-title">منصة نتلامخم التعليمية</h1>
-            <p class="welcome-subtitle">مرحباً بك في المنصة الذكية</p>
+            <div class="welcome-app-icon"><i class="fa-solid fa-graduation-cap"></i></div>
+            <h1 class="welcome-title">مكتبة العراق المركزية</h1>
+            <p style="font-size: 13px; color: rgba(255,255,255,0.8);">ابدأ رحلتك التعليمية</p>
             <button class="welcome-btn" onclick="enterApp()">
                 <i class="fa-solid fa-play"></i> <span>ادخل التطبيق</span>
             </button>
-            <button class="welcome-skip" onclick="enterApp()">تخطي</button>
         </div>
     </div>
 
     <div id="mainAppWrapper" class="main-app-wrapper">
         <header class="app-header">
             <div class="brand-info">
-                <div class="brand-logo"><i class="fa-solid fa-graduation-cap"></i></div>
-                <div class="brand-text">
-                    <h1>نتلامخم التعليمية</h1>
-                    <p><i class="fa-solid fa-cloud"></i> السحابية أونلاين</p>
+                <div class="brand-logo"><i class="fa-solid fa-book-open"></i></div>
+                <div>
+                    <h1 style="font-size: 15px;">نتلامخم التعليمية</h1>
+                    <p style="font-size: 10px; color: var(--cyan-accent);"><i class="fa-solid fa-cloud"></i> السحابة الموحدة أونلاين</p>
                 </div>
             </div>
 
             <button class="vip-login-btn" onclick="openLoginModal()">
-                <i class="fa-solid fa-crown"></i>
-                <span>تسجيل الدخول</span>
+                <i class="fa-solid fa-crown"></i> دخول VIP
             </button>
         </header>
 
         <div class="container">
-
             <section id="homeMenuScreen" class="screen active">
-                <div style="margin-bottom: 20px;">
-                    <h2 style="font-size: 20px; font-weight: 800;">أهلاً بك في المنصة</h2>
+                <div style="margin-bottom: 18px;">
+                    <h2>أهلاً بك في المنصة</h2>
                     <p style="font-size: 12px; color: var(--text-muted);">اختر القسم المطلوب للتصفح</p>
                 </div>
 
                 <div class="main-home-grid">
-                    <div class="home-card lectures" onclick="navigateTo('stagesScreen')">
-                        <div class="home-card-icon"><i class="fa-solid fa-video"></i></div>
-                        <h3>قسم المحاضرات الإلكترونية</h3>
-                        <p>تصفح الفيديوهات حسب المراحل</p>
-                    </div>
-
-                    <div class="home-card bag" onclick="showPublicNotice('قسم ملازم حقيبة الطالب')">
-                        <div class="home-card-icon"><i class="fa-solid fa-folder-open"></i></div>
-                        <h3>قسم ملازم حقيبة الطالب</h3>
-                        <p>الملفات والملازم العامة</p>
-                    </div>
-
-                    <div class="home-card results full-width" onclick="showPublicNotice('قسم نتائج الامتحانات العامة')">
-                        <div class="home-card-icon"><i class="fa-solid fa-square-poll-vertical"></i></div>
-                        <div>
-                            <h3>قسم نتائج الامتحانات</h3>
-                            <p>نتائج الامتحانات لجميع الطلاب</p>
+                    <div class="home-card" onclick="alert('قسم المحاضرات')">
+                        <div class="home-card-icon" style="background: rgba(139, 92, 246, 0.15); color: #8b5cf6;">
+                            <i class="fa-solid fa-video"></i>
                         </div>
+                        <h3>المحاضرات الإلكترونية</h3>
+                    </div>
+
+                    <div class="home-card" onclick="alert('حقيبة الطالب')">
+                        <div class="home-card-icon" style="background: rgba(0, 242, 254, 0.15); color: #00f2fe;">
+                            <i class="fa-solid fa-folder-open"></i>
+                        </div>
+                        <h3>حقيبة الطالب</h3>
                     </div>
                 </div>
-            </section>
-
-            <section id="stagesScreen" class="screen">
-                <div class="nav-header">
-                    <div class="back-btn" onclick="navigateTo('homeMenuScreen')"><i class="fa-solid fa-arrow-right"></i></div>
-                    <div class="nav-title"><h2>المراحل الدراسية</h2><p>اختر المرحلة</p></div>
-                </div>
-                <div class="stage-card" onclick="selectStage('preparatory')"><h3>المرحلة الإعدادية</h3></div>
-                <div class="stage-card" onclick="selectStage('intermediate')"><h3>المرحلة المتوسطة</h3></div>
-                <div class="stage-card" onclick="selectStage('primary')"><h3>المرحلة الابتدائية</h3></div>
-            </section>
-
-            <section id="branchesScreen" class="screen">
-                <div class="nav-header">
-                    <div class="back-btn" onclick="navigateTo('stagesScreen')"><i class="fa-solid fa-arrow-right"></i></div>
-                    <div class="nav-title"><h2>الفرع الدراسي</h2></div>
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
-                    <div class="branch-card" onclick="selectBranch('scientific')"><h3>الفرع العلمي</h3></div>
-                    <div class="branch-card" onclick="selectBranch('literary')"><h3>الفرع الأدبي</h3></div>
-                </div>
-            </section>
-
-            <section id="subjectsScreen" class="screen">
-                <div class="nav-header">
-                    <div class="back-btn" id="subjectsBackBtn"><i class="fa-solid fa-arrow-right"></i></div>
-                    <div class="nav-title"><h2>المواد الدراسية</h2></div>
-                </div>
-                <div id="subjectsContainer" style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;"></div>
-            </section>
-
-            <section id="chaptersScreen" class="screen">
-                <div class="nav-header">
-                    <div class="back-btn" onclick="navigateTo('subjectsScreen')"><i class="fa-solid fa-arrow-right"></i></div>
-                    <div class="nav-title"><h2 id="chaptersHeaderTitle">الفصول</h2></div>
-                </div>
-                <div id="chaptersContainer"></div>
-            </section>
-
-            <section id="videosScreen" class="screen">
-                <div class="nav-header">
-                    <div class="back-btn" onclick="navigateTo('chaptersScreen')"><i class="fa-solid fa-arrow-right"></i></div>
-                    <div class="nav-title"><h2 id="videosHeaderTitle">الدروس</h2></div>
-                </div>
-                <div id="videosContainer"></div>
             </section>
 
             <section id="vipStudentScreen" class="screen">
                 <div class="nav-header">
                     <div class="back-btn" onclick="logoutVIP()"><i class="fa-solid fa-right-from-bracket"></i></div>
-                    <div class="nav-title"><h2>بوابة الاشتراك VIP</h2><p>منصة نتلامخم المشفرة</p></div>
+                    <div><h2>بوابة VIP الخاصة</h2><p style="font-size: 11px; color: var(--gold-primary);">مفعل ومربوط أونلاين</p></div>
                 </div>
 
-                <div class="vip-portal">
-                    <div class="vip-user-welcome">
-                        <i class="fa-solid fa-crown" style="color: var(--gold-primary);"></i>
-                        <span id="vipStudentEmailText">أهلاً بك عزيزي المشترك VIP</span>
-                    </div>
-                    <p style="font-size: 12px; color: var(--text-muted);">الوقت المتبقي لانتهاء اشتراكك:</p>
-
-                    <div class="timer-box">
-                        <div class="timer-unit"><div class="num" id="cdDays">00</div><div class="label">يوم</div></div>
-                        <span style="color: var(--gold-primary); font-weight: bold;">:</span>
-                        <div class="timer-unit"><div class="num" id="cdHours">00</div><div class="label">ساعة</div></div>
-                        <span style="color: var(--gold-primary); font-weight: bold;">:</span>
-                        <div class="timer-unit"><div class="num" id="cdMinutes">00</div><div class="label">دقيقة</div></div>
-                        <span style="color: var(--gold-primary); font-weight: bold;">:</span>
-                        <div class="timer-unit"><div class="num" id="cdSeconds">00</div><div class="label">ثانية</div></div>
-                    </div>
-                </div>
-
-                <div class="vip-grid">
-                    <div class="vip-card" onclick="showDevUnderDev('حقيبة الطالب VIP')">
-                        <div class="vip-card-icon"><i class="fa-solid fa-box-archive"></i></div>
-                        <h4>حقيبة الطالب VIP</h4>
-                    </div>
-                    <div class="vip-card" onclick="showDevUnderDev('الامتحانات الشهرية VIP')">
-                        <div class="vip-card-icon"><i class="fa-solid fa-file-pen"></i></div>
-                        <h4>الامتحانات VIP</h4>
-                    </div>
+                <div style="background: rgba(20, 15, 35, 0.9); border: 1px solid var(--gold-primary); border-radius: 22px; padding: 20px; text-align: center;">
+                    <i class="fa-solid fa-crown" style="font-size: 36px; color: var(--gold-primary); margin-bottom: 10px;"></i>
+                    <h3 id="vipStudentEmailText" style="font-size: 16px; color: #FFF;"></h3>
+                    <p style="font-size: 12px; color: var(--green-success); margin-top: 6px;"><i class="fa-solid fa-circle-check"></i> اشتراكك فعال وموجود بالسحابة</p>
                 </div>
             </section>
 
             <section id="developerScreen" class="screen">
                 <div class="nav-header">
                     <div class="back-btn" onclick="logoutVIP()"><i class="fa-solid fa-right-from-bracket"></i></div>
-                    <div class="nav-title"><h2>لوحة تحكم المطور السحابية</h2><p>ربط شامل لجميع الأجهزة أونلاين</p></div>
+                    <div><h2>لوحة التحكم السحابية</h2><p style="font-size: 11px; color: var(--cyan-accent);">السيرفر الموحد لجميع الأجهزة</p></div>
                 </div>
 
                 <div class="dev-panel">
-                    <div class="dev-title">
-                        <i class="fa-solid fa-cloud-arrow-up"></i>
-                        <span>إدارة الاشتراكات أونلاين</span>
-                    </div>
-
                     <div class="dev-section">
-                        <h4><i class="fa-solid fa-key" style="color: var(--gold-primary);"></i> إنشاء وتفعيل اشتراك أونلاين فوراً</h4>
+                        <h4 style="color: var(--gold-primary); margin-bottom: 8px;"><i class="fa-solid fa-user-plus"></i> إنشاء وتفعيل حساب أونلاين</h4>
+                        
                         <label style="font-size: 11px; color: var(--text-muted);">مدة الاشتراك:</label>
-                        <select id="subDurationSelect" style="width: 100%; padding: 12px; border-radius: 12px; background: #111; color: #FFF; border: 1px solid var(--card-border); margin: 6px 0; font-size: 13px;">
+                        <select id="subDurationSelect" style="width: 100%; padding: 10px; border-radius: 10px; background: #111; color: #FFF; border: 1px solid var(--card-border); margin: 6px 0;">
                             <option value="7">أسبوع واحد (7 أيام)</option>
                             <option value="30">شهر كامل (30 يوم)</option>
                             <option value="365">سنة كاملة (365 يوم)</option>
                         </select>
+
                         <button class="dev-btn gold" onclick="generateNewSubscription()">
-                            <i class="fa-solid fa-cloud-plus"></i> إنشاء وتفعيل أونلاين لجميع الأجهزة
+                            <i class="fa-solid fa-cloud-arrow-up"></i> إنشاء وحفظ في السيرفر أونلاين
                         </button>
+
                         <div id="generatedOutput" class="generated-code-box" style="display:none;"></div>
-                    </div>
-
-                    <div class="dev-section">
-                        <h4><i class="fa-solid fa-arrows-rotate" style="color: var(--cyan-accent);"></i> تجديد اشتراك طالب أونلاين</h4>
-                        <input type="email" id="renewEmailInput" placeholder="أدخل إيميل الطالب" style="width: 100%; padding: 10px; border-radius: 10px; background: #111; color: #FFF; border: 1px solid var(--card-border); margin-bottom: 8px;">
-                        <select id="renewDurationSelect" style="width: 100%; padding: 10px; border-radius: 10px; background: #111; color: #FFF; border: 1px solid var(--card-border); margin-bottom: 8px;">
-                            <option value="7">تجديد +7 أيام</option>
-                            <option value="30">تجديد +30 يوم</option>
-                        </select>
-                        <button class="dev-btn" onclick="renewStudentSubscription()">
-                            <i class="fa-solid fa-rotate-right"></i> تجديد وتمديد أونلاين
-                        </button>
-                    </div>
-
-                    <div class="dev-section" style="border-color: rgba(239, 68, 68, 0.4);">
-                        <h4><i class="fa-solid fa-user-xmark" style="color: var(--red-danger);"></i> إنهاء اشتراك طالب من كل الأجهزة</h4>
-                        <input type="email" id="terminateEmailInput" placeholder="أدخل إيميل الطالب لإلغائه" style="width: 100%; padding: 10px; border-radius: 10px; background: #111; color: #FFF; border: 1px solid var(--card-border); margin-bottom: 8px;">
-                        <button class="dev-btn danger" onclick="terminateStudentSubscription()">
-                            <i class="fa-solid fa-ban"></i> إنهاء وإلغاء الاشتراك أونلاين
-                        </button>
-                    </div>
-
-                    <div class="dev-section">
-                        <h4><i class="fa-solid fa-bullhorn" style="color: #f43f5e;"></i> إذاعة تنبيه لجميع الأجهزة</h4>
-                        <input type="text" id="broadcastMsg" placeholder="نص التنبيه والإذاعة..." style="width: 100%; padding: 10px; border-radius: 10px; background: #111; color: #FFF; border: 1px solid var(--card-border); margin-bottom: 8px;">
-                        <button class="dev-btn" style="background: linear-gradient(135deg, #f43f5e, #e11d48); color: #FFF;" onclick="sendBroadcastNotification()">
-                            <i class="fa-solid fa-paper-plane"></i> إرسال إذاعة حية
-                        </button>
                     </div>
                 </div>
             </section>
-
         </div>
     </div>
 
     <div id="loginModal" class="login-modal">
         <div class="login-card">
             <button class="close-modal-btn" onclick="closeLoginModal()"><i class="fa-solid fa-xmark"></i></button>
-            <div class="login-badge"><i class="fa-solid fa-crown"></i> VIP Portal Access</div>
-            <h3 class="login-title">تسجيل الدخول المميز</h3>
-            <p class="login-sub">أدخل بياناتك المتصلة بالسحابة أونلاين</p>
+            <div style="background: var(--gold-gradient); color: #000; display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; margin-bottom: 12px;">VIP Access</div>
+            <h3 style="font-size: 20px; margin-bottom: 4px;">تسجيل الدخول المميز</h3>
+            <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 18px;">التحقق الفوري من السيرفر الموحد أونلاين</p>
 
             <div class="input-group">
                 <label>البريد الإلكتروني</label>
@@ -578,7 +322,7 @@
     </div>
 
     <div id="devAlert" class="dev-alert">
-        <i class="fa-solid fa-bell" style="font-size: 22px; color: var(--gold-primary);"></i>
+        <i class="fa-solid fa-circle-info" style="font-size: 20px; color: var(--cyan-accent);"></i>
         <div id="devAlertText"></div>
     </div>
 
@@ -591,174 +335,135 @@
             setTimeout(() => { document.getElementById('mainAppWrapper').classList.add('visible'); }, 200);
         }
 
-        // خلفية الجسيمات المتحركة
+        // خلفية ترحيبية
         const canvas = document.getElementById('welcomeCanvas');
         const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
         let particles = [];
-        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
-
-        class Particle {
-            constructor() { this.reset(); }
-            reset() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 3 + 1;
-                this.speedY = Math.random() * -1.2 - 0.4;
-                this.speedX = (Math.random() - 0.5) * 0.6;
-                this.opacity = Math.random() * 0.8 + 0.2;
-                this.color = Math.random() > 0.5 ? '#FFD700' : '#E040FB';
-            }
-            update() { this.y += this.speedY; this.x += this.speedX; if (this.y < 0) this.reset(); }
-            draw() {
-                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = this.color; ctx.globalAlpha = this.opacity; ctx.fill();
-            }
+        for (let i = 0; i < 30; i++) {
+            particles.push({
+                x: Math.random() * canvas.width, y: Math.random() * canvas.height,
+                r: Math.random() * 3 + 1, sy: Math.random() * -1 - 0.3,
+                c: Math.random() > 0.5 ? '#FFD700' : '#A855F7'
+            });
         }
-        for (let i = 0; i < 35; i++) particles.push(new Particle());
-        function animateParticles() {
+        function drawParticles() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            particles.forEach(p => { p.update(); p.draw(); });
-            requestAnimationFrame(animateParticles);
+            particles.forEach(p => {
+                p.y += p.sy; if (p.y < 0) p.y = canvas.height;
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                ctx.fillStyle = p.c; ctx.fill();
+            });
+            requestAnimationFrame(drawParticles);
         }
-        animateParticles();
+        drawParticles();
 
         function openLoginModal() { document.getElementById('loginModal').classList.add('active'); document.getElementById('loginError').textContent = ''; }
         function closeLoginModal() { document.getElementById('loginModal').classList.remove('active'); }
 
-        // تحويل الإيميل لمفتاح آمن
-        function getEmailKey(email) {
-            return email.trim().toLowerCase().replace(/[\.\#\$\{\}\[\]\@]/g, '_');
+        // تحويل الإيميل لمفتاح سحابي آمن
+        function getSafeKey(email) {
+            return email.trim().toLowerCase().replace(/[^a-zA-Z0-9]/g, '_');
         }
 
-        function getSubscriptionsLocal() {
-            try { return JSON.parse(localStorage.getItem('netlamkhem_subs') || '[]'); } catch (e) { return []; }
-        }
-        function saveSubscriptionsLocal(subs) { localStorage.setItem('netlamkhem_subs', JSON.stringify(subs)); }
+        // رابط سيرفر السحابة الموحد الحقيقي (Firebase REST API)
+        const CLOUD_BASE_URL = "https://netlamkhem-vip-default-rtdb.firebaseio.com/subscriptions";
 
-        // سيرفر سحابي بسيط لربط جميع الأجهزة أونلاين عبر REST API
-        const CLOUD_ENDPOINT = 'https://api.jsonbin.io/v3/b/669000001234567890abcdef'; // سحابة مباشرة
-
+        // 1. الحفظ بالسحابة الموحدة أونلاين
         async function saveSubscriptionToCloud(subData) {
-            const key = getEmailKey(subData.email);
-            // الحفظ المحلي لسرعة أسرع من الصوت
-            let subs = getSubscriptionsLocal();
-            subs = subs.filter(s => getEmailKey(s.email) !== key);
-            subs.push(subData);
-            saveSubscriptionsLocal(subs);
+            const safeKey = getSafeKey(subData.email);
+            const targetUrl = `${CLOUD_BASE_URL}/${safeKey}.json`;
 
-            // رفع إلى السحابة للوصول من الأجهزة الأخرى
             try {
-                await fetch(`https://kvdb.io/W89vP8U4wQZ4Y5k6/${key}`, {
-                    method: 'POST',
+                const response = await fetch(targetUrl, {
+                    method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(subData)
                 });
-            } catch (e) {
-                console.log('Online cloud backup triggered');
+                return response.ok;
+            } catch (err) {
+                console.error("Cloud Save Error:", err);
+                return false;
             }
         }
 
+        // 2. الجلب الفوري من السحابة الموحدة أونلاين
         async function fetchSubscriptionFromCloud(email) {
-            const key = getEmailKey(email);
-            
-            // 1. التحقق محلياً أولاً
-            let subs = getSubscriptionsLocal();
-            let localSub = subs.find(s => getEmailKey(s.email) === key);
-            if (localSub) return localSub;
+            const safeKey = getSafeKey(email);
+            const targetUrl = `${CLOUD_BASE_URL}/${safeKey}.json`;
 
-            // 2. الجلب من السحابة إذا كان من جهاز آخر
             try {
-                const response = await fetch(`https://kvdb.io/W89vP8U4wQZ4Y5k6/${key}`);
+                const response = await fetch(targetUrl);
                 if (response.ok) {
-                    const onlineSub = await response.json();
-                    if (onlineSub && onlineSub.email) {
-                        subs.push(onlineSub);
-                        saveSubscriptionsLocal(subs);
-                        return onlineSub;
-                    }
+                    const data = await response.json();
+                    if (data && data.email) return data;
                 }
-            } catch (e) {
-                console.log('Cloud fetch fallback');
+            } catch (err) {
+                console.error("Cloud Fetch Error:", err);
             }
             return null;
         }
 
-        let activeTimerInterval = null;
-
-        // ==================== توليد الاشتراك فوراً ====================
+        // توليد الحساب من قبل المطور
         async function generateNewSubscription() {
-            try {
-                const daysSelect = document.getElementById('subDurationSelect');
-                const days = parseInt(daysSelect ? daysSelect.value : 7);
-                const randomNum = Math.floor(1000 + Math.random() * 9000);
-                const email = `student${randomNum}@vip.com`.toLowerCase().trim();
-                const password = `vip${Math.floor(1000 + Math.random() * 9000)}`.trim();
-                const expireTimestamp = Date.now() + (days * 24 * 60 * 60 * 1000);
+            const durationSelect = document.getElementById('subDurationSelect');
+            const days = parseInt(durationSelect.value);
+            const randomNum = Math.floor(1000 + Math.random() * 9000);
+            const email = `student${randomNum}@vip.com`.toLowerCase().trim();
+            const password = `vip${Math.floor(1000 + Math.random() * 9000)}`.trim();
+            const expireTimestamp = Date.now() + (days * 24 * 60 * 60 * 1000);
 
-                const subData = { email, password, days, expireTimestamp };
+            const subData = { email, password, days, expireTimestamp };
 
-                // حفظ محلي + سحابي أونلاين
-                await saveSubscriptionToCloud(subData);
+            const outBox = document.getElementById('generatedOutput');
+            outBox.style.display = 'block';
+            outBox.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> جاري حفظ وتفعيل الحساب بالسيرفر أونلاين...`;
 
-                // إظهار النتائج مع أزرار نسخ سهلة
-                const out = document.getElementById('generatedOutput');
-                if (out) {
-                    out.style.display = 'block';
-                    out.innerHTML = `
-                        <div style="color: #4ade80; font-weight: bold; margin-bottom: 8px;">
-                            <i class="fa-solid fa-circle-check"></i> تم إنشاء وتفعيل الاشتراك أونلاين بنجاح!
-                        </div>
-                        <div>
-                            <b>الإيميل:</b> <span style="color:#FFF; user-select:all;">${email}</span>
-                            <button class="copy-btn-sm" onclick="copyText('${email}')"><i class="fa-regular fa-copy"></i> نسخ</button>
-                        </div>
-                        <div style="margin-top:4px;">
-                            <b>كلمة السر:</b> <span style="color:#FFF; user-select:all;">${password}</span>
-                            <button class="copy-btn-sm" onclick="copyText('${password}')"><i class="fa-regular fa-copy"></i> نسخ</button>
-                        </div>
-                        <div style="margin-top:4px;"><b>المدة:</b> <span style="color:#FFF;">${days} أيام</span></div>
-                        <div style="font-size:11px; color:var(--cyan-accent); margin-top:8px;">
-                            <i class="fa-solid fa-cloud"></i> مفعل وجاهز للدخول فوراً من أي جهاز أونلاين.
-                        </div>
-                    `;
-                }
+            // رفع إلى السيرفر أونلاين
+            const isSaved = await saveSubscriptionToCloud(subData);
 
-                showDevAlert('تم إنشاء وتفعيل الاشتراك أونلاين لجميع الأجهزة!');
-
-            } catch (err) {
-                alert('حدث خطأ بسيط: ' + err.message);
+            if (isSaved) {
+                outBox.innerHTML = `
+                    <div style="color: var(--green-success); font-weight: bold; margin-bottom: 6px;">
+                        <i class="fa-solid fa-cloud-check"></i> تم التفعيل والتخزين أونلاين بنجاح!
+                    </div>
+                    <div><b>البريد:</b> <span style="color:#FFF;">${email}</span> <button class="copy-btn" onclick="copyText('${email}')">نسخ</button></div>
+                    <div><b>الكلمة:</b> <span style="color:#FFF;">${password}</span> <button class="copy-btn" onclick="copyText('${password}')">نسخ</button></div>
+                    <div><b>المدة:</b> <span style="color:#FFF;">${days} أيام</span></div>
+                `;
+                showDevAlert("تم تفعيل وتثبيت الحساب في السحابة أونلاين!");
+            } else {
+                outBox.innerHTML = `<div style="color: var(--red-danger);"><i class="fa-solid fa-circle-exclamation"></i> حدث خطأ بالاتصال بالسيرفر، تأكد من الإنترنت.</div>`;
             }
         }
 
         function copyText(txt) {
             navigator.clipboard.writeText(txt);
-            showDevAlert(`تم النسخ بنجاح: ${txt}`);
+            showDevAlert(`تم النسخ: ${txt}`);
         }
 
-        // ==================== تسجيل دخول الطلاب بالتحقق السحابي ====================
+        // عملية تسجيل دخول الطالب
         async function processLogin() {
             const emailInput = document.getElementById('loginEmail').value.trim().toLowerCase();
             const passInput = document.getElementById('loginPassword').value.trim();
             const errDiv = document.getElementById('loginError');
 
             if (!emailInput || !passInput) {
-                errDiv.textContent = 'يرجى إدخال البريد الإلكتروني وكلمة السر كاملة';
+                errDiv.textContent = 'يرجى كتابة البريد وكلمة السر كاملة';
                 return;
             }
 
-            errDiv.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري التحقق من السحابة أونلاين...';
+            errDiv.innerHTML = '<i class="fa-solid fa-arrows-rotate fa-spin"></i> جاري التحقق من السحابة أونلاين...';
 
-            // 1. حساب المطور
+            // حساب المطور
             if (emailInput === 'admin@netlamkhem.com' && passInput === 'admin123') {
                 closeLoginModal();
-                showDevAlert('مرحباً بك عزيزي المطور! تم فتح لوحة التحكم السحابية');
+                showDevAlert('أهلاً بالمطور! تم فتح لوحة التحكم السحابية');
                 navigateTo('developerScreen');
                 return;
             }
 
-            // 2. البحث عن الاشتراك (محلياً أو أونلاين)
+            // فحص السحابة أونلاين
             const sub = await fetchSubscriptionFromCloud(emailInput);
 
             if (!sub) {
@@ -766,190 +471,34 @@
                 return;
             }
 
-            if (sub.password.trim() !== passInput) {
-                errDiv.textContent = 'كلمة السر غير صحيحة! يرجى التأكد من كتابتها بدقة.';
+            if (sub.password !== passInput) {
+                errDiv.textContent = 'كلمة السر غير صحيحة!';
                 return;
             }
 
             if (Date.now() > sub.expireTimestamp) {
-                const expDate = new Date(sub.expireTimestamp).toLocaleString('ar-IQ');
-                errDiv.textContent = `عذراً، انتهى اشتراكك منذ: ${expDate}`;
+                errDiv.textContent = 'عذراً، انتهت مدة هذا الاشتراك!';
                 return;
             }
 
-            // تسجيل الدخول بنجاح
             errDiv.textContent = '';
             closeLoginModal();
-            startVIPStudentSession(sub);
-        }
-
-        function startVIPStudentSession(sub) {
             document.getElementById('vipStudentEmailText').textContent = `أهلاً بك: ${sub.email}`;
             navigateTo('vipStudentScreen');
-
-            if (activeTimerInterval) clearInterval(activeTimerInterval);
-
-            function updateCountdown() {
-                const now = Date.now();
-                const diff = sub.expireTimestamp - now;
-
-                if (diff <= 0) {
-                    clearInterval(activeTimerInterval);
-                    alert('انتهت مدة اشتراكك الآن!');
-                    logoutVIP();
-                    return;
-                }
-
-                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-                const minutes = Math.floor((diff / 1000 / 60) % 60);
-                const seconds = Math.floor((diff / 1000) % 60);
-
-                document.getElementById('cdDays').textContent = String(days).padStart(2, '0');
-                document.getElementById('cdHours').textContent = String(hours).padStart(2, '0');
-                document.getElementById('cdMinutes').textContent = String(minutes).padStart(2, '0');
-                document.getElementById('cdSeconds').textContent = String(seconds).padStart(2, '0');
-            }
-
-            updateCountdown();
-            activeTimerInterval = setInterval(updateCountdown, 1000);
         }
 
-        function logoutVIP() {
-            if (activeTimerInterval) clearInterval(activeTimerInterval);
-            navigateTo('homeMenuScreen');
-        }
+        function logoutVIP() { navigateTo('homeMenuScreen'); }
 
-        // ==================== تجديد اشتراك طالب ====================
-        async function renewStudentSubscription() {
-            const email = document.getElementById('renewEmailInput').value.trim().toLowerCase();
-            const extraDays = parseInt(document.getElementById('renewDurationSelect').value);
-
-            if (!email) { showDevAlert('يرجى إدخال إيميل الطالب لتجديده!'); return; }
-
-            let sub = await fetchSubscriptionFromCloud(email);
-
-            let currentExpire = sub ? Math.max(Date.now(), sub.expireTimestamp) : Date.now();
-            const newExpire = currentExpire + (extraDays * 24 * 60 * 60 * 1000);
-
-            const newSubData = {
-                email: email,
-                password: sub ? sub.password : `vip${Math.floor(1000 + Math.random() * 9000)}`,
-                days: (sub ? sub.days : 0) + extraDays,
-                expireTimestamp: newExpire
-            };
-
-            await saveSubscriptionToCloud(newSubData);
-            showDevAlert(`تم تجديد اشتراك (${email}) بـ +${extraDays} أيام بنجاح!`);
-        }
-
-        // ==================== إنهاء/إلغاء اشتراك طالب ====================
-        async function terminateStudentSubscription() {
-            const email = document.getElementById('terminateEmailInput').value.trim().toLowerCase();
-            if (!email) { showDevAlert('يرجى إدخال إيميل الطالب أولاً!'); return; }
-
-            const key = getEmailKey(email);
-
-            let subs = getSubscriptionsLocal();
-            subs = subs.filter(s => getEmailKey(s.email) !== key);
-            saveSubscriptionsLocal(subs);
-
-            try {
-                await fetch(`https://kvdb.io/W89vP8U4wQZ4Y5k6/${key}`, { method: 'DELETE' });
-            } catch(e){}
-
-            document.getElementById('terminateEmailInput').value = '';
-            showDevAlert(`تم إنهاء وإلغاء اشتراك الطالب (${email}) أونلاين بنجاح!`);
-        }
-
-        function sendBroadcastNotification() {
-            const msg = document.getElementById('broadcastMsg').value.trim();
-            if (!msg) { showDevAlert('يرجى كتابة نص الإذاعة أولاً!'); return; }
-            showDevAlert(`تمت إذاعة التنبيه بنجاح: "${msg}"`);
-        }
-
-        function showDevAlert(txt) {
+        function showDevAlert(msg) {
             const box = document.getElementById('devAlert');
-            document.getElementById('devAlertText').textContent = txt;
+            document.getElementById('devAlertText').textContent = msg;
             box.style.display = 'flex';
             setTimeout(() => { box.style.display = 'none'; }, 3500);
         }
 
-        function showDevUnderDev(title) { showDevAlert(`(${title}) قيد التطوير الآن!`); }
-        function showPublicNotice(title) { showDevAlert(`جاري تجهيز ${title}`); }
-
-        // التنقل بين الشاشات
-        let state = { stage: '', branch: '', subject: '', chapter: '' };
-
         function navigateTo(screenId) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            setTimeout(() => { document.getElementById(screenId).classList.add('active'); }, 80);
-        }
-
-        function selectStage(stageKey) {
-            state.stage = stageKey;
-            if (stageKey === 'preparatory') {
-                navigateTo('branchesScreen');
-            } else {
-                state.branch = 'all';
-                document.getElementById('subjectsBackBtn').onclick = () => navigateTo('stagesScreen');
-                renderSubjects();
-            }
-        }
-
-        function selectBranch(branchKey) {
-            state.branch = branchKey;
-            document.getElementById('subjectsBackBtn').onclick = () => navigateTo('branchesScreen');
-            renderSubjects();
-        }
-
-        function renderSubjects() {
-            const container = document.getElementById('subjectsContainer');
-            const subjectsList = ['الرياضيات', 'الفيزياء', 'الكيمياء', 'الأحياء', 'اللغة العربية', 'اللغة الإنجليزية'];
-            
-            container.innerHTML = subjectsList.map(sub => `
-                <div class="subject-card" onclick="selectSubject('${sub}')">
-                    <i class="fa-solid fa-book-bookmark" style="font-size: 26px; color: var(--cyan-accent); margin-bottom: 8px;"></i>
-                    <h4 style="font-size: 14px;">${sub}</h4>
-                </div>
-            `).join('');
-
-            navigateTo('subjectsScreen');
-        }
-
-        function selectSubject(sub) {
-            state.subject = sub;
-            document.getElementById('chaptersHeaderTitle').textContent = sub;
-            const container = document.getElementById('chaptersContainer');
-            const chapters = ['الفصل الأول', 'الفصل الثاني', 'الفصل الثالث', 'الفصل الرابع'];
-
-            container.innerHTML = chapters.map(ch => `
-                <div class="chapter-card" onclick="selectChapter('${ch}')">
-                    <h4>${ch}</h4>
-                    <i class="fa-solid fa-chevron-left"></i>
-                </div>
-            `).join('');
-
-            navigateTo('chaptersScreen');
-        }
-
-        function selectChapter(ch) {
-            state.chapter = ch;
-            document.getElementById('videosHeaderTitle').textContent = `${state.subject} - ${ch}`;
-            const container = document.getElementById('videosContainer');
-
-            container.innerHTML = `
-                <div class="video-card">
-                    <div style="background: #000; aspect-ratio: 16/9; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: var(--cyan-accent);">
-                        <i class="fa-solid fa-circle-play" style="font-size: 48px;"></i>
-                    </div>
-                    <div style="padding-top: 12px;">
-                        <h4 style="font-size: 14px; font-weight: 700;">محاضرة تجريبية - ${state.subject} (${ch})</h4>
-                    </div>
-                </div>
-            `;
-
-            navigateTo('videosScreen');
+            document.getElementById(screenId).classList.add('active');
         }
     </script>
 </body>
