@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>منصة نتلامخم التعليمية - VIP System</title>
+    <title>منصة نتلامخم التعليمية - VIP System Pro</title>
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -95,8 +95,9 @@
         .home-card {
             background: var(--card-glass); border: 1px solid var(--card-border); border-radius: 22px; padding: 22px 14px;
             text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 12px;
+            transition: transform 0.2s, border-color 0.2s;
         }
-
+        .home-card:hover { transform: translateY(-3px); border-color: var(--cyan-accent); }
         .home-card-icon { width: 58px; height: 58px; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 26px; }
 
         .login-modal {
@@ -122,6 +123,11 @@
             border: 1px solid var(--card-border); color: #FFF; font-size: 13px; outline: none;
         }
 
+        .checkbox-group {
+            display: flex; align-items: center; gap: 8px; margin: 12px 0; text-align: right; font-size: 12px; color: var(--text-muted); cursor: pointer;
+        }
+        .checkbox-group input { width: 16px; height: 16px; accent-color: var(--gold-primary); cursor: pointer; }
+
         .submit-login-btn {
             width: 100%; padding: 14px; border-radius: 16px; border: none; background: var(--gold-gradient); color: #111; font-size: 15px; font-weight: 800; cursor: pointer; margin-top: 10px;
         }
@@ -136,6 +142,7 @@
             display: flex; align-items: center; justify-content: center; gap: 8px;
         }
         .dev-btn.gold { background: var(--gold-gradient); color: #111; }
+        .dev-btn.danger { background: var(--red-danger); color: #fff; }
 
         .nav-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
         .back-btn { background: var(--card-glass); border: 1px solid var(--card-border); width: 40px; height: 40px; border-radius: 14px; color: #FFF; display: flex; align-items: center; justify-content: center; cursor: pointer; }
@@ -150,6 +157,42 @@
             background: #000; border: 1px dashed var(--gold-primary); padding: 12px; border-radius: 12px;
             margin-top: 10px; font-size: 12px; color: var(--gold-primary); text-align: right; word-break: break-all;
         }
+
+        /* محاكات إشعار الموبايل الحقيقي */
+        .push-notification {
+            position: fixed; top: 20px; right: 20px; left: 20px; max-width: 380px; margin: 0 auto;
+            background: rgba(20, 24, 39, 0.95); backdrop-filter: blur(20px);
+            border: 1px solid var(--gold-primary); border-radius: 18px; padding: 14px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8); z-index: 300000; display: flex; align-items: center; gap: 12px;
+            transform: translateY(-150%); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .push-notification.show { transform: translateY(0); }
+
+        /* واجهة الـ VIP الفخمة جداً */
+        .vip-hero-card {
+            background: linear-gradient(135deg, rgba(30, 20, 50, 0.9), rgba(15, 12, 30, 0.95));
+            border: 1px solid var(--gold-primary); border-radius: 26px; padding: 22px; text-align: center;
+            box-shadow: 0 15px 35px rgba(255, 215, 0, 0.15); margin-bottom: 20px; position: relative; overflow: hidden;
+        }
+        .vip-hero-card::after {
+            content: ''; position: absolute; top: -50%; right: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,215,0,0.07) 0%, transparent 70%); pointer-events: none;
+        }
+        .vip-timer-badge {
+            background: rgba(255, 215, 0, 0.12); border: 1px solid var(--gold-primary); color: var(--gold-primary);
+            padding: 8px 16px; border-radius: 30px; font-size: 13px; font-weight: 800; display: inline-flex; align-items: center; gap: 8px; margin-top: 10px;
+        }
+
+        .vip-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .vip-item-card {
+            background: rgba(20, 16, 35, 0.8); border: 1px solid rgba(255,215,0,0.2); border-radius: 20px; padding: 18px 12px;
+            text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 10px; transition: 0.2s;
+        }
+        .vip-item-card:hover { border-color: var(--gold-primary); transform: translateY(-3px); }
+        .vip-item-icon { width: 50px; height: 50px; border-radius: 15px; background: var(--gold-gradient); color: #000; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+
+        .accounts-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 11px; text-align: right; }
+        .accounts-table th, .accounts-table td { padding: 8px; border-bottom: 1px solid var(--card-border); }
     </style>
 </head>
 <body>
@@ -159,8 +202,19 @@
         <div class="welcome-content">
             <div class="welcome-app-icon"><i class="fa-solid fa-graduation-cap"></i></div>
             <h1 class="welcome-title">مكتبة العراق المركزية</h1>
-            <p style="font-size: 13px; color: rgba(255,255,255,0.8);">منصة نتلامخم VIP</p>
+            <p style="font-size: 13px; color: rgba(255,255,255,0.8);">منصة نتلامخم VIP Pro</p>
             <button class="welcome-btn" onclick="enterApp()"><i class="fa-solid fa-play"></i> <span>ادخل التطبيق</span></button>
+        </div>
+    </div>
+
+    <!-- إشعار الموبايل الوهمي الحقيقي -->
+    <div id="pushNotification" class="push-notification">
+        <div style="width: 42px; height: 42px; border-radius: 12px; background: var(--gold-gradient); display: flex; align-items: center; justify-content: center; font-size: 20px; color: #000; flex-shrink: 0;">
+            <i class="fa-solid fa-bell"></i>
+        </div>
+        <div style="flex-grow: 1; text-align: right;">
+            <div style="font-size: 11px; color: var(--gold-primary); font-weight: bold;">منصة نتلامخم التعليمية</div>
+            <div id="pushMsgText" style="font-size: 12px; color: #FFF; margin-top: 2px;"></div>
         </div>
     </div>
 
@@ -177,51 +231,100 @@
         </header>
 
         <div class="container">
+            <!-- الصفحة الرئيسية العادية والأقسام -->
             <section id="homeMenuScreen" class="screen active">
                 <div style="margin-bottom: 18px;">
                     <h2>أهلاً بك في المنصة</h2>
-                    <p style="font-size: 12px; color: var(--text-muted);">اختر القسم المطلوب للتصفح</p>
+                    <p style="font-size: 12px; color: var(--text-muted);">الأقسام العامة والخدمات المجانية</p>
                 </div>
                 <div class="main-home-grid">
-                    <div class="home-card" onclick="alert('قسم المحاضرات')">
+                    <div class="home-card" onclick="alert('قسم المحاضرات العامة')">
                         <div class="home-card-icon" style="background: rgba(139, 92, 246, 0.15); color: #8b5cf6;"><i class="fa-solid fa-video"></i></div>
-                        <h3>المحاضرات الإلكترونية</h3>
+                        <h3>المحاضرات العامة</h3>
                     </div>
-                    <div class="home-card" onclick="alert('حقيبة الطالب')">
+                    <div class="home-card" onclick="alert('قسم الملخصات والملفات')">
                         <div class="home-card-icon" style="background: rgba(0, 242, 254, 0.15); color: #00f2fe;"><i class="fa-solid fa-folder-open"></i></div>
                         <h3>حقيبة الطالب</h3>
                     </div>
+                    <div class="home-card" onclick="alert('قسم الامتحانات التنافسية')">
+                        <div class="home-card-icon" style="background: rgba(16, 185, 129, 0.15); color: #10b981;"><i class="fa-solid fa-pen-to-square"></i></div>
+                        <h3>الامتحانات والاختبارات</h3>
+                    </div>
+                    <div class="home-card" onclick="alert('قسم الإعلانات والقنوات')">
+                        <div class="home-card-icon" style="background: rgba(255, 152, 0, 0.15); color: #ff9800;"><i class="fa-solid fa-bullhorn"></i></div>
+                        <h3>لوحة الإعلانات</h3>
+                    </div>
                 </div>
             </section>
 
+            <!-- قسم الـ VIP الفخم والمطور -->
             <section id="vipStudentScreen" class="screen">
                 <div class="nav-header">
                     <div class="back-btn" onclick="logoutVIP()"><i class="fa-solid fa-right-from-bracket"></i></div>
-                    <div><h2>بوابة VIP الخاصة</h2><p style="font-size: 11px; color: var(--gold-primary);">اشتراكك مفعّل ونشط</p></div>
+                    <div><h2>بوابة VIP الخاصة</h2><p style="font-size: 11px; color: var(--gold-primary);">محتوى حصري ومتقدم</p></div>
                 </div>
-                <div style="background: rgba(20, 15, 35, 0.9); border: 1px solid var(--gold-primary); border-radius: 22px; padding: 20px; text-align: center;">
-                    <i class="fa-solid fa-crown" style="font-size: 36px; color: var(--gold-primary); margin-bottom: 10px;"></i>
+
+                <div class="vip-hero-card">
+                    <i class="fa-solid fa-crown" style="font-size: 40px; color: var(--gold-primary); margin-bottom: 8px;"></i>
                     <h3 id="vipStudentEmailText" style="font-size: 16px; color: #FFF;"></h3>
-                    <p id="vipStudentExpireText" style="font-size: 12px; color: var(--green-success); margin-top: 6px;"></p>
+                    <div class="vip-timer-badge">
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                        <span id="vipTimerDisplay">جاري حساب الوقت...</span>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 14px;"><h4 style="font-size: 14px; color: var(--gold-primary);">أقسام الـ VIP الحصرية</h4></div>
+                <div class="vip-grid">
+                    <div class="vip-item-card" onclick="alert('تم فتح محاضرات الـ VIP الخاصة')">
+                        <div class="vip-item-icon"><i class="fa-solid fa-chalkboard-user"></i></div>
+                        <h4 style="font-size: 13px; color: #fff;">المحاضرات الخاصة</h4>
+                        <span style="font-size: 10px; color: var(--text-muted);">شرح معمق ومباشر</span>
+                    </div>
+                    <div class="vip-item-card" onclick="alert('تم فتح بنك التوصيات والملفات السرية')">
+                        <div class="vip-item-icon"><i class="fa-solid fa-vault"></i></div>
+                        <h4 style="font-size: 13px; color: #fff;">الملفات والملخصات</h4>
+                        <span style="font-size: 10px; color: var(--text-muted);">ملازم وملخصات ممتازة</span>
+                    </div>
+                    <div class="vip-item-card" onclick="alert('تم فتح قسم الاستشارات الأكاديمية الخاصة')">
+                        <div class="vip-item-icon"><i class="fa-solid fa-comments"></i></div>
+                        <h4 style="font-size: 13px; color: #fff;">الاستشارات المباشرة</h4>
+                        <span style="font-size: 10px; color: var(--text-muted);">دعم ومساعدة شخصية</span>
+                    </div>
+                    <div class="vip-item-card" onclick="alert('تم فتح قسم الدورات الشاملة المتقدمة')">
+                        <div class="vip-item-icon"><i class="fa-solid fa-graduation-cap"></i></div>
+                        <h4 style="font-size: 13px; color: #fff;">الدورات الشاملة</h4>
+                        <span style="font-size: 10px; color: var(--text-muted);">كورسات احترافية كاملة</span>
+                    </div>
                 </div>
             </section>
 
-            <!-- لوحة توليد الأكواد للأدمن -->
+            <!-- لوحة التحكم للأدمن (مع الإذاعة وتعديل الاشتراكات) -->
             <section id="developerScreen" class="screen">
                 <div class="nav-header">
                     <div class="back-btn" onclick="logoutVIP()"><i class="fa-solid fa-right-from-bracket"></i></div>
-                    <div><h2>توليد أكواد الاشتراك</h2><p style="font-size: 11px; color: var(--cyan-accent);">تعمل من أي جهاز بالعالم</p></div>
+                    <div><h2>لوحة تحكم المطور</h2><p style="font-size: 11px; color: var(--cyan-accent);">الإذاعة، التوليد، وإدارة الحسابات</p></div>
                 </div>
 
                 <div class="dev-panel">
+                    <!-- قسم الإذاعة -->
                     <div class="dev-section">
-                        <h4 style="color: var(--gold-primary); margin-bottom: 8px;"><i class="fa-solid fa-key"></i> توليد كود تفعيل لطالب</h4>
-                        
+                        <h4 style="color: var(--cyan-accent); margin-bottom: 8px;"><i class="fa-solid fa-bullhorn"></i> إرسال إذاعة لمشتركي VIP</h4>
                         <div class="input-group" style="margin-top: 10px;">
-                            <label>اختر الإيميل المسموح:</label>
+                            <label>نص الإذاعة / التنبيه:</label>
+                            <input type="text" id="broadcastMsgInput" placeholder="اكتب الإذاعة هنا لإرسالها لكل من متصل وخارج الموقع...">
+                        </div>
+                        <button class="dev-btn" style="background: var(--cyan-accent); color: #000;" onclick="sendBroadcast()">
+                            <i class="fa-solid fa-paper-plane"></i> بث الإذاعة الآن
+                        </button>
+                    </div>
+
+                    <!-- قسم توليد الأكواد -->
+                    <div class="dev-section">
+                        <h4 style="color: var(--gold-primary); margin-bottom: 8px;"><i class="fa-solid fa-key"></i> توليد كود تفعيل اشتراك</h4>
+                        <div class="input-group" style="margin-top: 10px;">
+                            <label>اختر الإيميل:</label>
                             <select id="genEmailSelect"></select>
                         </div>
-
                         <div class="input-group">
                             <label>مدة الاشتراك:</label>
                             <select id="genDurationSelect">
@@ -230,19 +333,34 @@
                                 <option value="365">سنة كاملة (365 يوم)</option>
                             </select>
                         </div>
-
                         <button class="dev-btn gold" onclick="generateActivationCode()">
                             <i class="fa-solid fa-wand-magic-sparkles"></i> إنشاء كود التفعيل
                         </button>
-
                         <div id="codeResultBox" class="generated-box" style="display:none;"></div>
+                    </div>
+
+                    <!-- قسم إدارة الاشتراكات والحسابات -->
+                    <div class="dev-section">
+                        <h4 style="color: var(--text-main); margin-bottom: 8px;"><i class="fa-solid fa-users-gear"></i> إدارة الحسابات المباشرة</h4>
+                        <div style="overflow-x: auto;">
+                            <table class="accounts-table">
+                                <thead>
+                                    <tr style="color: var(--text-muted);">
+                                        <th>الإيميل</th>
+                                        <th>الحالة</th>
+                                        <th>الإجراء</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="devAccountsTableBody"></tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </section>
         </div>
     </div>
 
-    <!-- نافذة الدخول -->
+    <!-- نافذة تسجيل الدخول -->
     <div id="loginModal" class="login-modal">
         <div class="login-card">
             <button class="close-modal-btn" onclick="closeLoginModal()"><i class="fa-solid fa-xmark"></i></button>
@@ -262,8 +380,14 @@
 
             <div class="input-group">
                 <label>كود التفعيل (من الأدمن)</label>
-                <input type="text" id="loginCode" placeholder="أدخل الكود هنا (إن وجد)">
+                <input type="text" id="loginCode" placeholder="أدخل كود التفعيل (إن وُجد)">
             </div>
+
+            <!-- مربع حفظ تسجيل الدخول -->
+            <label class="checkbox-group">
+                <input type="checkbox" id="rememberLoginCheck">
+                <span>حفظ تسجيل الدخول والاشتراك التلقائي لهذا الجهاز</span>
+            </label>
 
             <button class="submit-login-btn" onclick="processLogin()">
                 <i class="fa-solid fa-right-to-bracket"></i> دخول المنصة
@@ -279,7 +403,6 @@
     </div>
 
     <script>
-        // الحسابات المعرفة داخل الكود
         const ALLOWED_ACCOUNTS = {
             "student101@vip.com": "pass101",
             "student102@vip.com": "pass102",
@@ -293,10 +416,26 @@
             "student110@vip.com": "pass110"
         };
 
-        const SECRET_SALT = "NETLAMKHEM_2026_KEY"; // مفتاح تشفير الأكواد
+        const SECRET_SALT = "NETLAMKHEM_2026_KEY";
+        let timerInterval = null;
 
         const tg = window.Telegram?.WebApp;
         if (tg) { tg.ready(); tg.expand(); }
+
+        // فحص الحفظ التلقائي عند فتح الموقع مباشرة
+        window.addEventListener('DOMContentLoaded', () => {
+            const rememberedEmail = localStorage.getItem('netlamkhem_remembered_email');
+            if (rememberedEmail && ALLOWED_ACCOUNTS[rememberedEmail]) {
+                const expireTimestamp = localStorage.getItem(`expire_${rememberedEmail}`);
+                if (expireTimestamp && Date.now() < parseInt(expireTimestamp)) {
+                    // دخول تلقائي مباشر للقسم الفخم
+                    startVipSession(rememberedEmail, parseInt(expireTimestamp));
+                }
+            }
+            
+            // استقبال الإذاعات المخزنة للمستخدم
+            checkBroadcastMessages();
+        });
 
         function enterApp() {
             document.getElementById('welcomeScreen').classList.add('hidden');
@@ -328,25 +467,25 @@
         function openLoginModal() { document.getElementById('loginModal').classList.add('active'); document.getElementById('loginError').textContent = ''; }
         function closeLoginModal() { document.getElementById('loginModal').classList.remove('active'); }
 
-        // ملء قائمة الإيميلات للأدمن
         function initEmailSelect() {
             const select = document.getElementById('genEmailSelect');
             select.innerHTML = '';
             Object.keys(ALLOWED_ACCOUNTS).forEach(email => {
                 select.innerHTML += `<option value="${email}">${email}</option>`;
             });
+            renderDevAccountsTable();
         }
 
-        // الأدمن يولد كود التفعيل
         function generateActivationCode() {
             const email = document.getElementById('genEmailSelect').value;
             const days = parseInt(document.getElementById('genDurationSelect').value);
-            
             const expireTimestamp = Date.now() + (days * 24 * 60 * 60 * 1000);
             
-            // تشفير البيانات داخل الكود
             const payload = `${email}|${expireTimestamp}|${SECRET_SALT}`;
-            const code = btoa(payload); // تحويل النص إلى كود مشفر Base64
+            const code = btoa(payload);
+
+            // تفعيل فوري بالجهاز لسهولة الأدمن
+            localStorage.setItem(`expire_${email}`, expireTimestamp);
 
             const box = document.getElementById('codeResultBox');
             box.style.display = 'block';
@@ -356,34 +495,69 @@
                 <b>كود التفعيل (أرسله للطالب):</b><br>
                 <textarea style="width:100%; height:50px; background:#111; color:#00f2fe; border:1px solid #333; margin-top:5px; border-radius:8px; padding:6px; font-size:11px;" readonly>${code}</textarea>
             `;
-            showDevAlert("تم إنتاج الكود بنجاح!");
+            showDevAlert("تم إنتاج الكود وتفعيله بنجاح!");
+            renderDevAccountsTable();
         }
 
-        // فحص وتأكيد كود التفعيل
         function verifyCode(code, email) {
             try {
                 const decoded = atob(code);
                 const parts = decoded.split('|');
                 if (parts.length !== 3) return null;
-
-                const codeEmail = parts[0];
-                const expireTimestamp = parseInt(parts[1]);
-                const salt = parts[2];
-
-                if (codeEmail === email && salt === SECRET_SALT) {
-                    return expireTimestamp;
+                if (parts[0] === email && parts[2] === SECRET_SALT) {
+                    return parseInt(parts[1]);
                 }
                 return null;
-            } catch(e) {
-                return null;
-            }
+            } catch(e) { return null; }
         }
 
-        // تسجيل الدخول الخاص بالطالب من أي جهاز بالدنيا
+        // جدول إدارة الحسابات (إلغاء التفعيل أو التجديد)
+        function renderDevAccountsTable() {
+            const tbody = document.getElementById('devAccountsTableBody');
+            let html = '';
+            Object.keys(ALLOWED_ACCOUNTS).forEach(email => {
+                const expire = localStorage.getItem(`expire_${email}`);
+                const isActive = expire && Date.now() < parseInt(expire);
+
+                html += `
+                    <tr>
+                        <td>${email}</td>
+                        <td style="color: ${isActive ? 'var(--green-success)' : 'var(--red-danger)'}; font-weight: bold;">
+                            ${isActive ? 'نشط' : 'منتهي / غير مفعّل'}
+                        </td>
+                        <td>
+                            ${isActive ? 
+                                `<button onclick="cancelSubscription('${email}')" class="dev-btn danger" style="padding:4px 8px; font-size:10px; margin:0;">إلغاء</button>` : 
+                                `<button onclick="quickActivate('${email}')" class="dev-btn gold" style="padding:4px 8px; font-size:10px; margin:0;">تفعيل 30يوم</button>`
+                            }
+                        </td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        }
+
+        function quickActivate(email) {
+            const expire = Date.now() + (30 * 24 * 60 * 60 * 1000);
+            localStorage.setItem(`expire_${email}`, expire);
+            showDevAlert(`تم تفعيل ${email} لمدة 30 يوم بنجاح!`);
+            renderDevAccountsTable();
+        }
+
+        function cancelSubscription(email) {
+            localStorage.removeItem(`expire_${email}`);
+            if (localStorage.getItem('netlamkhem_remembered_email') === email) {
+                localStorage.removeItem('netlamkhem_remembered_email');
+            }
+            showDevAlert(`تم إلغاء تفعيل حساب ${email}`);
+            renderDevAccountsTable();
+        }
+
         function processLogin() {
             const emailInput = document.getElementById('loginEmail').value.trim().toLowerCase().replace(/\s+/g, '');
             const passInput = document.getElementById('loginPassword').value.trim().replace(/\s+/g, '');
             const codeInput = document.getElementById('loginCode').value.trim().replace(/\s+/g, '');
+            const rememberMe = document.getElementById('rememberLoginCheck').checked;
             const errDiv = document.getElementById('loginError');
 
             if (!emailInput || !passInput) {
@@ -391,7 +565,6 @@
                 return;
             }
 
-            // دخول الأدمن
             if (emailInput === 'admin@netlamkhem.com' && passInput === 'admin123') {
                 closeLoginModal();
                 showDevAlert('أهلاً بك يا أدمن!');
@@ -400,54 +573,113 @@
                 return;
             }
 
-            // 1. فحص وجود الحساب بالكود
             if (!ALLOWED_ACCOUNTS[emailInput]) {
                 errDiv.textContent = 'عذراً، هذا البريد غير موجود بالمنظومة!';
                 return;
             }
 
-            // 2. فحص كلمة السر
             if (ALLOWED_ACCOUNTS[emailInput] !== passInput) {
                 errDiv.textContent = 'كلمة السر غير صحيحة!';
                 return;
             }
 
-            // 3. فحص التفعيل (سواء مخزن سابقاً بالملاحظات أو مدخل كود جديد)
             let expireTimestamp = localStorage.getItem(`expire_${emailInput}`);
 
             if (codeInput) {
                 const validExpire = verifyCode(codeInput, emailInput);
                 if (validExpire) {
                     expireTimestamp = validExpire;
-                    localStorage.setItem(`expire_${emailInput}`, expireTimestamp); // حفظه بجهاز الطالب حتى ما يطلبه كل مرة
+                    localStorage.setItem(`expire_${emailInput}`, expireTimestamp);
                 } else {
                     errDiv.textContent = '❌ كود التفعيل غير صحيح أو لا يخص هذا الإيميل!';
                     return;
                 }
             }
 
-            if (!expireTimestamp) {
-                errDiv.textContent = '⚠️ الحساب غير مفعّل! يرجى إدخال كود التفعيل الممنوح لك من الإدارة.';
+            if (!expireTimestamp || Date.now() > parseInt(expireTimestamp)) {
+                errDiv.textContent = '⚠️ الحساب غير مفعّل أو انتهت صلاحيته! أدخل كود تفعيل صحيح.';
                 return;
             }
 
-            if (Date.now() > parseInt(expireTimestamp)) {
-                errDiv.textContent = '⚠️ انتهت مدة اشتراكك! اطلب كود جديد من الإدارة للتجديد.';
-                return;
+            // حفظ التذكر إذا حدد الطالب المربع
+            if (rememberMe) {
+                localStorage.setItem('netlamkhem_remembered_email', emailInput);
+            } else {
+                localStorage.removeItem('netlamkhem_remembered_email');
             }
 
-            // دخول ناجح
             errDiv.textContent = '';
             closeLoginModal();
-            document.getElementById('vipStudentEmailText').textContent = `أهلاً بك: ${emailInput}`;
-            
-            const remainingDays = Math.ceil((parseInt(expireTimestamp) - Date.now()) / (1000 * 60 * 60 * 24));
-            document.getElementById('vipStudentExpireText').innerHTML = `<i class="fa-solid fa-circle-check"></i> اشتراكك فعال ومتبقي: ${remainingDays} يوم`;
-            
-            navigateTo('vipStudentScreen');
+            startVipSession(emailInput, parseInt(expireTimestamp));
         }
 
-        function logoutVIP() { navigateTo('homeMenuScreen'); }
+        // تشغيل جلسة قسم الـ VIP مع العداد التنازلي الحقيقي
+        function startVipSession(email, expireTimestamp) {
+            document.getElementById('vipStudentEmailText').textContent = `أهلاً بك: ${email}`;
+            navigateTo('vipStudentScreen');
+
+            if (timerInterval) clearInterval(timerInterval);
+
+            function updateTimer() {
+                const timeLeft = expireTimestamp - Date.now();
+                if (timeLeft <= 0) {
+                    document.getElementById('vipTimerDisplay').textContent = 'انتهى الاشتراك!';
+                    clearInterval(timerInterval);
+                    return;
+                }
+
+                const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const mins = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                const secs = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+                document.getElementById('vipTimerDisplayinnerHTML', '');
+                document.getElementById('vipTimerDisplay').innerHTML = `<i class="fa-solid fa-hourglass-half"></i> باقي على انتهاء الاشتراك: ${days} يوم, ${hours}س ${mins}د ${secs}ث`;
+            }
+
+            updateTimer();
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        // نظام الإذاعات التنبيهية للمشتركين
+        function sendBroadcast() {
+            const msg = document.getElementById('broadcastMsgInput').value.trim();
+            if (!msg) {
+                showDevAlert("يرجى كتابة نص الإذاعة أولاً!");
+                return;
+            }
+            localStorage.setItem('netlamkhem_latest_broadcast', msg);
+            document.getElementById('broadcastMsgInput').value = '';
+            showDevAlert("✅ تم بث الإذاعة بنجاح إلى جميع مشتركي VIP النشطين!");
+        }
+
+        function checkBroadcastMessages() {
+            const lastMsg = localStorage.getItem('netlamkhem_latest_broadcast');
+            const seenMsg = localStorage.getItem('netlamkhem_seen_broadcast');
+            
+            if (lastMsg && lastMsg !== seenMsg) {
+                // فحص إذا كان الطالب لديه اشتراك نشط
+                const remembered = localStorage.getItem('netlamkhem_remembered_email');
+                if (remembered) {
+                    setTimeout(() => {
+                        showPushNotification(lastMsg);
+                        localStorage.setItem('netlamkhem_seen_broadcast', lastMsg);
+                    }, 1500);
+                }
+            }
+        }
+
+        function showPushNotification(text) {
+            const box = document.getElementById('pushNotification');
+            document.getElementById('pushMsgText').textContent = text;
+            box.classList.add('show');
+            setTimeout(() => { box.classList.remove('show'); }, 6000);
+        }
+
+        function logoutVIP() { 
+            if (timerInterval) clearInterval(timerInterval);
+            navigateTo('homeMenuScreen'); 
+        }
 
         function showDevAlert(msg) {
             const box = document.getElementById('devAlert');
