@@ -8,9 +8,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     
-    <!-- مكتبات فك الضغط (ZIP + RAR) داخل المتصفح -->
+    <!-- مكتبة JSZip للـ ZIP -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/unrar-js@0.2.2/lib/unrar.min.js"></script>
+    <!-- مكتبة UNRAR المباشرة للمتصفح -->
+    <script src="https://cdn.jsdelivr.net/npm/node-unrar-js@1.0.1/dist/node-unrar.min.js"></script>
     <!-- مكتبة قراءة PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
@@ -109,8 +110,8 @@
 
             <div class="space-y-4">
                 <div>
-                    <label class="block text-xs font-bold text-slate-300 mb-2">اختر الملف المضغوط (ZIP أو RAR)</label>
-                    <input type="file" id="archiveFile" accept=".zip,.rar" 
+                    <label class="block text-xs font-bold text-slate-300 mb-2">اختر الملف المضغوط (RAR أو ZIP)</label>
+                    <input type="file" id="archiveFile" accept=".rar,.zip" 
                         class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white file:font-bold hover:file:bg-blue-500 cursor-pointer">
                 </div>
 
@@ -178,7 +179,6 @@
             };
         }
 
-        // دالة مساعدة متوافقة مع كافة متصفحات الهواتف لقراءة الملفات
         function readFileAsBuffer(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -220,32 +220,33 @@
             };
         });
 
-        async function extractPdfBuffers(file, updateStatus) {
+        async function extractPdfFiles(file, updateStatus) {
             const fileName = file.name.toLowerCase();
-            const pdfFiles = [];
+            const pdfList = [];
 
             if (fileName.endsWith('.zip')) {
-                updateStatus("جاري قراءة ملف ZIP...");
+                updateStatus("جاري تفكيك ملف ZIP...");
                 const zip = new JSZip();
                 const zipContent = await zip.loadAsync(file);
-                for (const [relativePath, zipEntry] of Object.entries(zipContent.files)) {
-                    if (!zipEntry.dir && relativePath.toLowerCase().endsWith('.pdf')) {
-                        const buffer = await zipEntry.async("arraybuffer");
-                        pdfFiles.push({ name: relativePath, buffer: buffer });
+                for (const [path, entry] of Object.entries(zipContent.files)) {
+                    if (!entry.dir && path.toLowerCase().endsWith('.pdf')) {
+                        const buffer = await entry.async("arraybuffer");
+                        pdfList.push({ name: path, buffer: buffer });
                     }
                 }
             } else if (fileName.endsWith('.rar')) {
-                updateStatus("جاري قراءة ملف RAR...");
+                updateStatus("جاري قراءة وتفكيك ملف RAR...");
                 const arrayBuffer = await readFileAsBuffer(file);
-                const extractor = readArchive({ buffer: arrayBuffer });
-                const files = extractor.files || [];
-                for (const item of files) {
-                    if (item.filename.toLowerCase().endsWith('.pdf')) {
-                        pdfFiles.push({ name: item.filename, buffer: item.fileData.buffer });
+                const unrar = await window.readArchive({ data: arrayBuffer });
+                const files = await unrar.extractFiles();
+                
+                for (const extractedFile of files) {
+                    if (extractedFile.name.toLowerCase().endsWith('.pdf')) {
+                        pdfList.push({ name: extractedFile.name, buffer: extractedFile.buffer });
                     }
                 }
             }
-            return pdfFiles;
+            return pdfList;
         }
 
         async function startProcessing() {
@@ -268,25 +269,25 @@
             adminAlert.classList.add('hidden');
 
             try {
-                const pdfFiles = await extractPdfBuffers(file, (msg) => processStatus.innerText = msg);
+                const pdfList = await extractPdfFiles(file, (msg) => processStatus.innerText = msg);
 
-                if (pdfFiles.length === 0) {
-                    throw new Error("لم يتم العثور على ملفات PDF داخل الملف المرفوع.");
+                if (pdfList.length === 0) {
+                    throw new Error("لم يتم العثور على ملفات PDF داخل أرشيف RAR/ZIP.");
                 }
 
                 let indexedCount = 0;
-                const totalFiles = pdfFiles.length;
+                const totalFiles = pdfList.length;
 
                 for (let i = 0; i < totalFiles; i++) {
-                    const pdfItem = pdfFiles[i];
-                    processStatus.innerText = `تحليل الملف (${i + 1} من ${totalFiles}): ${pdfItem.name}`;
-                    
-                    const pdfDoc = await pdfjsLib.getDocument({ data: pdfItem.buffer }).promise;
+                    const item = pdfList[i];
+                    processStatus.innerText = `تحليل الملف (${i + 1} من ${totalFiles}): ${item.name}`;
+
+                    const pdfDoc = await pdfjsLib.getDocument({ data: item.buffer }).promise;
 
                     for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
                         const page = await pdfDoc.getPage(pageNum);
                         const textContent = await page.getTextContent();
-                        const pageText = textContent.items.map(item => item.str).join(" ");
+                        const pageText = textContent.items.map(it => it.str).join(" ");
                         const rollNumbers = pageText.match(/\b\d{8,12}\b/g) || [];
 
                         if (rollNumbers.length > 0) {
@@ -301,7 +302,7 @@
 
                             const tx = db.transaction("results", "readwrite");
                             const store = tx.objectStore("results");
-                            
+
                             const uniqueRolls = [...new Set(rollNumbers)];
                             for (const roll of uniqueRolls) {
                                 store.put({ roll: roll, imageData: imageData });
@@ -316,7 +317,7 @@
                 }
 
                 adminAlert.className = "p-3 rounded-xl text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
-                adminAlert.innerText = `✅ اكتملت العملية! تمت فهرسة (${indexedCount}) رقم امتحاني بنجاح.`;
+                adminAlert.innerText = `✅ اكتملت العملية! تمت فهرسة (${indexedCount}) رقم امتحاني من ملف الـ RAR بنجاح.`;
                 adminAlert.classList.remove('hidden');
                 updateStatusBadge();
 
