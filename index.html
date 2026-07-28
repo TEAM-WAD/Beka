@@ -4,51 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>منظومة النتائج الامتحانية الذكية</title>
-    <!-- خط القاهرة -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    <!-- Tailwind CSS للتنسيق -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- أيقونات Lucide -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- مكتبة فك الضغط داخل المتصفح JSZip -->
+    
+    <!-- مكتبات فك الضغط (ZIP + RAR) داخل المتصفح -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <!-- مكتبة قراءة وتحويل PDF إلى صور داخل المتصفح PDF.js -->
+    <script src="https://cdn.jsdelivr.net/npm/unrar-js@0.2.2/lib/unrar.min.js"></script>
+    <!-- مكتبة قراءة PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
     <style>
-        body {
-            font-family: 'Cairo', sans-serif;
-            background: #080c14;
-            color: #f1f5f9;
-            min-height: 100vh;
-        }
-        .bg-glow {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, rgba(139, 92, 246, 0.08) 50%, transparent 70%);
-            z-index: 0;
-            filter: blur(80px);
-            pointer-events: none;
-        }
-        .glass-card {
-            background: rgba(15, 23, 42, 0.75);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
-        }
-        .spinner {
-            border: 3px solid rgba(255, 255, 255, 0.1);
-            border-left-color: #3b82f6;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            animation: spin 0.8s linear infinite;
-        }
+        body { font-family: 'Cairo', sans-serif; background: #080c14; color: #f1f5f9; min-height: 100vh; }
+        .bg-glow { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 500px; height: 500px; background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, rgba(139, 92, 246, 0.08) 50%, transparent 70%); z-index: 0; filter: blur(80px); pointer-events: none; }
+        .glass-card { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6); }
+        .spinner { border: 3px solid rgba(255, 255, 255, 0.1); border-left-color: #3b82f6; border-radius: 50%; width: 20px; height: 20px; animation: spin 0.8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
@@ -56,7 +26,6 @@
 
     <div class="bg-glow"></div>
 
-    <!-- الهيدر -->
     <header class="relative z-10 w-full py-5 px-4 border-b border-slate-800/80 bg-slate-950/60 backdrop-blur-md">
         <div class="max-w-5xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-3">
@@ -67,11 +36,10 @@
                     <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-300">
                         منظومة النتائج الامتحانية
                     </h1>
-                    <p class="text-xs text-slate-400">نظام معالجة واستعلام متكامل داخل المتصفح</p>
+                    <p class="text-xs text-slate-400">استعلام ومعالجة فورية داخل المتصفح</p>
                 </div>
             </div>
 
-            <!-- زر لوحة التحكم -->
             <button onclick="toggleAdminModal(true)" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-bold transition flex items-center gap-2">
                 <i data-lucide="shield-check" class="w-4 h-4 text-blue-400"></i>
                 لوحة الأدمن
@@ -79,10 +47,8 @@
         </div>
     </header>
 
-    <!-- واجهة البحث للطالب -->
     <main class="relative z-10 flex-grow flex flex-col items-center justify-center p-4 my-8">
         <div class="w-full max-w-2xl">
-            
             <div class="glass-card rounded-3xl p-6 sm:p-10 mb-8">
                 <div class="text-center mb-8">
                     <span id="dbStatusBadge" class="inline-block px-4 py-1.5 rounded-full text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20 mb-3">
@@ -109,32 +75,26 @@
                 <div id="alertBox" class="hidden mt-4 p-4 rounded-xl text-sm font-semibold flex items-center gap-3"></div>
             </div>
 
-            <!-- عرض صورة النتيجة -->
             <div id="resultContainer" class="hidden space-y-4">
                 <div class="glass-card rounded-3xl p-5 border border-slate-700/50">
                     <div class="flex flex-wrap justify-between items-center gap-4 mb-4 pb-4 border-b border-slate-800">
-                        <div>
-                            <h3 class="text-lg font-bold text-emerald-400 flex items-center gap-2">
-                                <i data-lucide="check-circle-2" class="w-5 h-5"></i>
-                                تم العثور على النتيجة والقائمة الرسمية!
-                            </h3>
-                        </div>
+                        <h3 class="text-lg font-bold text-emerald-400 flex items-center gap-2">
+                            <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+                            تم العثور على القائمة الرسمية!
+                        </h3>
                         <a id="downloadBtn" download="result_page.png" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5">
                             <i data-lucide="download" class="w-4 h-4"></i>
-                            تحميل صورة القائمة
+                            تحميل القائمة
                         </a>
                     </div>
-
                     <div class="rounded-2xl overflow-hidden bg-slate-950 border border-slate-800 flex justify-center">
                         <img id="resultImage" src="" alt="قائمة النتيجة" class="w-full h-auto object-contain max-h-[800px]">
                     </div>
                 </div>
             </div>
-
         </div>
     </main>
 
-    <!-- نافذة رفع الملفات للأدمن (معالجة كاملة داخل المتصفح) -->
     <div id="adminModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4">
         <div class="glass-card rounded-3xl p-6 sm:p-8 max-w-lg w-full border border-slate-700">
             <div class="flex justify-between items-center mb-6 pb-3 border-b border-slate-800">
@@ -152,13 +112,11 @@
                     <label class="block text-xs font-bold text-slate-300 mb-2">اختر الملف المضغوط (ZIP أو RAR)</label>
                     <input type="file" id="archiveFile" accept=".zip,.rar" 
                         class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white file:font-bold hover:file:bg-blue-500 cursor-pointer">
-                    <p class="text-[11px] text-slate-400 mt-1.5">* ملاحظة: يُفضل استخدام ملفات <b>ZIP</b> لمعالجة فورية فائقة السرعة داخل المتصفح.</p>
                 </div>
 
-                <!-- شريط معالجة التفكيك والفهرسة -->
                 <div id="processBox" class="hidden space-y-2">
                     <div class="flex justify-between text-xs text-slate-300 font-bold">
-                        <span id="processStatus">جاري التفكيك والمعالجة...</span>
+                        <span id="processStatus">جاري المعالجة...</span>
                         <span id="processPercent">0%</span>
                     </div>
                     <div class="w-full bg-slate-800 rounded-full h-3 overflow-hidden border border-slate-700">
@@ -170,7 +128,7 @@
 
                 <button onclick="startProcessing()" id="startBtn" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-3.5 rounded-xl transition flex items-center justify-center gap-2">
                     <i data-lucide="cpu" class="w-5 h-5"></i>
-                    <span>بدء التفكيك والفهرسة تلقائياً</span>
+                    <span>بدء التفكيك والفهرسة</span>
                 </button>
 
                 <button onclick="clearDatabase()" class="w-full bg-red-500/10 hover:bg-red-500/20 text-red-400 font-bold py-2.5 rounded-xl border border-red-500/20 text-xs transition">
@@ -184,7 +142,6 @@
         lucide.createIcons();
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-        // --- إعداد قاعدة بيانات المتصفح IndexedDB ---
         const DB_NAME = "ResultsSystemDB";
         let db;
 
@@ -197,11 +154,7 @@
                         db.createObjectStore("results", { keyPath: "roll" });
                     }
                 };
-                request.onsuccess = (e) => {
-                    db = e.target.result;
-                    updateStatusBadge();
-                    resolve(db);
-                };
+                request.onsuccess = (e) => { db = e.target.result; updateStatusBadge(); resolve(db); };
                 request.onerror = (e) => reject(e);
             });
         }
@@ -225,7 +178,6 @@
             };
         }
 
-        // --- البحث عن الرقم الامتحاني ---
         document.getElementById('searchForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const roll = document.getElementById('rollNumber').value.trim();
@@ -249,7 +201,7 @@
                     resultContainer.classList.remove('hidden');
                 } else {
                     alertBox.className = "p-4 rounded-xl text-sm font-semibold bg-red-500/10 text-red-400 border border-red-500/20";
-                    alertBox.innerHTML = `<i data-lucide="alert-circle" class="w-5 h-5 inline"></i> لم يتم العثور على الرقم الامتحاني (${roll}) في القوائم المرفوعة.`;
+                    alertBox.innerHTML = `<i data-lucide="alert-circle" class="w-5 h-5 inline"></i> لم يتم العثور على الرقم الامتحاني (${roll}).`;
                     alertBox.classList.remove('hidden');
                 }
                 btn.disabled = false;
@@ -258,7 +210,43 @@
             };
         });
 
-        // --- معالجة فك الضغط وقراءة الـ PDF داخل المتصفح ---
+        // دالة استخراج ملفات PDF من ZIP أو RAR
+        async function extractPdfBuffers(file, updateStatus) {
+            const fileName = file.name.toLowerCase();
+            const pdfFiles = [];
+
+            if (fileName.endsWith('.zip')) {
+                updateStatus("جاري قراءة ملف ZIP...");
+                const zip = new JSZip();
+                const zipContent = await zip.loadAsync(file);
+                for (const [relativePath, zipEntry] of Object.entries(zipContent.files)) {
+                    if (!zipEntry.dir && relativePath.toLowerCase().endsWith('.pdf')) {
+                        const buffer = await zipEntry.async("arraybuffer");
+                        pdfFiles.push({ name: relativePath, buffer: buffer });
+                    }
+                }
+            } else if (fileName.endsWith('.rar')) {
+                updateStatus("جاري قراءة ملف RAR...");
+                const arrayBuffer = await file.arraybuffer();
+                const extractor = readRARContent(arrayBuffer);
+                for (const item of extractor) {
+                    if (item.filename.toLowerCase().endsWith('.pdf')) {
+                        pdfFiles.push({ name: item.filename, buffer: item.fileData.buffer });
+                    }
+                }
+            }
+            return pdfFiles;
+        }
+
+        function readRARContent(arrayBuffer) {
+            try {
+                const extractor = readArchive({ buffer: arrayBuffer });
+                return extractor.files || [];
+            } catch (e) {
+                throw new Error("تعذر قراءة ملف RAR. يُفضل تحويله إلى ZIP للسرعة.");
+            }
+        }
+
         async function startProcessing() {
             const fileInput = document.getElementById('archiveFile');
             const startBtn = document.getElementById('startBtn');
@@ -279,55 +267,37 @@
             adminAlert.classList.add('hidden');
 
             try {
-                processStatus.innerText = "جاري قراءة الملف المضغوط...";
-                progressBar.style.width = "10%";
-                processPercent.innerText = "10%";
-
-                // استخدام JSZip لفك الضغط
-                const zip = new JSZip();
-                const zipContent = await zip.loadAsync(file);
-                
-                const pdfFiles = [];
-                zipContent.forEach((relativePath, zipEntry) => {
-                    if (!zipEntry.dir && relativePath.lower().endsWith('.pdf')) {
-                        pdfFiles.push(zipEntry);
-                    }
-                });
+                const pdfFiles = await extractPdfBuffers(file, (msg) => processStatus.innerText = msg);
 
                 if (pdfFiles.length === 0) {
-                    throw new Error("لم يتم العثور على ملفات PDF داخل الملف المضغوط.");
+                    throw new Error("لم يتم العثور على ملفات PDF داخل الملف المرفوع.");
                 }
 
                 let indexedCount = 0;
                 const totalFiles = pdfFiles.length;
 
                 for (let i = 0; i < totalFiles; i++) {
-                    const pdfEntry = pdfFiles[i];
-                    processStatus.innerText = `جاري تحليل الملف (${i + 1} من ${totalFiles}): ${pdfEntry.name}`;
+                    const pdfItem = pdfFiles[i];
+                    processStatus.innerText = `تحليل الملف (${i + 1} من ${totalFiles}): ${pdfItem.name}`;
                     
-                    const pdfData = await pdfEntry.async("arraybuffer");
-                    const pdfDoc = await pdfjsLib.getDocument({ data: pdfData }).promise;
+                    const pdfDoc = await pdfjsLib.getDocument({ data: pdfItem.buffer }).promise;
 
                     for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
                         const page = await pdfDoc.getPage(pageNum);
-                        
-                        // 1. استخراج النصوص والأرقام الامتحانية
                         const textContent = await page.getTextContent();
                         const pageText = textContent.items.map(item => item.str).join(" ");
                         const rollNumbers = pageText.match(/\b\d{8,12}\b/g) || [];
 
                         if (rollNumbers.length > 0) {
-                            // 2. تحويل الصفحة إلى صورة Canvas بدقة عالية
                             const viewport = page.getViewport({ scale: 1.8 });
                             const canvas = document.createElement('canvas');
-                            const context = canvas.getContext('canvas');
+                            const context = canvas.getContext('2d');
                             canvas.height = viewport.height;
                             canvas.width = viewport.width;
 
                             await page.render({ canvasContext: context, viewport: viewport }).promise;
                             const imageData = canvas.toDataURL('image/png');
 
-                            // 3. حفظ الرقم مع الصورة في قاعدة بيانات المتصفح IndexedDB
                             const tx = db.transaction("results", "readwrite");
                             const store = tx.objectStore("results");
                             
@@ -345,7 +315,7 @@
                 }
 
                 adminAlert.className = "p-3 rounded-xl text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
-                adminAlert.innerText = `✅ اكتملت المعالجة بنجاح! تم تفكيك القوائم وفهرسة (${indexedCount}) رقم امتحاني.`;
+                adminAlert.innerText = `✅ اكتملت العملية! تمت فهرسة (${indexedCount}) رقم امتحاني بنجاح.`;
                 adminAlert.classList.remove('hidden');
                 updateStatusBadge();
 
