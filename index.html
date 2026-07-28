@@ -158,7 +158,6 @@
             margin-top: 10px; font-size: 12px; color: var(--gold-primary); text-align: right; word-break: break-all;
         }
 
-        /* محاكات إشعار الموبايل الحقيقي */
         .push-notification {
             position: fixed; top: 20px; right: 20px; left: 20px; max-width: 380px; margin: 0 auto;
             background: rgba(20, 24, 39, 0.95); backdrop-filter: blur(20px);
@@ -168,7 +167,6 @@
         }
         .push-notification.show { transform: translateY(0); }
 
-        /* واجهة الـ VIP الفخمة جداً */
         .vip-hero-card {
             background: linear-gradient(135deg, rgba(30, 20, 50, 0.9), rgba(15, 12, 30, 0.95));
             border: 1px solid var(--gold-primary); border-radius: 26px; padding: 22px; text-align: center;
@@ -207,7 +205,6 @@
         </div>
     </div>
 
-    <!-- إشعار الموبايل الوهمي الحقيقي -->
     <div id="pushNotification" class="push-notification">
         <div style="width: 42px; height: 42px; border-radius: 12px; background: var(--gold-gradient); display: flex; align-items: center; justify-content: center; font-size: 20px; color: #000; flex-shrink: 0;">
             <i class="fa-solid fa-bell"></i>
@@ -227,11 +224,11 @@
                     <p style="font-size: 10px; color: var(--gold-primary);"><i class="fa-solid fa-shield-halved"></i> نظام الأكواد العالمي</p>
                 </div>
             </div>
-            <button class="vip-login-btn" onclick="openLoginModal()"><i class="fa-solid fa-crown"></i> دخول VIP</button>
+            <!-- زر دخول VIP الذكي -->
+            <button class="vip-login-btn" onclick="handleVipClick()"><i class="fa-solid fa-crown"></i> دخول VIP</button>
         </header>
 
         <div class="container">
-            <!-- الصفحة الرئيسية العادية والأقسام -->
             <section id="homeMenuScreen" class="screen active">
                 <div style="margin-bottom: 18px;">
                     <h2>أهلاً بك في المنصة</h2>
@@ -257,7 +254,6 @@
                 </div>
             </section>
 
-            <!-- قسم الـ VIP الفخم والمطور -->
             <section id="vipStudentScreen" class="screen">
                 <div class="nav-header">
                     <div class="back-btn" onclick="logoutVIP()"><i class="fa-solid fa-right-from-bracket"></i></div>
@@ -298,7 +294,6 @@
                 </div>
             </section>
 
-            <!-- لوحة التحكم للأدمن (مع الإذاعة وتعديل الاشتراكات) -->
             <section id="developerScreen" class="screen">
                 <div class="nav-header">
                     <div class="back-btn" onclick="logoutVIP()"><i class="fa-solid fa-right-from-bracket"></i></div>
@@ -306,19 +301,17 @@
                 </div>
 
                 <div class="dev-panel">
-                    <!-- قسم الإذاعة -->
                     <div class="dev-section">
                         <h4 style="color: var(--cyan-accent); margin-bottom: 8px;"><i class="fa-solid fa-bullhorn"></i> إرسال إذاعة لمشتركي VIP</h4>
                         <div class="input-group" style="margin-top: 10px;">
                             <label>نص الإذاعة / التنبيه:</label>
-                            <input type="text" id="broadcastMsgInput" placeholder="اكتب الإذاعة هنا لإرسالها لكل من متصل وخارج الموقع...">
+                            <input type="text" id="broadcastMsgInput" placeholder="اكتب الإذاعة هنا لإرسالها لكل المشتركين...">
                         </div>
                         <button class="dev-btn" style="background: var(--cyan-accent); color: #000;" onclick="sendBroadcast()">
                             <i class="fa-solid fa-paper-plane"></i> بث الإذاعة الآن
                         </button>
                     </div>
 
-                    <!-- قسم توليد الأكواد -->
                     <div class="dev-section">
                         <h4 style="color: var(--gold-primary); margin-bottom: 8px;"><i class="fa-solid fa-key"></i> توليد كود تفعيل اشتراك</h4>
                         <div class="input-group" style="margin-top: 10px;">
@@ -339,7 +332,6 @@
                         <div id="codeResultBox" class="generated-box" style="display:none;"></div>
                     </div>
 
-                    <!-- قسم إدارة الاشتراكات والحسابات -->
                     <div class="dev-section">
                         <h4 style="color: var(--text-main); margin-bottom: 8px;"><i class="fa-solid fa-users-gear"></i> إدارة الحسابات المباشرة</h4>
                         <div style="overflow-x: auto;">
@@ -360,7 +352,6 @@
         </div>
     </div>
 
-    <!-- نافذة تسجيل الدخول -->
     <div id="loginModal" class="login-modal">
         <div class="login-card">
             <button class="close-modal-btn" onclick="closeLoginModal()"><i class="fa-solid fa-xmark"></i></button>
@@ -383,9 +374,8 @@
                 <input type="text" id="loginCode" placeholder="أدخل كود التفعيل (إن وُجد)">
             </div>
 
-            <!-- مربع حفظ تسجيل الدخول -->
             <label class="checkbox-group">
-                <input type="checkbox" id="rememberLoginCheck">
+                <input type="checkbox" id="rememberLoginCheck" checked>
                 <span>حفظ تسجيل الدخول والاشتراك التلقائي لهذا الجهاز</span>
             </label>
 
@@ -422,18 +412,20 @@
         const tg = window.Telegram?.WebApp;
         if (tg) { tg.ready(); tg.expand(); }
 
-        // فحص الحفظ التلقائي عند فتح الموقع مباشرة
         window.addEventListener('DOMContentLoaded', () => {
+            // طلب إذن إشعارات المتصفح الحقيقية
+            if ("Notification" in window && Notification.permission !== "granted" && Notification.permission !== "denied") {
+                Notification.requestPermission();
+            }
+
             const rememberedEmail = localStorage.getItem('netlamkhem_remembered_email');
             if (rememberedEmail && ALLOWED_ACCOUNTS[rememberedEmail]) {
                 const expireTimestamp = localStorage.getItem(`expire_${rememberedEmail}`);
                 if (expireTimestamp && Date.now() < parseInt(expireTimestamp)) {
-                    // دخول تلقائي مباشر للقسم الفخم
                     startVipSession(rememberedEmail, parseInt(expireTimestamp));
                 }
             }
             
-            // استقبال الإذاعات المخزنة للمستخدم
             checkBroadcastMessages();
         });
 
@@ -464,6 +456,19 @@
         }
         drawParticles();
 
+        // زر دخول VIP الذكي (يتحقق إذا كان مسجل دخول مسبقاً)
+        function handleVipClick() {
+            const rememberedEmail = localStorage.getItem('netlamkhem_remembered_email');
+            if (rememberedEmail && ALLOWED_ACCOUNTS[rememberedEmail]) {
+                const expireTimestamp = localStorage.getItem(`expire_${rememberedEmail}`);
+                if (expireTimestamp && Date.now() < parseInt(expireTimestamp)) {
+                    startVipSession(rememberedEmail, parseInt(expireTimestamp));
+                    return;
+                }
+            }
+            openLoginModal();
+        }
+
         function openLoginModal() { document.getElementById('loginModal').classList.add('active'); document.getElementById('loginError').textContent = ''; }
         function closeLoginModal() { document.getElementById('loginModal').classList.remove('active'); }
 
@@ -484,7 +489,6 @@
             const payload = `${email}|${expireTimestamp}|${SECRET_SALT}`;
             const code = btoa(payload);
 
-            // تفعيل فوري بالجهاز لسهولة الأدمن
             localStorage.setItem(`expire_${email}`, expireTimestamp);
 
             const box = document.getElementById('codeResultBox');
@@ -511,7 +515,6 @@
             } catch(e) { return null; }
         }
 
-        // جدول إدارة الحسابات (إلغاء التفعيل أو التجديد)
         function renderDevAccountsTable() {
             const tbody = document.getElementById('devAccountsTableBody');
             let html = '';
@@ -601,7 +604,6 @@
                 return;
             }
 
-            // حفظ التذكر إذا حدد الطالب المربع
             if (rememberMe) {
                 localStorage.setItem('netlamkhem_remembered_email', emailInput);
             } else {
@@ -613,7 +615,6 @@
             startVipSession(emailInput, parseInt(expireTimestamp));
         }
 
-        // تشغيل جلسة قسم الـ VIP مع العداد التنازلي الحقيقي
         function startVipSession(email, expireTimestamp) {
             document.getElementById('vipStudentEmailText').textContent = `أهلاً بك: ${email}`;
             navigateTo('vipStudentScreen');
@@ -633,7 +634,6 @@
                 const mins = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
                 const secs = Math.floor((timeLeft % (1000 * 60)) / 1000);
 
-                document.getElementById('vipTimerDisplayinnerHTML', '');
                 document.getElementById('vipTimerDisplay').innerHTML = `<i class="fa-solid fa-hourglass-half"></i> باقي على انتهاء الاشتراك: ${days} يوم, ${hours}س ${mins}د ${secs}ث`;
             }
 
@@ -641,7 +641,7 @@
             timerInterval = setInterval(updateTimer, 1000);
         }
 
-        // نظام الإذاعات التنبيهية للمشتركين
+        // نظام الإذاعات المدعوم بإشعارات المتصفح الحقيقية (مثل الانستغرام)
         function sendBroadcast() {
             const msg = document.getElementById('broadcastMsgInput').value.trim();
             if (!msg) {
@@ -650,7 +650,37 @@
             }
             localStorage.setItem('netlamkhem_latest_broadcast', msg);
             document.getElementById('broadcastMsgInput').value = '';
+            
+            // إرسال الإشعار للأدمن أيضاً كاختبار فوري
+            triggerRealNotification(msg);
             showDevAlert("✅ تم بث الإذاعة بنجاح إلى جميع مشتركي VIP النشطين!");
+        }
+
+        function triggerRealNotification(text) {
+            // 1. إشعار داخل التطبيق (Banner)
+            const box = document.getElementById('pushNotification');
+            document.getElementById('pushMsgText').textContent = text;
+            box.classList.add('show');
+            setTimeout(() => { box.classList.remove('show'); }, 6000);
+
+            // 2. إشعار نظام حقيقي خارجي (Browser System Notification مثل تطبيقات التواصل)
+            if ("Notification" in window) {
+                if (Notification.permission === "granted") {
+                    new Notification("منصة نتلامخم التعليمية (إذاعة VIP)", {
+                        body: text,
+                        icon: "https://cdn-icons-png.flaticon.com/512/3233/3233483.png"
+                    });
+                } else if (Notification.permission !== "denied") {
+                    Notification.requestPermission().then(permission => {
+                        if (permission === "granted") {
+                            new Notification("منصة نتلامخم التعليمية (إذاعة VIP)", {
+                                body: text,
+                                icon: "https://cdn-icons-png.flaticon.com/512/3233/3233483.png"
+                            });
+                        }
+                    });
+                }
+            }
         }
 
         function checkBroadcastMessages() {
@@ -658,22 +688,14 @@
             const seenMsg = localStorage.getItem('netlamkhem_seen_broadcast');
             
             if (lastMsg && lastMsg !== seenMsg) {
-                // فحص إذا كان الطالب لديه اشتراك نشط
                 const remembered = localStorage.getItem('netlamkhem_remembered_email');
                 if (remembered) {
                     setTimeout(() => {
-                        showPushNotification(lastMsg);
+                        triggerRealNotification(lastMsg);
                         localStorage.setItem('netlamkhem_seen_broadcast', lastMsg);
                     }, 1500);
                 }
             }
-        }
-
-        function showPushNotification(text) {
-            const box = document.getElementById('pushNotification');
-            document.getElementById('pushMsgText').textContent = text;
-            box.classList.add('show');
-            setTimeout(() => { box.classList.remove('show'); }, 6000);
         }
 
         function logoutVIP() { 
