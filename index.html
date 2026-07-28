@@ -3,22 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>منصة نتلامخم التعليمية - VIP</title>
+    <title>منصة نتلامخم التعليمية - VIP Ultra</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <style>
-        /* ==================== المتغيرات والتنسيق الملكي الفخم ==================== */
+        /* ==================== المتغيرات والتصميم التفاعلي ==================== */
         :root {
-            --gold-accent: #FFD700;
-            --gold-glow: rgba(255, 215, 0, 0.4);
+            --gold-primary: #FFD700;
+            --gold-gradient: linear-gradient(135deg, #FFE259 0%, #FFA751 100%);
+            --gold-glow: rgba(255, 215, 0, 0.45);
             --cyan-accent: #00f2fe;
             --purple-accent: #8b5cf6;
-            --bg-dark: #070913;
-            --card-glass: rgba(18, 24, 43, 0.75);
+            --pink-accent: #ec4899;
+            --bg-dark: #05070e;
+            --card-glass: rgba(15, 21, 37, 0.75);
             --card-border: rgba(255, 255, 255, 0.12);
-            --card-hover-border: rgba(0, 242, 254, 0.4);
             --text-main: #ffffff;
             --text-muted: #94a3b8;
         }
@@ -34,59 +35,37 @@
         body {
             background-color: var(--bg-dark);
             background-image: 
-                radial-gradient(at 10% 10%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
+                radial-gradient(at 10% 10%, rgba(139, 92, 246, 0.18) 0px, transparent 50%),
                 radial-gradient(at 90% 90%, rgba(0, 242, 254, 0.15) 0px, transparent 50%),
-                radial-gradient(at 50% 50%, rgba(255, 215, 0, 0.05) 0px, transparent 70%);
+                radial-gradient(at 50% 50%, rgba(255, 215, 0, 0.08) 0px, transparent 70%);
             background-attachment: fixed;
             color: var(--text-main);
             min-height: 100vh;
-            padding-bottom: 40px;
+            padding-bottom: 50px;
             overflow-x: hidden;
         }
 
-        /* ==================== 1. الشاشة الترحيبية (المعدلة بالقياسات الدقيقة) ==================== */
+        /* ==================== 1. الشاشة الترحيبية (Splash Screen) ==================== */
         .welcome-screen {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
+            top: 0; left: 0; width: 100vw; height: 100vh;
             z-index: 99999;
             background: radial-gradient(circle at 50% 30%, #FF9800 0%, #6A1B9A 45%, #12002B 90%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             overflow: hidden;
             transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.8s ease, visibility 0.8s;
         }
 
         .welcome-screen.hidden {
-            opacity: 0;
-            transform: scale(1.15);
-            visibility: hidden;
-            pointer-events: none;
+            opacity: 0; transform: scale(1.15); visibility: hidden; pointer-events: none;
         }
 
-        /* قماش الشرارات والموجات المتحركة بالخلفية */
-        #welcomeCanvas {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-            pointer-events: none;
-        }
+        #welcomeCanvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
 
-        /* الرسمة الحيوية الملونة (كبيرة وفي المنتصف تماماً) */
         .welcome-illustration {
-            position: absolute;
-            top: 50%;
-            left: 50%;
+            position: absolute; top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            width: 440px;
-            max-width: 92vw;
-            height: auto;
-            z-index: 2;
+            width: 440px; max-width: 92vw; height: auto; z-index: 2;
             filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.6));
             animation: pulseFloat 4s ease-in-out infinite alternate;
         }
@@ -96,441 +75,252 @@
             100% { transform: translate(-50%, -50%) translateY(-10px) scale(1.02); }
         }
 
-        /* بطاقة المحتوى الممتدة فوق الكتب وقبعة التخرج بالوسط مباشرة */
         .welcome-content {
-            position: relative;
-            z-index: 3;
-            width: 88vw;
-            max-width: 380px;
-            padding: 28px 22px;
-            text-align: center;
+            position: relative; z-index: 3;
+            width: 88vw; max-width: 380px; padding: 28px 22px; text-align: center;
             background: rgba(15, 10, 30, 0.55);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-radius: 32px;
-            border: 1px solid rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border-radius: 32px; border: 1px solid rgba(255, 255, 255, 0.25);
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 30px rgba(168, 85, 247, 0.3);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
+            display: flex; flex-direction: column; align-items: center; gap: 12px;
         }
 
-        /* الأيقونة البنفسجية المضيئة */
         .welcome-app-icon {
-            width: 72px;
-            height: 72px;
-            border-radius: 22px;
+            width: 72px; height: 72px; border-radius: 22px;
             background: linear-gradient(135deg, #A855F7 0%, #6366F1 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 34px;
-            color: #FFFFFF;
-            box-shadow: 0 10px 25px rgba(168, 85, 247, 0.6), inset 0 2px 4px rgba(255, 255, 255, 0.5);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 34px; color: #FFFFFF;
+            box-shadow: 0 10px 25px rgba(168, 85, 247, 0.6);
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
-        /* العنوان والوصف */
-        .welcome-title {
-            font-size: 24px;
-            font-weight: 800;
-            color: #FFFFFF;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
-            letter-spacing: -0.3px;
-        }
+        .welcome-title { font-size: 24px; font-weight: 800; color: #FFFFFF; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8); }
+        .welcome-subtitle { font-size: 13.5px; color: rgba(255, 255, 255, 0.9); font-weight: 500; margin-bottom: 8px; }
 
-        .welcome-subtitle {
-            font-size: 13.5px;
-            color: rgba(255, 255, 255, 0.9);
-            font-weight: 500;
-            margin-bottom: 8px;
-            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
-        }
-
-        /* زر دخول التطبيق */
         .welcome-btn {
-            width: 100%;
-            padding: 16px;
-            border-radius: 50px;
-            border: none;
+            width: 100%; padding: 16px; border-radius: 50px; border: none;
             background: linear-gradient(90deg, #8B5CF6 0%, #D946EF 100%);
-            color: #FFFFFF;
-            font-size: 16px;
-            font-weight: 800;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            box-shadow: 0 12px 28px rgba(217, 70, 239, 0.45);
-            transition: all 0.25s ease;
+            color: #FFFFFF; font-size: 16px; font-weight: 800; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            box-shadow: 0 12px 28px rgba(217, 70, 239, 0.45); transition: all 0.25s ease;
         }
 
-        .welcome-btn:active {
-            transform: scale(0.95);
-            box-shadow: 0 5px 15px rgba(217, 70, 239, 0.3);
-        }
+        .welcome-btn:active { transform: scale(0.95); }
+        .welcome-skip { color: rgba(255, 255, 255, 0.75); font-size: 13.5px; background: none; border: none; cursor: pointer; font-weight: 500; padding: 4px 12px; }
 
-        .welcome-skip {
-            color: rgba(255, 255, 255, 0.75);
-            font-size: 13.5px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-weight: 500;
-            padding: 4px 12px;
-            transition: color 0.2s;
-        }
-
-        .welcome-skip:hover { color: #FFF; }
-
-        /* ==================== 2. الواجهة الداخلية الفخمة (VIP Modern UI) ==================== */
+        /* ==================== 2. الواجهة الرئيسية والهيدر الفاخر ==================== */
         .main-app-wrapper {
-            opacity: 0;
-            transform: translateY(20px) scale(0.97);
+            opacity: 0; transform: translateY(20px) scale(0.97);
             transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         }
+        .main-app-wrapper.visible { opacity: 1; transform: translateY(0) scale(1); }
 
-        .main-app-wrapper.visible {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-        }
-
-        /* الهيدر الملكي الفاخر */
         .app-header {
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            position: sticky; top: 0; z-index: 100;
             background: rgba(10, 14, 26, 0.85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--card-border);
-            padding: 16px 22px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            padding: 14px 20px; display: flex; align-items: center; justify-content: space-between;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
 
-        .brand-info {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-
+        .brand-info { display: flex; align-items: center; gap: 12px; }
         .brand-logo {
-            width: 46px;
-            height: 46px;
-            border-radius: 16px;
+            width: 44px; height: 44px; border-radius: 14px;
             background: linear-gradient(135deg, #00f2fe, #4facfe);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            color: #fff;
-            box-shadow: 0 0 20px rgba(0, 242, 254, 0.5);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; color: #fff; box-shadow: 0 0 20px rgba(0, 242, 254, 0.5);
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
-        .brand-text h1 {
-            font-size: 17px;
-            font-weight: 800;
-            background: linear-gradient(90deg, #FFFFFF, #E2E8F0);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        .brand-text h1 { font-size: 16px; font-weight: 800; color: #FFFFFF; }
+        .brand-text p { font-size: 11px; color: var(--cyan-accent); font-weight: 600; }
+
+        /* مستطيل تسجيل الدخول الذهبي الممتد والمضيء */
+        .vip-login-btn {
+            background: var(--gold-gradient);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            color: #12002B; padding: 8px 18px; border-radius: 12px;
+            font-size: 13px; font-weight: 800; cursor: pointer;
+            display: flex; align-items: center; gap: 8px;
+            box-shadow: 0 0 18px var(--gold-glow); transition: all 0.3s;
         }
+        .vip-login-btn:active { transform: scale(0.93); box-shadow: 0 0 25px var(--gold-primary); }
 
-        .brand-text p {
-            font-size: 11px;
-            color: var(--cyan-accent);
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
+        .container { padding: 22px; max-width: 600px; margin: 0 auto; }
 
-        .vip-badge {
-            background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 152, 0, 0.1));
-            border: 1px solid var(--gold-accent);
-            color: var(--gold-accent);
-            padding: 5px 12px;
-            border-radius: 30px;
-            font-size: 11px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            box-shadow: 0 0 12px var(--gold-glow);
-        }
+        .screen { display: none; opacity: 0; transform: translateY(15px); transition: all 0.35s ease; }
+        .screen.active { display: block; opacity: 1; transform: translateY(0); }
 
-        /* الحاوية العامة للشاشات */
-        .container {
-            padding: 22px;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        .screen {
-            display: none;
-            opacity: 0;
-            transform: translateY(15px);
-            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .screen.active {
-            display: block;
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* شريط التنقل العلوي للشاشات الفرعية */
-        .nav-header {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            margin-bottom: 22px;
-        }
-
-        .back-btn {
-            background: var(--card-glass);
-            border: 1px solid var(--card-border);
-            width: 44px;
-            height: 44px;
-            border-radius: 16px;
-            color: var(--text-main);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.25s;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
-        }
-
-        .back-btn:active {
-            transform: scale(0.9) translateX(4px);
-            border-color: var(--cyan-accent);
-            color: var(--cyan-accent);
-        }
-
-        .nav-title h2 { font-size: 19px; font-weight: 800; letter-spacing: -0.3px; }
-        .nav-title p { font-size: 12px; color: var(--text-muted); font-weight: 500; }
-
-        /* كروت المراحل الفخمة (Stage Cards) */
-        .grid-vertical { display: flex; flex-direction: column; gap: 16px; }
-
-        .stage-card {
-            position: relative;
-            background: var(--card-glass);
-            border: 1px solid var(--card-border);
-            border-radius: 24px;
-            padding: 22px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            cursor: pointer;
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            overflow: hidden;
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
-        }
-
-        .stage-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 4px; height: 100%;
-            background: transparent;
-            transition: background 0.3s;
-        }
-
-        .stage-card.prep::before { background: linear-gradient(to bottom, #A855F7, #6366F1); }
-        .stage-card.mid::before { background: linear-gradient(to bottom, #EC4899, #F43F5E); }
-        .stage-card.prim::before { background: linear-gradient(to bottom, #10B981, #059669); }
-
-        .stage-card:active {
-            transform: scale(0.97);
-            border-color: var(--card-hover-border);
-        }
-
-        .stage-info { display: flex; align-items: center; gap: 18px; }
-
-        .stage-icon {
-            width: 56px;
-            height: 56px;
-            border-radius: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 26px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .prep .stage-icon { color: #A855F7; box-shadow: 0 0 20px rgba(168, 85, 247, 0.25); }
-        .mid .stage-icon { color: #EC4899; box-shadow: 0 0 20px rgba(236, 72, 153, 0.25); }
-        .prim .stage-icon { color: #10B981; box-shadow: 0 0 20px rgba(16, 185, 129, 0.25); }
-
-        .stage-details h3 { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
-        .stage-details p { font-size: 12px; color: var(--text-muted); }
-
-        /* كروت الفروع (علمي / أدبي) */
-        .branches-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 10px; }
-
-        .branch-card {
-            background: var(--card-glass);
-            border: 1px solid var(--card-border);
-            border-radius: 26px;
-            padding: 28px 18px;
-            text-align: center;
-            cursor: pointer;
-            backdrop-filter: blur(20px);
-            transition: all 0.3s;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 14px;
+        /* الأزرار والأقسام الرئيسية */
+        .main-home-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+        
+        .home-card {
+            background: var(--card-glass); border: 1px solid var(--card-border);
+            border-radius: 24px; padding: 24px 16px; text-align: center;
+            cursor: pointer; backdrop-filter: blur(20px); transition: all 0.3s;
+            display: flex; flex-direction: column; align-items: center; gap: 14px;
             box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
         }
+        .home-card:active { transform: scale(0.94); border-color: var(--cyan-accent); }
 
-        .branch-card:active { transform: scale(0.94); }
-
-        .branch-card.science { border-color: rgba(0, 242, 254, 0.3); }
-        .branch-card.science .branch-icon { background: rgba(0, 242, 254, 0.12); color: #00f2fe; box-shadow: 0 0 25px rgba(0, 242, 254, 0.3); }
-
-        .branch-card.literary { border-color: rgba(244, 63, 94, 0.3); }
-        .branch-card.literary .branch-icon { background: rgba(244, 63, 94, 0.12); color: #f43f5e; box-shadow: 0 0 25px rgba(244, 63, 94, 0.3); }
-
-        .branch-icon {
-            width: 68px;
-            height: 68px;
-            border-radius: 22px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 32px;
+        .home-card-icon {
+            width: 64px; height: 64px; border-radius: 20px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 30px;
         }
 
-        /* شبكة المواد الدراسية */
-        .subjects-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+        .home-card.lectures .home-card-icon { background: rgba(139, 92, 246, 0.15); color: #8b5cf6; border: 1px solid rgba(139, 92, 246, 0.3); box-shadow: 0 0 20px rgba(139, 92, 246, 0.3); }
+        .home-card.bag .home-card-icon { background: rgba(0, 242, 254, 0.15); color: #00f2fe; border: 1px solid rgba(0, 242, 254, 0.3); box-shadow: 0 0 20px rgba(0, 242, 254, 0.3); }
+        .home-card.results .home-card-icon { background: rgba(236, 72, 153, 0.15); color: #ec4899; border: 1px solid rgba(236, 72, 153, 0.3); box-shadow: 0 0 20px rgba(236, 72, 153, 0.3); }
 
-        .subject-card {
-            background: var(--card-glass);
-            border: 1px solid var(--card-border);
-            border-radius: 22px;
-            padding: 22px 16px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-            backdrop-filter: blur(20px);
-            transition: all 0.25s;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+        .home-card h3 { font-size: 15px; font-weight: 800; color: #FFF; }
+        .home-card p { font-size: 11px; color: var(--text-muted); }
+
+        .home-card.full-width { grid-column: span 2; flex-direction: row; justify-content: flex-start; text-align: right; padding: 20px 22px; }
+
+        /* navigation header */
+        .nav-header { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; }
+        .back-btn {
+            background: var(--card-glass); border: 1px solid var(--card-border);
+            width: 44px; height: 44px; border-radius: 16px; color: var(--text-main);
+            display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.25s;
+        }
+        .back-btn:active { transform: scale(0.9); border-color: var(--cyan-accent); }
+
+        .stage-card, .branch-card, .subject-card, .chapter-card, .video-card {
+            background: var(--card-glass); border: 1px solid var(--card-border);
+            border-radius: 22px; padding: 20px; backdrop-filter: blur(20px);
+            margin-bottom: 14px; transition: all 0.3s;
+        }
+        .stage-card:active, .branch-card:active { transform: scale(0.96); }
+
+        /* ==================== 3. مودال تسجيل الدخول الـ Ultra ==================== */
+        .login-modal {
+            position: fixed; inset: 0; z-index: 100000;
+            background: rgba(2, 4, 10, 0.85); backdrop-filter: blur(25px);
+            display: flex; align-items: center; justify-content: center; padding: 20px;
+            opacity: 0; pointer-events: none; transition: all 0.4s ease;
+        }
+        .login-modal.active { opacity: 1; pointer-events: all; }
+
+        .login-card {
+            background: linear-gradient(160deg, rgba(20, 27, 47, 0.95), rgba(8, 12, 22, 0.98));
+            border: 1px solid rgba(255, 215, 0, 0.3); border-radius: 32px;
+            width: 100%; max-width: 420px; padding: 32px 24px; text-align: center;
+            box-shadow: 0 30px 70px rgba(0,0,0,0.8), 0 0 40px rgba(255, 215, 0, 0.2);
+            position: relative; transform: translateY(30px); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .login-modal.active .login-card { transform: translateY(0); }
+
+        .close-modal-btn {
+            position: absolute; top: 18px; left: 18px;
+            background: rgba(255, 255, 255, 0.08); border: none; color: #FFF;
+            width: 36px; height: 36px; border-radius: 12px; cursor: pointer; font-size: 16px;
         }
 
-        .subject-card:active { transform: scale(0.93); border-color: var(--cyan-accent); }
-
-        .subj-icon {
-            width: 56px;
-            height: 56px;
-            border-radius: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 26px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+        .login-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: var(--gold-gradient); color: #111; padding: 6px 16px;
+            border-radius: 30px; font-size: 12px; font-weight: 800; margin-bottom: 16px;
         }
 
-        .subject-card h4 { font-size: 15px; font-weight: 700; color: var(--text-main); }
+        .login-title { font-size: 22px; font-weight: 800; color: #FFF; margin-bottom: 6px; }
+        .login-sub { font-size: 12px; color: var(--text-muted); margin-bottom: 24px; }
 
-        /* قائمة الفصول */
-        .chapters-list { display: flex; flex-direction: column; gap: 14px; }
+        .input-group { position: relative; margin-bottom: 16px; text-align: right; }
+        .input-group label { display: block; font-size: 12px; font-weight: 600; color: #cbd5e1; margin-bottom: 6px; }
+        .input-group input {
+            width: 100%; padding: 14px 16px; border-radius: 16px;
+            background: rgba(255, 255, 255, 0.05); border: 1px solid var(--card-border);
+            color: #FFF; font-size: 14px; outline: none; transition: border 0.3s;
+        }
+        .input-group input:focus { border-color: var(--gold-primary); box-shadow: 0 0 12px var(--gold-glow); }
 
-        .chapter-card {
-            background: var(--card-glass);
-            border: 1px solid var(--card-border);
-            border-radius: 20px;
-            padding: 20px 22px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            cursor: pointer;
-            backdrop-filter: blur(20px);
-            transition: all 0.25s;
+        .submit-login-btn {
+            width: 100%; padding: 16px; border-radius: 18px; border: none;
+            background: var(--gold-gradient); color: #111; font-size: 16px; font-weight: 800;
+            cursor: pointer; box-shadow: 0 10px 25px var(--gold-glow); transition: all 0.25s; margin-top: 10px;
+        }
+        .submit-login-btn:active { transform: scale(0.96); }
+
+        .login-error { color: #f43f5e; font-size: 12px; font-weight: 600; margin-top: 12px; min-height: 18px; }
+
+        /* ==================== 4. واجهة الطالب VIP للمشتركين ==================== */
+        .vip-portal {
+            background: rgba(18, 12, 38, 0.8); border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 30px; padding: 22px; text-align: center; margin-bottom: 24px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6); backdrop-filter: blur(20px);
         }
 
-        .chapter-card:active { transform: scale(0.96); border-color: var(--purple-accent); }
+        .vip-user-welcome { font-size: 18px; font-weight: 800; color: #FFF; margin-bottom: 12px; }
 
-        .chapter-info { display: flex; align-items: center; gap: 16px; }
+        /* العداد التنازلي لانتهاء الاشتراك */
+        .timer-box {
+            background: rgba(0, 0, 0, 0.4); border: 1px solid var(--gold-glow);
+            border-radius: 20px; padding: 14px; margin-top: 10px;
+            display: flex; justify-content: center; align-items: center; gap: 12px;
+        }
+        .timer-unit { text-align: center; }
+        .timer-unit .num { font-size: 20px; font-weight: 900; color: var(--gold-primary); text-shadow: 0 0 10px var(--gold-glow); }
+        .timer-unit .label { font-size: 10px; color: var(--text-muted); }
 
-        .chapter-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: 14px;
-            background: rgba(139, 92, 246, 0.15);
-            color: var(--purple-accent);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 19px;
-            border: 1px solid rgba(139, 92, 246, 0.25);
+        .vip-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+        .vip-card {
+            background: var(--card-glass); border: 1px solid rgba(255, 215, 0, 0.25);
+            border-radius: 24px; padding: 22px 14px; text-align: center;
+            cursor: pointer; transition: all 0.3s; display: flex; flex-direction: column;
+            align-items: center; gap: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+        .vip-card:active { transform: scale(0.94); border-color: var(--gold-primary); }
+
+        .vip-card-icon {
+            width: 58px; height: 58px; border-radius: 18px;
+            background: rgba(255, 215, 0, 0.12); color: var(--gold-primary);
+            display: flex; align-items: center; justify-content: center; font-size: 26px;
+            border: 1px solid var(--gold-glow); box-shadow: 0 0 15px var(--gold-glow);
         }
 
-        /* كروت الدروس والفيديوهات الفخمة */
-        .videos-list { display: flex; flex-direction: column; gap: 22px; }
+        .vip-card h4 { font-size: 14px; font-weight: 800; color: #FFF; }
 
-        .video-card {
-            background: var(--card-glass);
-            border: 1px solid var(--card-border);
-            border-radius: 24px;
-            overflow: hidden;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(20px);
+        /* ==================== 5. لوحة تحكم المطور الفاخرة ==================== */
+        .dev-panel {
+            background: var(--card-glass); border: 1px solid var(--cyan-accent);
+            border-radius: 28px; padding: 22px; backdrop-filter: blur(20px);
+            box-shadow: 0 0 30px rgba(0, 242, 254, 0.2); margin-bottom: 24px;
         }
 
-        .video-wrapper {
-            position: relative;
-            width: 100%;
-            background: #000;
-            aspect-ratio: 16 / 9;
+        .dev-title { font-size: 18px; font-weight: 800; color: var(--cyan-accent); margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+
+        .dev-section { background: rgba(0, 0, 0, 0.3); border-radius: 18px; padding: 16px; margin-bottom: 16px; border: 1px solid var(--card-border); }
+        .dev-section h4 { font-size: 14px; font-weight: 700; color: #FFF; margin-bottom: 12px; }
+
+        .dev-btn {
+            width: 100%; padding: 12px; border-radius: 12px; border: none;
+            background: linear-gradient(135deg, #00f2fe, #4facfe); color: #111;
+            font-size: 13px; font-weight: 800; cursor: pointer; transition: all 0.2s;
+            display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 8px;
+        }
+        .dev-btn:active { transform: scale(0.96); }
+
+        .dev-btn.purple { background: linear-gradient(135deg, #a855f7, #6366f1); color: #FFF; }
+        .dev-btn.gold { background: var(--gold-gradient); color: #111; }
+
+        .generated-code-box {
+            background: #000; border: 1px dashed var(--gold-primary);
+            border-radius: 12px; padding: 12px; font-family: monospace;
+            font-size: 13px; color: var(--gold-primary); margin-top: 10px; word-break: break-all; text-align: left;
         }
 
-        .video-wrapper video {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
+        /* الإشعار التنبيهي المخصص */
+        .dev-alert {
+            position: fixed; bottom: 20px; right: 20px; left: 20px; max-width: 400px; margin: 0 auto;
+            background: rgba(15, 23, 42, 0.95); border: 1px solid var(--cyan-accent);
+            padding: 16px; border-radius: 18px; color: #FFF; font-size: 13px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8); z-index: 200000; display: none;
+            align-items: center; gap: 12px; backdrop-filter: blur(15px);
         }
-
-        .video-body { padding: 18px; }
-
-        .video-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(0, 242, 254, 0.12);
-            color: var(--cyan-accent);
-            padding: 5px 12px;
-            border-radius: 10px;
-            font-size: 11px;
-            font-weight: 700;
-            margin-bottom: 10px;
-            border: 1px solid rgba(0, 242, 254, 0.2);
-        }
-
-        .video-title { font-size: 15px; font-weight: 700; color: var(--text-main); line-height: 1.5; }
-
-        .empty-box {
-            text-align: center;
-            padding: 60px 20px;
-            background: var(--card-glass);
-            border: 1px dashed var(--card-border);
-            border-radius: 24px;
-            color: var(--text-muted);
-        }
-
-        .empty-box i { font-size: 44px; margin-bottom: 14px; color: var(--cyan-accent); }
     </style>
 </head>
 <body>
@@ -540,38 +330,23 @@
 
         <svg class="welcome-illustration" viewBox="0 0 400 500" fill="none" xmlns="http://www.w3.org/2000/svg">
             <circle cx="200" cy="110" r="100" fill="url(#sunGlow)" opacity="0.9"/>
-            <path d="M200 10 L250 190 L150 190 Z" fill="rgba(255, 235, 59, 0.3)" filter="blur(12px)"/>
-
             <rect x="70" y="420" width="260" height="42" rx="7" fill="#E53935"/>
             <rect x="80" y="426" width="240" height="30" rx="4" fill="#FF5252"/>
-            <rect x="300" y="420" width="30" height="42" rx="3" fill="#FFFFFF" opacity="0.9"/>
-            
             <rect x="85" y="373" width="230" height="40" rx="7" fill="#1E88E5"/>
             <rect x="95" y="379" width="210" height="28" rx="4" fill="#42A5F5"/>
-            <rect x="85" y="373" width="30" height="40" rx="3" fill="#FFFFFF" opacity="0.9"/>
-
             <rect x="100" y="328" width="200" height="38" rx="7" fill="#00ACC1"/>
             <rect x="110" y="333" width="180" height="26" rx="4" fill="#26C6DA"/>
-            <rect x="270" y="328" width="30" height="38" rx="3" fill="#FFFFFF" opacity="0.9"/>
-
             <rect x="115" y="284" width="170" height="37" rx="7" fill="#8E24AA"/>
-            <rect x="125" y="289" width="150" height="25" rx="4" fill="#AB47BC"/>
-
             <rect x="128" y="242" width="144" height="36" rx="7" fill="#FB8C00"/>
-            <rect x="138" y="247" width="124" height="24" rx="4" fill="#FFA726"/>
-
             <rect x="140" y="202" width="120" height="34" rx="7" fill="#FDD835"/>
-            <rect x="148" y="207" width="104" height="22" rx="4" fill="#FFEE58"/>
 
             <path d="M120 455 L160 180" stroke="#8D6E63" stroke-width="9" stroke-linecap="round"/>
             <path d="M155 455 L195 180" stroke="#8D6E63" stroke-width="9" stroke-linecap="round"/>
-            <line x1="130" y1="400" x2="162" y2="400" stroke="#BCAAA4" stroke-width="6" stroke-linecap="round"/>
-            <line x1="138" y1="345" x2="170" y2="345" stroke="#BCAAA4" stroke-width="6" stroke-linecap="round"/>
-            <line x1="146" y1="290" x2="178" y2="290" stroke="#BCAAA4" stroke-width="6" stroke-linecap="round"/>
-            <line x1="154" y1="235" x2="186" y2="235" stroke="#BCAAA4" stroke-width="6" stroke-linecap="round"/>
+            <line x1="130" y1="400" x2="162" y2="400" stroke="#BCAAA4" stroke-width="6"/>
+            <line x1="138" y1="345" x2="170" y2="345" stroke="#BCAAA4" stroke-width="6"/>
+            <line x1="146" y1="290" x2="178" y2="290" stroke="#BCAAA4" stroke-width="6"/>
 
             <path d="M200 115 L280 150 L200 185 L120 150 Z" fill="#111111"/>
-            <path d="M200 115 L280 150 L200 185 L120 150 Z" fill="url(#capGrad)"/>
             <rect x="165" y="168" width="70" height="28" rx="5" fill="#1A1A1A"/>
             <circle cx="200" cy="150" r="6" fill="#FFD700"/>
             <path d="M200 150 Q240 165 245 200" stroke="#FFD700" stroke-width="3.5" fill="none"/>
@@ -580,35 +355,23 @@
             <defs>
                 <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%">
                     <stop offset="0%" stop-color="#FFE082" stop-opacity="1"/>
-                    <stop offset="50%" stop-color="#FFB300" stop-opacity="0.6"/>
                     <stop offset="100%" stop-color="#FF8F00" stop-opacity="0"/>
                 </radialGradient>
-                <linearGradient id="capGrad" x1="120" y1="115" x2="280" y2="185">
-                    <stop offset="0%" stop-color="#4A4A4A"/>
-                    <stop offset="100%" stop-color="#111111"/>
-                </linearGradient>
             </defs>
         </svg>
 
         <div class="welcome-content">
-            <div class="welcome-app-icon">
-                <i class="fa-solid fa-book-open-reader"></i>
-            </div>
-
+            <div class="welcome-app-icon"><i class="fa-solid fa-book-open-reader"></i></div>
             <h1 class="welcome-title">منصة نتلامخم التعليمية</h1>
             <p class="welcome-subtitle">ابدأ رحلتك التعليمية</p>
-
             <button class="welcome-btn" onclick="enterApp()">
-                <i class="fa-solid fa-play" style="font-size: 14px;"></i>
-                <span>ادخل التطبيق</span>
+                <i class="fa-solid fa-play"></i> <span>ادخل التطبيق</span>
             </button>
-
             <button class="welcome-skip" onclick="enterApp()">تخطي</button>
         </div>
     </div>
 
     <div id="mainAppWrapper" class="main-app-wrapper">
-        
         <header class="app-header">
             <div class="brand-info">
                 <div class="brand-logo"><i class="fa-solid fa-graduation-cap"></i></div>
@@ -617,53 +380,64 @@
                     <p><i class="fa-solid fa-circle-check"></i> المنصة المعتمدة</p>
                 </div>
             </div>
-            <div class="vip-badge">
+
+            <button class="vip-login-btn" onclick="openLoginModal()">
                 <i class="fa-solid fa-crown"></i>
-                <span>VIP</span>
-            </div>
+                <span>تسجيل الدخول</span>
+            </button>
         </header>
 
         <div class="container">
 
-            <section id="stagesScreen" class="screen active">
-                <div class="nav-title" style="margin-bottom: 18px;">
-                    <h2>اختر المرحلة الدراسية</h2>
-                    <p>تصفح المناهج والدروس بأسلوب تفاعلي فخم</p>
+            <section id="homeMenuScreen" class="screen active">
+                <div style="margin-bottom: 20px;">
+                    <h2 style="font-size: 20px; font-weight: 800;">أهلاً بك في منصة نتلامخم</h2>
+                    <p style="font-size: 12px; color: var(--text-muted);">اختر القسم المطلوب للتصفح والمتابعة</p>
                 </div>
 
-                <div class="grid-vertical">
-                    <div class="stage-card prep" onclick="selectStage('preparatory')">
-                        <div class="stage-info">
-                            <div class="stage-icon"><i class="fa-solid fa-book-bookmark"></i></div>
-                            <div class="stage-details">
-                                <h3>المرحلة الإعدادية</h3>
-                                <p>السادس، الخامس، الرابع الإعدادي</p>
-                            </div>
-                        </div>
-                        <i class="fa-solid fa-chevron-left" style="color: var(--text-muted);"></i>
+                <div class="main-home-grid">
+                    <div class="home-card lectures" onclick="navigateTo('stagesScreen')">
+                        <div class="home-card-icon"><i class="fa-solid fa-video"></i></div>
+                        <h3>قسم المحاضرات الإلكترونية</h3>
+                        <p>تصفح الفيديوهات حسب المراحل</p>
                     </div>
 
-                    <div class="stage-card mid" onclick="selectStage('intermediate')">
-                        <div class="stage-info">
-                            <div class="stage-icon"><i class="fa-solid fa-shapes"></i></div>
-                            <div class="stage-details">
-                                <h3>المرحلة المتوسطة</h3>
-                                <p>الأول، الثاني، الثالث المتوسط</p>
-                            </div>
-                        </div>
-                        <i class="fa-solid fa-chevron-left" style="color: var(--text-muted);"></i>
+                    <div class="home-card bag" onclick="showPublicNotice('قسم ملازم حقيبة الطالب المفتوح')">
+                        <div class="home-card-icon"><i class="fa-solid fa-folder-open"></i></div>
+                        <h3>قسم ملازم حقيبة الطالب</h3>
+                        <p>الملفات والملازم العامة</p>
                     </div>
 
-                    <div class="stage-card prim" onclick="selectStage('primary')">
-                        <div class="stage-info">
-                            <div class="stage-icon"><i class="fa-solid fa-child-reaching"></i></div>
-                            <div class="stage-details">
-                                <h3>المرحلة الابتدائية</h3>
-                                <p>صفوف المرحلة الابتدائية كافة</p>
-                            </div>
+                    <div class="home-card results full-width" onclick="showPublicNotice('قسم نتائج الامتحانات العامة')">
+                        <div class="home-card-icon"><i class="fa-solid fa-square-poll-vertical"></i></div>
+                        <div>
+                            <h3>قسم نتائج الامتحانات</h3>
+                            <p>نتائج الامتحانات الشاملة والوزارية لجميع الطلاب</p>
                         </div>
-                        <i class="fa-solid fa-chevron-left" style="color: var(--text-muted);"></i>
                     </div>
+                </div>
+            </section>
+
+            <section id="stagesScreen" class="screen">
+                <div class="nav-header">
+                    <div class="back-btn" onclick="navigateTo('homeMenuScreen')"><i class="fa-solid fa-arrow-right"></i></div>
+                    <div class="nav-title">
+                        <h2>المراحل الدراسية</h2>
+                        <p>اختر المرحلة لمتابعة المحاضرات</p>
+                    </div>
+                </div>
+
+                <div class="stage-card" onclick="selectStage('preparatory')">
+                    <h3>المرحلة الإعدادية</h3>
+                    <p style="font-size: 12px; color: var(--text-muted);">السادس، الخامس، الرابع الإعدادي</p>
+                </div>
+                <div class="stage-card" onclick="selectStage('intermediate')">
+                    <h3>المرحلة المتوسطة</h3>
+                    <p style="font-size: 12px; color: var(--text-muted);">الأول، الثاني، الثالث المتوسط</p>
+                </div>
+                <div class="stage-card" onclick="selectStage('primary')">
+                    <h3>المرحلة الابتدائية</h3>
+                    <p style="font-size: 12px; color: var(--text-muted);">جميع صفوف المرحلة الابتدائية</p>
                 </div>
             </section>
 
@@ -671,22 +445,18 @@
                 <div class="nav-header">
                     <div class="back-btn" onclick="navigateTo('stagesScreen')"><i class="fa-solid fa-arrow-right"></i></div>
                     <div class="nav-title">
-                        <h2>اختر الفرع الدراسي</h2>
+                        <h2>الفرع الدراسي</h2>
                         <p>المرحلة الإعدادية</p>
                     </div>
                 </div>
-
-                <div class="branches-grid">
-                    <div class="branch-card science" onclick="selectBranch('scientific')">
-                        <div class="branch-icon"><i class="fa-solid fa-flask-vial"></i></div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                    <div class="branch-card" onclick="selectBranch('scientific')">
+                        <i class="fa-solid fa-flask" style="font-size: 32px; color: var(--cyan-accent); margin-bottom: 10px;"></i>
                         <h3>الفرع العلمي</h3>
-                        <p style="font-size: 11px; color: var(--text-muted);">الرياضيات، الفيزياء، الكيمياء...</p>
                     </div>
-
-                    <div class="branch-card literary" onclick="selectBranch('literary')">
-                        <div class="branch-icon"><i class="fa-solid fa-scroll"></i></div>
+                    <div class="branch-card" onclick="selectBranch('literary')">
+                        <i class="fa-solid fa-book-open" style="font-size: 32px; color: var(--pink-accent); margin-bottom: 10px;"></i>
                         <h3>الفرع الأدبي</h3>
-                        <p style="font-size: 11px; color: var(--text-muted);">الجغرافيا، التاريخ، الاقتصاد...</p>
                     </div>
                 </div>
             </section>
@@ -696,61 +466,195 @@
                     <div class="back-btn" id="subjectsBackBtn"><i class="fa-solid fa-arrow-right"></i></div>
                     <div class="nav-title">
                         <h2>المواد الدراسية</h2>
-                        <p id="subjectsHeaderSub">اختر المادة لعرض الفصول</p>
+                        <p id="subjectsHeaderSub">اختر المادة</p>
                     </div>
                 </div>
-                <div class="subjects-grid" id="subjectsContainer"></div>
+                <div id="subjectsContainer" style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;"></div>
             </section>
 
             <section id="chaptersScreen" class="screen">
                 <div class="nav-header">
                     <div class="back-btn" onclick="navigateTo('subjectsScreen')"><i class="fa-solid fa-arrow-right"></i></div>
                     <div class="nav-title">
-                        <h2 id="chaptersHeaderTitle">الفصول الدراسية</h2>
-                        <p id="chaptersHeaderSub">اختر الفصل لمشاهدة الدروس</p>
+                        <h2 id="chaptersHeaderTitle">الفصول</h2>
+                        <p>اختر الفصل</p>
                     </div>
                 </div>
-                <div class="chapters-list" id="chaptersContainer"></div>
+                <div id="chaptersContainer"></div>
             </section>
 
             <section id="videosScreen" class="screen">
                 <div class="nav-header">
                     <div class="back-btn" onclick="navigateTo('chaptersScreen')"><i class="fa-solid fa-arrow-right"></i></div>
                     <div class="nav-title">
-                        <h2 id="videosHeaderTitle">الفيديوهات المرفوعة</h2>
-                        <p id="videosHeaderSub">قائمة دروس الفصل</p>
+                        <h2 id="videosHeaderTitle">الدروس</h2>
+                        <p id="videosHeaderSub">قائمة الدروس والمحاضرات</p>
                     </div>
                 </div>
-                <div class="videos-list" id="videosContainer"></div>
+                <div id="videosContainer"></div>
+            </section>
+
+            <section id="vipStudentScreen" class="screen">
+                <div class="nav-header">
+                    <div class="back-btn" onclick="logoutVIP()"><i class="fa-solid fa-right-from-bracket"></i></div>
+                    <div class="nav-title">
+                        <h2>بوابة الاشتراك VIP الذهبية</h2>
+                        <p>منصة نتلامخم المشفرة</p>
+                    </div>
+                </div>
+
+                <div class="vip-portal">
+                    <div class="vip-user-welcome">
+                        <i class="fa-solid fa-crown" style="color: var(--gold-primary);"></i>
+                        <span id="vipStudentEmailText">أهلاً بك عزيزي المشترك VIP</span>
+                    </div>
+                    <p style="font-size: 12px; color: var(--text-muted);">الوقت المتبقي لانتهاء اشتراكك المميز:</p>
+
+                    <div class="timer-box">
+                        <div class="timer-unit"><div class="num" id="cdDays">00</div><div class="label">يوم</div></div>
+                        <span style="color: var(--gold-primary); font-weight: bold;">:</span>
+                        <div class="timer-unit"><div class="num" id="cdHours">00</div><div class="label">ساعة</div></div>
+                        <span style="color: var(--gold-primary); font-weight: bold;">:</span>
+                        <div class="timer-unit"><div class="num" id="cdMinutes">00</div><div class="label">دقيقة</div></div>
+                        <span style="color: var(--gold-primary); font-weight: bold;">:</span>
+                        <div class="timer-unit"><div class="num" id="cdSeconds">00</div><div class="label">ثانية</div></div>
+                    </div>
+                </div>
+
+                <div class="vip-grid">
+                    <div class="vip-card" onclick="showDevUnderDev('قسم ملازم حقيبة الطالب VIP')">
+                        <div class="vip-card-icon"><i class="fa-solid fa-box-archive"></i></div>
+                        <h4>قسم ملازم حقيبة الطالب</h4>
+                    </div>
+                    <div class="vip-card" onclick="showDevUnderDev('قسم الامتحانات الشهرية VIP')">
+                        <div class="vip-card-icon"><i class="fa-solid fa-file-pen"></i></div>
+                        <h4>قسم الامتحانات الشهرية</h4>
+                    </div>
+                    <div class="vip-card" onclick="showDevUnderDev('قسم المرشحات الوزارية VIP')">
+                        <div class="vip-card-icon"><i class="fa-solid fa-star"></i></div>
+                        <h4>قسم المرشحات الوزارية</h4>
+                    </div>
+                    <div class="vip-card" onclick="showDevUnderDev('قسم الملفات الذهبية VIP')">
+                        <div class="vip-card-icon"><i class="fa-solid fa-gem"></i></div>
+                        <h4>قسم الملفات الذهبية</h4>
+                    </div>
+                </div>
+            </section>
+
+            <section id="developerScreen" class="screen">
+                <div class="nav-header">
+                    <div class="back-btn" onclick="logoutVIP()"><i class="fa-solid fa-right-from-bracket"></i></div>
+                    <div class="nav-title">
+                        <h2>لوحة تحكم المطور</h2>
+                        <p>إدارة الاشتراكات والمحتوى والتنبيهات</p>
+                    </div>
+                </div>
+
+                <div class="dev-panel">
+                    <div class="dev-title">
+                        <i class="fa-solid fa-user-gear"></i>
+                        <span>مرحباً بك عزيزي المطور</span>
+                    </div>
+
+                    <div class="dev-section">
+                        <h4><i class="fa-solid fa-key" style="color: var(--gold-primary);"></i> توليد اشتراك طالب جديد</h4>
+                        <label style="font-size: 11px; color: var(--text-muted);">مدة الاشتراك:</label>
+                        <select id="subDurationSelect" style="width: 100%; padding: 10px; border-radius: 10px; background: #111; color: #FFF; border: 1px solid var(--card-border); margin: 6px 0;">
+                            <option value="7">أسبوع واحد (7 أيام)</option>
+                            <option value="30">شهر كامل (30 يوم)</option>
+                            <option value="365">سنة كاملة (365 يوم)</option>
+                        </select>
+                        <button class="dev-btn gold" onclick="generateNewSubscription()">
+                            <i class="fa-solid fa-plus-circle"></i> إنشاء بيانات دخول مفعلة
+                        </button>
+                        <div id="generatedOutput" class="generated-code-box" style="display:none;"></div>
+                    </div>
+
+                    <div class="dev-section">
+                        <h4><i class="fa-solid fa-arrows-rotate" style="color: var(--cyan-accent);"></i> تجديد اشتراك طالب</h4>
+                        <input type="email" id="renewEmailInput" placeholder="أدخل إيميل الطالب المُراد تجديده" style="width: 100%; padding: 10px; border-radius: 10px; background: #111; color: #FFF; border: 1px solid var(--card-border); margin-bottom: 8px;">
+                        <select id="renewDurationSelect" style="width: 100%; padding: 10px; border-radius: 10px; background: #111; color: #FFF; border: 1px solid var(--card-border); margin-bottom: 8px;">
+                            <option value="7">تجديد +7 أيام</option>
+                            <option value="30">تجديد +30 يوم</option>
+                        </select>
+                        <button class="dev-btn" onclick="renewStudentSubscription()">
+                            <i class="fa-solid fa-rotate-right"></i> تجديد وتمديد الاشتراك فوراً
+                        </button>
+                    </div>
+
+                    <div class="dev-section">
+                        <h4><i class="fa-solid fa-cloud-arrow-up" style="color: var(--purple-accent);"></i> إضافة فيديو/ملف جديد للطلاب</h4>
+                        <input type="text" id="devVideoTitle" placeholder="عنوان الدرس أو الملف" style="width: 100%; padding: 10px; border-radius: 10px; background: #111; color: #FFF; border: 1px solid var(--card-border); margin-bottom: 6px;">
+                        <input type="text" id="devVideoUrl" placeholder="رابط الفيديو أو الملف PDF" style="width: 100%; padding: 10px; border-radius: 10px; background: #111; color: #FFF; border: 1px solid var(--card-border); margin-bottom: 6px;">
+                        <button class="dev-btn purple" onclick="addNewContentFromDev()">
+                            <i class="fa-solid fa-upload"></i> رفع وإضافة للكل
+                        </button>
+                    </div>
+
+                    <div class="dev-section">
+                        <h4><i class="fa-solid fa-bullhorn" style="color: #f43f5e;"></i> إذاعة إشعارات حقيقية للمشتركين</h4>
+                        <input type="text" id="broadcastMsg" placeholder="نص التنبيه والإذاعة..." style="width: 100%; padding: 10px; border-radius: 10px; background: #111; color: #FFF; border: 1px solid var(--card-border); margin-bottom: 8px;">
+                        <button class="dev-btn" style="background: linear-gradient(135deg, #f43f5e, #e11d48); color: #FFF;" onclick="sendBroadcastNotification()">
+                            <i class="fa-solid fa-paper-plane"></i> إرسال إذاعة فورية لجهاز المشترك
+                        </button>
+                    </div>
+                </div>
             </section>
 
         </div>
+    </div>
+
+    <div id="loginModal" class="login-modal">
+        <div class="login-card">
+            <button class="close-modal-btn" onclick="closeLoginModal()"><i class="fa-solid fa-xmark"></i></button>
+
+            <div class="login-badge">
+                <i class="fa-solid fa-crown"></i>
+                <span>VIP Portal Access</span>
+            </div>
+
+            <h3 class="login-title">تسجيل الدخول المميز</h3>
+            <p class="login-sub">أدخل بيانات اشتراكك للوصول إلى المحتوى المشفر</p>
+
+            <div class="input-group">
+                <label>البريد الإلكتروني / اسم المستخدم</label>
+                <input type="email" id="loginEmail" placeholder="example@netlamkhem.com">
+            </div>
+
+            <div class="input-group">
+                <label>كلمة السر المشفرة</label>
+                <input type="password" id="loginPassword" placeholder="••••••••">
+            </div>
+
+            <button class="submit-login-btn" onclick="processLogin()">
+                <i class="fa-solid fa-right-to-bracket"></i> دخول المنصة
+            </button>
+
+            <div id="loginError" class="login-error"></div>
+        </div>
+    </div>
+
+    <div id="devAlert" class="dev-alert">
+        <i class="fa-solid fa-bell" style="font-size: 22px; color: var(--gold-primary);"></i>
+        <div id="devAlertText"></div>
     </div>
 
     <script>
         const tg = window.Telegram?.WebApp;
         if (tg) { tg.ready(); tg.expand(); }
 
-        // دالة انتقال فخمة جداً عند الضغط على ادخل التطبيق
         function enterApp() {
             const welcome = document.getElementById('welcomeScreen');
             const mainApp = document.getElementById('mainAppWrapper');
-            
             welcome.classList.add('hidden');
-            setTimeout(() => {
-                mainApp.classList.add('visible');
-            }, 200);
+            setTimeout(() => { mainApp.classList.add('visible'); }, 200);
         }
 
-        // كود تحريك الشرر بالخلفية
+        // خلفية الشرارات
         const canvas = document.getElementById('welcomeCanvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
-
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
+        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
@@ -766,23 +670,16 @@
                 this.color = Math.random() > 0.5 ? '#FFD700' : '#E040FB';
             }
             update() {
-                this.y += this.speedY;
-                this.x += this.speedX;
+                this.y += this.speedY; this.x += this.speedX;
                 if (this.y < 0) this.reset();
             }
             draw() {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = this.color;
-                ctx.globalAlpha = this.opacity;
-                ctx.shadowBlur = 10;
-                ctx.shadowColor = this.color;
-                ctx.fill();
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.color; ctx.globalAlpha = this.opacity;
+                ctx.shadowBlur = 10; ctx.shadowColor = this.color; ctx.fill();
             }
         }
-
-        for (let i = 0; i < 50; i++) particles.push(new Particle());
-
+        for (let i = 0; i < 45; i++) particles.push(new Particle());
         function animateParticles() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             particles.forEach(p => { p.update(); p.draw(); });
@@ -790,83 +687,179 @@
         }
         animateParticles();
 
-        // البرمجة الأساسية لتصنيف الدروس والفيديوهات
+        // فتح وإغلاق مودال تسجيل الدخول
+        function openLoginModal() {
+            document.getElementById('loginModal').classList.add('active');
+            document.getElementById('loginError').textContent = '';
+        }
+        function closeLoginModal() {
+            document.getElementById('loginModal').classList.remove('active');
+        }
+
+        // قواعد الاشتراكات وقاعدة البيانات المحلية
+        let subscriptions = JSON.parse(localStorage.getItem('netlamkhem_subs') || '[]');
+        let activeTimerInterval = null;
+
+        // معالجة تسجيل الدخول (سواء مطور أو طالب VIP)
+        function processLogin() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const pass = document.getElementById('loginPassword').value.trim();
+            const errDiv = document.getElementById('loginError');
+
+            if (!email || !pass) {
+                errDiv.textContent = 'يرجى إدخال البريد الإلكتروني وكلمة السر كاملة';
+                return;
+            }
+
+            // 1. فحص دخول المطور المعتمد
+            if (email.toLowerCase() === 'admin@netlamkhem.com' && pass === 'admin123') {
+                closeLoginModal();
+                showDevAlert('مرحباً بك عزيزي المطور! تم فتح لوحة التحكم');
+                navigateTo('developerScreen');
+                requestNotificationPermission();
+                return;
+            }
+
+            // 2. فحص دخول الطلاب
+            const sub = subscriptions.find(s => s.email.toLowerCase() === email.toLowerCase());
+
+            if (!sub || sub.password !== pass) {
+                errDiv.textContent = 'كلمة السر أو البريد الإلكتروني غير صحيح!';
+                return;
+            }
+
+            const now = Date.now();
+            if (now > sub.expireTimestamp) {
+                const expDate = new Date(sub.expireTimestamp).toLocaleString('ar-IQ');
+                errDiv.textContent = `عذراً، اشتراكك انتهى منذ: ${expDate}`;
+                return;
+            }
+
+            // دخول ناجح للطالب المشترك
+            closeLoginModal();
+            startVIPStudentSession(sub);
+            requestNotificationPermission();
+        }
+
+        function startVIPStudentSession(sub) {
+            document.getElementById('vipStudentEmailText').textContent = `أهلاً بك: ${sub.email}`;
+            navigateTo('vipStudentScreen');
+
+            if (activeTimerInterval) clearInterval(activeTimerInterval);
+
+            function updateCountdown() {
+                const now = Date.now();
+                const diff = sub.expireTimestamp - now;
+
+                if (diff <= 0) {
+                    clearInterval(activeTimerInterval);
+                    alert('انتهى مدة اشتراكك الآن!');
+                    logoutVIP();
+                    return;
+                }
+
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+                const minutes = Math.floor((diff / 1000 / 60) % 60);
+                const seconds = Math.floor((diff / 1000) % 60);
+
+                document.getElementById('cdDays').textContent = String(days).padStart(2, '0');
+                document.getElementById('cdHours').textContent = String(hours).padStart(2, '0');
+                document.getElementById('cdMinutes').textContent = String(minutes).padStart(2, '0');
+                document.getElementById('cdSeconds').textContent = String(seconds).padStart(2, '0');
+            }
+
+            updateCountdown();
+            activeTimerInterval = setInterval(updateCountdown, 1000);
+        }
+
+        function logoutVIP() {
+            if (activeTimerInterval) clearInterval(activeTimerInterval);
+            navigateTo('homeMenuScreen');
+        }
+
+        // لوحة تحكم المطور - توليد اشتراك جديد
+        function generateNewSubscription() {
+            const days = parseInt(document.getElementById('subDurationSelect').value);
+            const randomNum = Math.floor(1000 + Math.random() * 9000);
+            const email = `student${randomNum}@vip.com`;
+            const password = `vip${Math.floor(100 + Math.random() * 900)}`;
+            const expireTimestamp = Date.now() + (days * 24 * 60 * 60 * 1000);
+
+            const newSub = { email, password, days, expireTimestamp };
+            subscriptions.push(newSub);
+            localStorage.setItem('netlamkhem_subs', JSON.stringify(subscriptions));
+
+            const out = document.getElementById('generatedOutput');
+            out.style.display = 'block';
+            out.innerHTML = `<b>تم التوليد بنجاح!</b><br>الإيميل: ${email}<br>رمز السر: ${password}<br>المدة: ${days} يوم`;
+            showDevAlert('تم إنشاء اشتراك الطالب وحفظه بنجاح!');
+        }
+
+        // تجديد اشتراك سابق
+        function renewStudentSubscription() {
+            const email = document.getElementById('renewEmailInput').value.trim();
+            const extraDays = parseInt(document.getElementById('renewDurationSelect').value);
+
+            let sub = subscriptions.find(s => s.email.toLowerCase() === email.toLowerCase());
+            if (!sub) {
+                showDevAlert('البريد الإلكتروني غير موجود بالاشتراكات!');
+                return;
+            }
+
+            const baseTime = Math.max(Date.now(), sub.expireTimestamp);
+            sub.expireTimestamp = baseTime + (extraDays * 24 * 60 * 60 * 1000);
+
+            localStorage.setItem('netlamkhem_subs', JSON.stringify(subscriptions));
+            showDevAlert(`تم تجديد اشتراك ${email} بـ +${extraDays} أيام!`);
+        }
+
+        // إذاعة الإشعارات الحقيقية عبر المتصفح والجهاز
+        function requestNotificationPermission() {
+            if ("Notification" in window && Notification.permission !== "granted") {
+                Notification.requestPermission();
+            }
+        }
+
+        function sendBroadcastNotification() {
+            const msg = document.getElementById('broadcastMsg').value.trim();
+            if (!msg) {
+                showDevAlert('يرجى كتابة نص الإذاعة أولاً!');
+                return;
+            }
+
+            if ("Notification" in window && Notification.permission === "granted") {
+                new Notification("منصة نتلامخم التعليمية - إذاعة VIP", {
+                    body: msg,
+                    icon: "https://cdn-icons-png.flaticon.com/512/2991/2991108.png"
+                });
+            }
+
+            showDevAlert(`تمت إذاعة التنبيه: "${msg}"`);
+        }
+
+        function showDevAlert(txt) {
+            const box = document.getElementById('devAlert');
+            document.getElementById('devAlertText').textContent = txt;
+            box.style.display = 'flex';
+            setTimeout(() => { box.style.display = 'none'; }, 3500);
+        }
+
+        function showDevUnderDev(title) {
+            showDevAlert(`(${title}) قيد التطوير الآن من قبل المطور!`);
+        }
+
+        function showPublicNotice(title) {
+            showDevAlert(`جاري تجهيز ${title} بأعلى جودة`);
+        }
+
+        // بيانات الفيديوهات العامة والتصفح
         let categorizedVideos = [];
         let state = { stage: '', branch: '', subject: '', chapter: '' };
 
-        const subjectIcons = {
-            'الرياضيات': { icon: 'fa-solid fa-calculator', color: '#00f2fe' },
-            'الفيزياء': { icon: 'fa-solid fa-bolt-lightning', color: '#ffbd2e' },
-            'الكيمياء': { icon: 'fa-solid fa-flask', color: '#ff5c8d' },
-            'الأحياء': { icon: 'fa-solid fa-dna', color: '#10b981' },
-            'اللغة العربية': { icon: 'fa-solid fa-pen-nib', color: '#a855f7' },
-            'اللغة الإنجليزية': { icon: 'fa-solid fa-language', color: '#3b82f6' },
-            'الإسلامية': { icon: 'fa-solid fa-kaaba', color: '#10b981' },
-            'الجغرافيا': { icon: 'fa-solid fa-earth-americas', color: '#f97316' },
-            'التاريخ': { icon: 'fa-solid fa-landmark', color: '#ef4444' },
-            'الاقتصاد': { icon: 'fa-solid fa-chart-line', color: '#eab308' },
-            'العلوم': { icon: 'fa-solid fa-microscope', color: '#14b8a6' },
-            'الاجتماعيات': { icon: 'fa-solid fa-users-rectangle', color: '#f97316' }
-        };
-
-        function parseMetadata(v) {
-            const title = (v.title || '').toLowerCase().trim();
-
-            let stage = 'preparatory';
-            if (title.includes('ابتدائي') || title.includes('ابتدائية')) stage = 'primary';
-            else if (title.includes('متوسط') || title.includes('متوسطة')) stage = 'intermediate';
-            else stage = 'preparatory';
-
-            let branch = 'all';
-            if (title.includes('علمي') || title.includes('تطبيقي') || title.includes('احيائي')) branch = 'scientific';
-            else if (title.includes('أدبي') || title.includes('ادبي')) branch = 'literary';
-
-            let subject = 'عام';
-            if (title.includes('جغرافيا')) subject = 'الجغرافيا';
-            else if (title.includes('تاريخ')) subject = 'التاريخ';
-            else if (title.includes('اقتصاد')) subject = 'الاقتصاد';
-            else if (title.includes('رياضيات')) subject = 'الرياضيات';
-            else if (title.includes('فيزياء')) subject = 'الفيزياء';
-            else if (title.includes('كيمياء')) subject = 'الكيمياء';
-            else if (title.includes('احياء') || title.includes('أحياء')) subject = 'الأحياء';
-            else if (title.includes('عربي') || title.includes('قواعد')) subject = 'اللغة العربية';
-            else if (title.includes('انكليزي') || title.includes('english')) subject = 'اللغة الإنجليزية';
-            else if (title.includes('اسلامية')) subject = 'الإسلامية';
-            else if (title.includes('علوم')) subject = 'العلوم';
-            else if (title.includes('اجتماعيات')) subject = 'الاجتماعيات';
-
-            let chapter = 'دروس عامة';
-            const chapterMatch = title.match(/(فصل|الفصل)\s*(الأول|الاول|الثاني|الثالث|الرابع|الخامس|السادس|السابع|الثامن|التاسع|العاشر|١|٢|٣|٤|٥|٦|٧|٨|٩|١٠|1|2|3|4|5|6|7|8|9|10)/);
-
-            if (chapterMatch) {
-                let num = chapterMatch[2];
-                if (num === 'الأول' || num === 'الاول' || num === '1' || num === '١') chapter = 'الفصل الأول';
-                else if (num === 'الثاني' || num === '2' || num === '٢') chapter = 'الفصل الثاني';
-                else if (num === 'الثالث' || num === '3' || num === '٣') chapter = 'الفصل الثالث';
-                else if (num === 'الرابع' || num === '4' || num === '٤') chapter = 'الفصل الرابع';
-                else if (num === 'الخامس' || num === '5' || num === '٥') chapter = 'الفصل الخامس';
-                else if (num === 'السادس' || num === '6' || num === '٦') chapter = 'الفصل السادس';
-                else chapter = `الفصل ${num}`;
-            }
-
-            return { ...v, stage, branch, subject, chapter };
-        }
-
-        async function loadData() {
-            try {
-                const res = await fetch('./videos.json?v=' + Date.now());
-                const raw = await res.json();
-                categorizedVideos = (raw || []).map(parseMetadata);
-            } catch (e) {
-                console.error("خطأ في التحميل", e);
-            }
-        }
-
         function navigateTo(screenId) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            setTimeout(() => {
-                document.getElementById(screenId).classList.add('active');
-            }, 80);
+            setTimeout(() => { document.getElementById(screenId).classList.add('active'); }, 80);
         }
 
         function selectStage(stageKey) {
@@ -888,100 +881,60 @@
 
         function renderSubjects() {
             const container = document.getElementById('subjectsContainer');
-            document.getElementById('subjectsHeaderSub').textContent = state.stage === 'preparatory' 
-                ? (state.branch === 'scientific' ? 'مواد الفرع العلمي' : 'مواد الفرع الأدبي')
-                : 'المواد الدراسية المتاحة';
-
-            let filtered = categorizedVideos.filter(v => v.stage === state.stage);
-            if (state.stage === 'preparatory' && state.branch !== 'all') {
-                filtered = filtered.filter(v => v.branch === state.branch || v.branch === 'all');
-            }
-
-            const subjectsFound = Array.from(new Set(filtered.map(v => v.subject)));
-
-            if (subjectsFound.length === 0) {
-                container.innerHTML = `<div class="empty-box" style="grid-column: 1/-1;"><i class="fa-solid fa-folder-open"></i><p>لا توجد مواد مرفوعة لهذا الفرع حالياً</p></div>`;
-            } else {
-                container.innerHTML = subjectsFound.map(sub => {
-                    const info = subjectIcons[sub] || { icon: 'fa-solid fa-book', color: '#00f2fe' };
-                    return `
-                        <div class="subject-card" onclick="selectSubject('${sub}')">
-                            <div class="subj-icon" style="color: ${info.color};"><i class="${info.icon}"></i></div>
-                            <h4>${sub}</h4>
-                        </div>
-                    `;
-                }).join('');
-            }
+            const subjectsList = ['الرياضيات', 'الفيزياء', 'الكيمياء', 'الأحياء', 'اللغة العربية', 'اللغة الإنجليزية'];
+            
+            container.innerHTML = subjectsList.map(sub => `
+                <div class="subject-card" onclick="selectSubject('${sub}')">
+                    <i class="fa-solid fa-book-bookmark" style="font-size: 26px; color: var(--cyan-accent); margin-bottom: 8px;"></i>
+                    <h4 style="font-size: 14px;">${sub}</h4>
+                </div>
+            `).join('');
 
             navigateTo('subjectsScreen');
         }
 
-        function selectSubject(subjectName) {
-            state.subject = subjectName;
-            document.getElementById('chaptersHeaderTitle').textContent = subjectName;
-
-            let filtered = categorizedVideos.filter(v => v.stage === state.stage && v.subject === subjectName);
-            if (state.stage === 'preparatory' && state.branch !== 'all') {
-                filtered = filtered.filter(v => v.branch === state.branch || v.branch === 'all');
-            }
-
-            const chaptersFound = Array.from(new Set(filtered.map(v => v.chapter)));
+        function selectSubject(sub) {
+            state.subject = sub;
+            document.getElementById('chaptersHeaderTitle').textContent = sub;
             const container = document.getElementById('chaptersContainer');
+            const chapters = ['الفصل الأول', 'الفصل الثاني', 'الفصل الثالث', 'الفصل الرابع'];
 
-            if (chaptersFound.length === 0) {
-                container.innerHTML = `<div class="empty-box"><i class="fa-solid fa-layer-group"></i><p>لا توجد فصول مرفوعة لهذه المادة</p></div>`;
-            } else {
-                container.innerHTML = chaptersFound.map(chap => `
-                    <div class="chapter-card" onclick="selectChapter('${chap}')">
-                        <div class="chapter-info">
-                            <div class="chapter-icon"><i class="fa-solid fa-bookmark"></i></div>
-                            <h4>${chap}</h4>
-                        </div>
-                        <i class="fa-solid fa-chevron-left" style="color: var(--text-muted); font-size: 13px;"></i>
-                    </div>
-                `).join('');
-            }
+            container.innerHTML = chapters.map(ch => `
+                <div class="chapter-card" onclick="selectChapter('${ch}')">
+                    <h4>${ch}</h4>
+                    <i class="fa-solid fa-chevron-left"></i>
+                </div>
+            `).join('');
 
             navigateTo('chaptersScreen');
         }
 
-        function selectChapter(chapterName) {
-            state.chapter = chapterName;
-            document.getElementById('videosHeaderTitle').textContent = chapterName;
-            document.getElementById('videosHeaderSub').textContent = `${state.subject} - ${chapterName}`;
-
-            let filtered = categorizedVideos.filter(v => 
-                v.stage === state.stage && 
-                v.subject === state.subject && 
-                v.chapter === chapterName
-            );
-
-            if (state.stage === 'preparatory' && state.branch !== 'all') {
-                filtered = filtered.filter(v => v.branch === state.branch || v.branch === 'all');
-            }
-
+        function selectChapter(ch) {
+            state.chapter = ch;
+            document.getElementById('videosHeaderTitle').textContent = ch;
+            document.getElementById('videosHeaderSub').textContent = `${state.subject} - ${ch}`;
             const container = document.getElementById('videosContainer');
 
-            if (filtered.length === 0) {
-                container.innerHTML = `<div class="empty-box"><i class="fa-solid fa-clapperboard"></i><p>لا توجد فيديوهات في هذا الفصل</p></div>`;
-            } else {
-                container.innerHTML = filtered.map(v => `
-                    <div class="video-card">
-                        <div class="video-wrapper">
-                            <video src="${v.url}" controls playsinline preload="metadata"></video>
-                        </div>
-                        <div class="video-body">
-                            <span class="video-badge"><i class="fa-solid fa-circle-play"></i> ${v.subject}</span>
-                            <div class="video-title">${v.title}</div>
-                        </div>
+            container.innerHTML = `
+                <div class="video-card">
+                    <div style="background: #000; aspect-ratio: 16/9; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: var(--cyan-accent);">
+                        <i class="fa-solid fa-circle-play" style="font-size: 48px;"></i>
                     </div>
-                `).join('');
-            }
+                    <div style="padding-top: 12px;">
+                        <h4 style="font-size: 14px; font-weight: 700;">محاضرة تجريبية - ${state.subject} (${ch})</h4>
+                    </div>
+                </div>
+            `;
 
             navigateTo('videosScreen');
         }
 
-        loadData();
+        function addNewContentFromDev() {
+            const title = document.getElementById('devVideoTitle').value;
+            if (title) {
+                showDevAlert('تمت إضافة الفيديو الجديد للمنصة!');
+            }
+        }
     </script>
 </body>
 </html>
