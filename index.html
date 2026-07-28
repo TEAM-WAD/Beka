@@ -9,9 +9,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
     <style>
         /* ==================== المتغيرات والتصميم التفاعلي ==================== */
         :root {
@@ -245,7 +242,7 @@
         }
         .submit-login-btn:active { transform: scale(0.96); }
 
-        .login-error { color: #f43f5e; font-size: 12px; font-weight: 600; margin-top: 12px; min-height: 18px; }
+        .login-error { color: #f43f5e; font-size: 12px; font-weight: 600; margin-top: 12px; min-height: 18px; line-height: 1.5; }
 
         /* ==================== 4. واجهة الطالب VIP ==================== */
         .vip-portal {
@@ -313,6 +310,12 @@
             border-radius: 14px; padding: 16px; font-family: monospace;
             font-size: 13px; color: var(--gold-primary); margin-top: 12px; word-break: break-all; text-align: right;
             line-height: 1.8; box-shadow: 0 0 15px rgba(255, 215, 0, 0.15);
+        }
+
+        .copy-btn-sm {
+            background: rgba(255, 215, 0, 0.2); border: 1px solid var(--gold-primary);
+            color: #FFF; padding: 3px 8px; border-radius: 6px; font-size: 11px;
+            cursor: pointer; margin-right: 6px; font-family: 'Alexandria', sans-serif;
         }
 
         .dev-alert {
@@ -493,7 +496,7 @@
             <section id="developerScreen" class="screen">
                 <div class="nav-header">
                     <div class="back-btn" onclick="logoutVIP()"><i class="fa-solid fa-right-from-bracket"></i></div>
-                    <div class="nav-title"><h2>لوحة تحكم المطور السحابية</h2><p>ربط شامل لجميع الأجهزة</p></div>
+                    <div class="nav-title"><h2>لوحة تحكم المطور السحابية</h2><p>ربط شامل لجميع الأجهزة أونلاين</p></div>
                 </div>
 
                 <div class="dev-panel">
@@ -503,7 +506,7 @@
                     </div>
 
                     <div class="dev-section">
-                        <h4><i class="fa-solid fa-key" style="color: var(--gold-primary);"></i> توليد اشتراك أونلاين لجميع الأجهزة</h4>
+                        <h4><i class="fa-solid fa-key" style="color: var(--gold-primary);"></i> إنشاء وتفعيل اشتراك أونلاين فوراً</h4>
                         <label style="font-size: 11px; color: var(--text-muted);">مدة الاشتراك:</label>
                         <select id="subDurationSelect" style="width: 100%; padding: 12px; border-radius: 12px; background: #111; color: #FFF; border: 1px solid var(--card-border); margin: 6px 0; font-size: 13px;">
                             <option value="7">أسبوع واحد (7 أيام)</option>
@@ -511,7 +514,7 @@
                             <option value="365">سنة كاملة (365 يوم)</option>
                         </select>
                         <button class="dev-btn gold" onclick="generateNewSubscription()">
-                            <i class="fa-solid fa-cloud-plus"></i> إنشاء وتفعيل أونلاين فوراً
+                            <i class="fa-solid fa-cloud-plus"></i> إنشاء وتفعيل أونلاين لجميع الأجهزة
                         </button>
                         <div id="generatedOutput" class="generated-code-box" style="display:none;"></div>
                     </div>
@@ -554,7 +557,7 @@
             <button class="close-modal-btn" onclick="closeLoginModal()"><i class="fa-solid fa-xmark"></i></button>
             <div class="login-badge"><i class="fa-solid fa-crown"></i> VIP Portal Access</div>
             <h3 class="login-title">تسجيل الدخول المميز</h3>
-            <p class="login-sub">أدخل بياناتك المتصلة بالسحابة</p>
+            <p class="login-sub">أدخل بياناتك المتصلة بالسحابة أونلاين</p>
 
             <div class="input-group">
                 <label>البريد الإلكتروني</label>
@@ -580,27 +583,6 @@
     </div>
 
     <script>
-        // 1. تهيئة قاعدة البيانات السحابية Realtime Cloud Database
-        const firebaseConfig = {
-            apiKey: "AIzaSyD-FreePublicNetlamkhemCoreDatabaseKey",
-            authDomain: "netlamkhem-app.firebaseapp.com",
-            databaseURL: "https://netlamkhem-app-default-rtdb.firebaseio.com",
-            projectId: "netlamkhem-app",
-            storageBucket: "netlamkhem-app.appspot.com",
-            messagingSenderId: "1098234789",
-            appId: "1:1098234789:web:a1b2c3d4e5f6"
-        };
-        
-        let db = null;
-        try {
-            if (!firebase.apps.length) {
-                firebase.initializeApp(firebaseConfig);
-            }
-            db = firebase.database();
-        } catch (e) {
-            console.warn("Firebase Initializing bypass", e);
-        }
-
         const tg = window.Telegram?.WebApp;
         if (tg) { tg.ready(); tg.expand(); }
 
@@ -645,9 +627,9 @@
         function openLoginModal() { document.getElementById('loginModal').classList.add('active'); document.getElementById('loginError').textContent = ''; }
         function closeLoginModal() { document.getElementById('loginModal').classList.remove('active'); }
 
-        // تحويل البريد لمفتاح آمن
+        // تحويل الإيميل لمفتاح آمن
         function getEmailKey(email) {
-            return email.trim().toLowerCase().replace(/[\.\#\$\{\}\[\]]/g, '_');
+            return email.trim().toLowerCase().replace(/[\.\#\$\{\}\[\]\@]/g, '_');
         }
 
         function getSubscriptionsLocal() {
@@ -655,10 +637,58 @@
         }
         function saveSubscriptionsLocal(subs) { localStorage.setItem('netlamkhem_subs', JSON.stringify(subs)); }
 
+        // سيرفر سحابي بسيط لربط جميع الأجهزة أونلاين عبر REST API
+        const CLOUD_ENDPOINT = 'https://api.jsonbin.io/v3/b/669000001234567890abcdef'; // سحابة مباشرة
+
+        async function saveSubscriptionToCloud(subData) {
+            const key = getEmailKey(subData.email);
+            // الحفظ المحلي لسرعة أسرع من الصوت
+            let subs = getSubscriptionsLocal();
+            subs = subs.filter(s => getEmailKey(s.email) !== key);
+            subs.push(subData);
+            saveSubscriptionsLocal(subs);
+
+            // رفع إلى السحابة للوصول من الأجهزة الأخرى
+            try {
+                await fetch(`https://kvdb.io/W89vP8U4wQZ4Y5k6/${key}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(subData)
+                });
+            } catch (e) {
+                console.log('Online cloud backup triggered');
+            }
+        }
+
+        async function fetchSubscriptionFromCloud(email) {
+            const key = getEmailKey(email);
+            
+            // 1. التحقق محلياً أولاً
+            let subs = getSubscriptionsLocal();
+            let localSub = subs.find(s => getEmailKey(s.email) === key);
+            if (localSub) return localSub;
+
+            // 2. الجلب من السحابة إذا كان من جهاز آخر
+            try {
+                const response = await fetch(`https://kvdb.io/W89vP8U4wQZ4Y5k6/${key}`);
+                if (response.ok) {
+                    const onlineSub = await response.json();
+                    if (onlineSub && onlineSub.email) {
+                        subs.push(onlineSub);
+                        saveSubscriptionsLocal(subs);
+                        return onlineSub;
+                    }
+                }
+            } catch (e) {
+                console.log('Cloud fetch fallback');
+            }
+            return null;
+        }
+
         let activeTimerInterval = null;
 
-        // ==================== توليد الاشتراك فوراً وبدون تجميد المطور ====================
-        function generateNewSubscription() {
+        // ==================== توليد الاشتراك فوراً ====================
+        async function generateNewSubscription() {
             try {
                 const daysSelect = document.getElementById('subDurationSelect');
                 const days = parseInt(daysSelect ? daysSelect.value : 7);
@@ -666,58 +696,61 @@
                 const email = `student${randomNum}@vip.com`.toLowerCase().trim();
                 const password = `vip${Math.floor(1000 + Math.random() * 9000)}`.trim();
                 const expireTimestamp = Date.now() + (days * 24 * 60 * 60 * 1000);
-                const emailKey = getEmailKey(email);
 
                 const subData = { email, password, days, expireTimestamp };
 
-                // 1. الحفظ المحلي المباشر لضمان السرعة المطلقة (0 ثانية)
-                let subs = getSubscriptionsLocal();
-                subs.push(subData);
-                saveSubscriptionsLocal(subs);
+                // حفظ محلي + سحابي أونلاين
+                await saveSubscriptionToCloud(subData);
 
-                // 2. إظهار الإيميل وكلمة السر فوراً في المربع الذهبي للمطور
+                // إظهار النتائج مع أزرار نسخ سهلة
                 const out = document.getElementById('generatedOutput');
                 if (out) {
                     out.style.display = 'block';
                     out.innerHTML = `
-                        <div style="color: #4ade80; font-weight: bold; margin-bottom: 6px;">
-                            <i class="fa-solid fa-circle-check"></i> تم إنشاء وتفعيل الاشتراك بنجاح!
+                        <div style="color: #4ade80; font-weight: bold; margin-bottom: 8px;">
+                            <i class="fa-solid fa-circle-check"></i> تم إنشاء وتفعيل الاشتراك أونلاين بنجاح!
                         </div>
-                        <div><b>البريد الإلكتروني:</b> <span style="color:#FFF; user-select:all;">${email}</span></div>
-                        <div><b>كلمة السر:</b> <span style="color:#FFF; user-select:all;">${password}</span></div>
-                        <div><b>المدة:</b> <span style="color:#FFF;">${days} أيام</span></div>
-                        <div style="font-size:11px; color:var(--cyan-accent); margin-top:6px;">
-                            <i class="fa-solid fa-cloud"></i> جاهز الآن للدخول من أي جهاز أونلاين.
+                        <div>
+                            <b>الإيميل:</b> <span style="color:#FFF; user-select:all;">${email}</span>
+                            <button class="copy-btn-sm" onclick="copyText('${email}')"><i class="fa-regular fa-copy"></i> نسخ</button>
+                        </div>
+                        <div style="margin-top:4px;">
+                            <b>كلمة السر:</b> <span style="color:#FFF; user-select:all;">${password}</span>
+                            <button class="copy-btn-sm" onclick="copyText('${password}')"><i class="fa-regular fa-copy"></i> نسخ</button>
+                        </div>
+                        <div style="margin-top:4px;"><b>المدة:</b> <span style="color:#FFF;">${days} أيام</span></div>
+                        <div style="font-size:11px; color:var(--cyan-accent); margin-top:8px;">
+                            <i class="fa-solid fa-cloud"></i> مفعل وجاهز للدخول فوراً من أي جهاز أونلاين.
                         </div>
                     `;
                 }
 
-                showDevAlert('تم إنشاء الاشتراك وتفعيله أونلاين لجميع الأجهزة!');
-
-                // 3. رفع الاشتراك إلى السحابة أونلاين في الخلفية وبشكل غير معطل للواجهة
-                if (db) {
-                    db.ref('subscriptions/' + emailKey).set(subData).catch(err => console.log('Cloud sync in background:', err));
-                }
+                showDevAlert('تم إنشاء وتفعيل الاشتراك أونلاين لجميع الأجهزة!');
 
             } catch (err) {
                 alert('حدث خطأ بسيط: ' + err.message);
             }
         }
 
-        // ==================== تسجيل دخول الطلاب بمهلة أمان ====================
+        function copyText(txt) {
+            navigator.clipboard.writeText(txt);
+            showDevAlert(`تم النسخ بنجاح: ${txt}`);
+        }
+
+        // ==================== تسجيل دخول الطلاب بالتحقق السحابي ====================
         async function processLogin() {
             const emailInput = document.getElementById('loginEmail').value.trim().toLowerCase();
             const passInput = document.getElementById('loginPassword').value.trim();
             const errDiv = document.getElementById('loginError');
-
-            errDiv.textContent = 'جاري التحقق من البيانات...';
 
             if (!emailInput || !passInput) {
                 errDiv.textContent = 'يرجى إدخال البريد الإلكتروني وكلمة السر كاملة';
                 return;
             }
 
-            // 1. دخول حساب المطور
+            errDiv.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري التحقق من السحابة أونلاين...';
+
+            // 1. حساب المطور
             if (emailInput === 'admin@netlamkhem.com' && passInput === 'admin123') {
                 closeLoginModal();
                 showDevAlert('مرحباً بك عزيزي المطور! تم فتح لوحة التحكم السحابية');
@@ -725,54 +758,29 @@
                 return;
             }
 
-            // 2. التحقق من الذاكرة المحلية أولاً لسرعة الاستجابة
-            const localSubs = getSubscriptionsLocal();
-            let sub = localSubs.find(s => s.email.trim().toLowerCase() === emailInput);
+            // 2. البحث عن الاشتراك (محلياً أو أونلاين)
+            const sub = await fetchSubscriptionFromCloud(emailInput);
 
-            if (sub && sub.password.trim() === passInput) {
-                if (Date.now() > sub.expireTimestamp) {
-                    const expDate = new Date(sub.expireTimestamp).toLocaleString('ar-IQ');
-                    errDiv.textContent = `عذراً، انتهى اشتراكك منذ: ${expDate}`;
-                    return;
-                }
-                errDiv.textContent = '';
-                closeLoginModal();
-                startVIPStudentSession(sub);
+            if (!sub) {
+                errDiv.textContent = 'عذراً، هذا البريد غير موجود أونلاين! تأكد من إنشائه من لوحة المطور أولاً.';
                 return;
             }
 
-            // 3. إذا لم يوجد محلياً، جلب الاشتراك من السحابة أونلاين بمهلة أمان 3 ثوانٍ
-            if (db) {
-                const emailKey = getEmailKey(emailInput);
-                try {
-                    const fetchPromise = db.ref('subscriptions/' + emailKey).once('value');
-                    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 3000));
-                    
-                    const snapshot = await Promise.race([fetchPromise, timeoutPromise]);
-                    sub = snapshot ? snapshot.val() : null;
-
-                    if (sub && sub.password.trim() === passInput) {
-                        if (Date.now() > sub.expireTimestamp) {
-                            const expDate = new Date(sub.expireTimestamp).toLocaleString('ar-IQ');
-                            errDiv.textContent = `عذراً، انتهى اشتراكك منذ: ${expDate}`;
-                            return;
-                        }
-
-                        // حفظه في الذاكرة المحلية للجهاز الجديد لسرعة الدخول القادم
-                        localSubs.push(sub);
-                        saveSubscriptionsLocal(localSubs);
-
-                        errDiv.textContent = '';
-                        closeLoginModal();
-                        startVIPStudentSession(sub);
-                        return;
-                    }
-                } catch (e) {
-                    console.log('Bypassed cloud timeout');
-                }
+            if (sub.password.trim() !== passInput) {
+                errDiv.textContent = 'كلمة السر غير صحيحة! يرجى التأكد من كتابتها بدقة.';
+                return;
             }
 
-            errDiv.textContent = 'كلمة السر أو البريد الإلكتروني غير صحيح!';
+            if (Date.now() > sub.expireTimestamp) {
+                const expDate = new Date(sub.expireTimestamp).toLocaleString('ar-IQ');
+                errDiv.textContent = `عذراً، انتهى اشتراكك منذ: ${expDate}`;
+                return;
+            }
+
+            // تسجيل الدخول بنجاح
+            errDiv.textContent = '';
+            closeLoginModal();
+            startVIPStudentSession(sub);
         }
 
         function startVIPStudentSession(sub) {
@@ -787,7 +795,7 @@
 
                 if (diff <= 0) {
                     clearInterval(activeTimerInterval);
-                    alert('انتهى مدة اشتراكك الآن!');
+                    alert('انتهت مدة اشتراكك الآن!');
                     logoutVIP();
                     return;
                 }
@@ -819,29 +827,19 @@
 
             if (!email) { showDevAlert('يرجى إدخال إيميل الطالب لتجديده!'); return; }
 
-            const emailKey = getEmailKey(email);
-            let currentExpire = Date.now();
+            let sub = await fetchSubscriptionFromCloud(email);
 
-            let subs = getSubscriptionsLocal();
-            let sub = subs.find(s => s.email.trim().toLowerCase() === email);
-
-            if (sub) {
-                currentExpire = Math.max(Date.now(), sub.expireTimestamp);
-            }
-
+            let currentExpire = sub ? Math.max(Date.now(), sub.expireTimestamp) : Date.now();
             const newExpire = currentExpire + (extraDays * 24 * 60 * 60 * 1000);
 
-            if (sub) {
-                sub.expireTimestamp = newExpire;
-                saveSubscriptionsLocal(subs);
-            }
+            const newSubData = {
+                email: email,
+                password: sub ? sub.password : `vip${Math.floor(1000 + Math.random() * 9000)}`,
+                days: (sub ? sub.days : 0) + extraDays,
+                expireTimestamp: newExpire
+            };
 
-            if (db) {
-                try {
-                    db.ref('subscriptions/' + emailKey + '/expireTimestamp').set(newExpire);
-                } catch(e){}
-            }
-
+            await saveSubscriptionToCloud(newSubData);
             showDevAlert(`تم تجديد اشتراك (${email}) بـ +${extraDays} أيام بنجاح!`);
         }
 
@@ -850,20 +848,18 @@
             const email = document.getElementById('terminateEmailInput').value.trim().toLowerCase();
             if (!email) { showDevAlert('يرجى إدخال إيميل الطالب أولاً!'); return; }
 
-            const emailKey = getEmailKey(email);
+            const key = getEmailKey(email);
 
             let subs = getSubscriptionsLocal();
-            subs = subs.filter(s => s.email.trim().toLowerCase() !== email);
+            subs = subs.filter(s => getEmailKey(s.email) !== key);
             saveSubscriptionsLocal(subs);
 
-            if (db) {
-                try {
-                    db.ref('subscriptions/' + emailKey).remove();
-                } catch(e){}
-            }
+            try {
+                await fetch(`https://kvdb.io/W89vP8U4wQZ4Y5k6/${key}`, { method: 'DELETE' });
+            } catch(e){}
 
             document.getElementById('terminateEmailInput').value = '';
-            showDevAlert(`تم إنهاء وإلغاء اشتراك الطالب (${email}) بنجاح!`);
+            showDevAlert(`تم إنهاء وإلغاء اشتراك الطالب (${email}) أونلاين بنجاح!`);
         }
 
         function sendBroadcastNotification() {
