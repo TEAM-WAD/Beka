@@ -17,6 +17,7 @@
             --cyan-accent: #00f2fe;
             --purple-accent: #8b5cf6;
             --pink-accent: #ec4899;
+            --red-danger: #ef4444;
             --bg-dark: #05070e;
             --card-glass: rgba(15, 21, 37, 0.75);
             --card-border: rgba(255, 255, 255, 0.12);
@@ -306,11 +307,13 @@
 
         .dev-btn.purple { background: linear-gradient(135deg, #a855f7, #6366f1); color: #FFF; }
         .dev-btn.gold { background: var(--gold-gradient); color: #111; }
+        .dev-btn.danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: #FFF; }
 
         .generated-code-box {
             background: #000; border: 1px dashed var(--gold-primary);
-            border-radius: 12px; padding: 12px; font-family: monospace;
-            font-size: 13px; color: var(--gold-primary); margin-top: 10px; word-break: break-all; text-align: left;
+            border-radius: 12px; padding: 14px; font-family: monospace;
+            font-size: 13px; color: var(--gold-primary); margin-top: 10px; word-break: break-all; text-align: right;
+            line-height: 1.8;
         }
 
         /* الإشعار التنبيهي المخصص */
@@ -402,7 +405,7 @@
                         <p>تصفح الفيديوهات حسب المراحل</p>
                     </div>
 
-                    <div class="home-card bag" onclick="showPublicNotice('قسم ملازم حقيبة الطالب المفتوح')">
+                    <div class="home-card bag" onclick="showPublicNotice('قسم ملازم حقيبة الطالب العام')">
                         <div class="home-card-icon"><i class="fa-solid fa-folder-open"></i></div>
                         <h3>قسم ملازم حقيبة الطالب</h3>
                         <p>الملفات والملازم العامة</p>
@@ -565,25 +568,33 @@
                             <option value="365">سنة كاملة (365 يوم)</option>
                         </select>
                         <button class="dev-btn gold" onclick="generateNewSubscription()">
-                            <i class="fa-solid fa-plus-circle"></i> إنشاء بيانات دخول مفعلة
+                            <i class="fa-solid fa-plus-circle"></i> إنشاء وتفعيل بيانات دخول
                         </button>
                         <div id="generatedOutput" class="generated-code-box" style="display:none;"></div>
                     </div>
 
                     <div class="dev-section">
                         <h4><i class="fa-solid fa-arrows-rotate" style="color: var(--cyan-accent);"></i> تجديد اشتراك طالب</h4>
-                        <input type="email" id="renewEmailInput" placeholder="أدخل إيميل الطالب المُراد تجديده" style="width: 100%; padding: 10px; border-radius: 10px; background: #111; color: #FFF; border: 1px solid var(--card-border); margin-bottom: 8px;">
+                        <input type="email" id="renewEmailInput" placeholder="أدخل إيميل الطالب لتجديده" style="width: 100%; padding: 10px; border-radius: 10px; background: #111; color: #FFF; border: 1px solid var(--card-border); margin-bottom: 8px;">
                         <select id="renewDurationSelect" style="width: 100%; padding: 10px; border-radius: 10px; background: #111; color: #FFF; border: 1px solid var(--card-border); margin-bottom: 8px;">
                             <option value="7">تجديد +7 أيام</option>
                             <option value="30">تجديد +30 يوم</option>
                         </select>
                         <button class="dev-btn" onclick="renewStudentSubscription()">
-                            <i class="fa-solid fa-rotate-right"></i> تجديد وتمديد الاشتراك فوراً
+                            <i class="fa-solid fa-rotate-right"></i> تجديد وتمديد الاشتراك
+                        </button>
+                    </div>
+
+                    <div class="dev-section" style="border-color: rgba(239, 68, 68, 0.4);">
+                        <h4><i class="fa-solid fa-user-xmark" style="color: var(--red-danger);"></i> إنهاء وإلغاء اشتراك طالب</h4>
+                        <input type="email" id="terminateEmailInput" placeholder="أدخل إيميل الطالب لإلغاء اشتراكه" style="width: 100%; padding: 10px; border-radius: 10px; background: #111; color: #FFF; border: 1px solid var(--card-border); margin-bottom: 8px;">
+                        <button class="dev-btn danger" onclick="terminateStudentSubscription()">
+                            <i class="fa-solid fa-ban"></i> إنهاء وإلغاء الاشتراك فوراً
                         </button>
                     </div>
 
                     <div class="dev-section">
-                        <h4><i class="fa-solid fa-cloud-arrow-up" style="color: var(--purple-accent);"></i> إضافة فيديو/ملف جديد للطلاب</h4>
+                        <h4><i class="fa-solid fa-cloud-arrow-up" style="color: var(--purple-accent);"></i> إضافة فيديو/ملف جديد</h4>
                         <input type="text" id="devVideoTitle" placeholder="عنوان الدرس أو الملف" style="width: 100%; padding: 10px; border-radius: 10px; background: #111; color: #FFF; border: 1px solid var(--card-border); margin-bottom: 6px;">
                         <input type="text" id="devVideoUrl" placeholder="رابط الفيديو أو الملف PDF" style="width: 100%; padding: 10px; border-radius: 10px; background: #111; color: #FFF; border: 1px solid var(--card-border); margin-bottom: 6px;">
                         <button class="dev-btn purple" onclick="addNewContentFromDev()">
@@ -618,7 +629,7 @@
 
             <div class="input-group">
                 <label>البريد الإلكتروني / اسم المستخدم</label>
-                <input type="email" id="loginEmail" placeholder="example@netlamkhem.com">
+                <input type="email" id="loginEmail" placeholder="example@vip.com">
             </div>
 
             <div class="input-group">
@@ -650,7 +661,7 @@
             setTimeout(() => { mainApp.classList.add('visible'); }, 200);
         }
 
-        // خلفية الشرارات
+        // خلفية الشرارات التفاعلية
         const canvas = document.getElementById('welcomeCanvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
@@ -696,23 +707,36 @@
             document.getElementById('loginModal').classList.remove('active');
         }
 
-        // قواعد الاشتراكات وقاعدة البيانات المحلية
-        let subscriptions = JSON.parse(localStorage.getItem('netlamkhem_subs') || '[]');
+        // ==================== إدارة الاشتراكات والذاكرة المحلية المحسنة 100% ====================
+        function getSubscriptions() {
+            try {
+                return JSON.parse(localStorage.getItem('netlamkhem_subs') || '[]');
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function saveSubscriptions(subs) {
+            localStorage.setItem('netlamkhem_subs', JSON.stringify(subs));
+        }
+
         let activeTimerInterval = null;
 
-        // معالجة تسجيل الدخول (سواء مطور أو طالب VIP)
+        // معالجة وتسجيل الدخول الدقيق والمعدل
         function processLogin() {
-            const email = document.getElementById('loginEmail').value.trim();
-            const pass = document.getElementById('loginPassword').value.trim();
+            const emailInput = document.getElementById('loginEmail').value.trim().toLowerCase();
+            const passInput = document.getElementById('loginPassword').value.trim();
             const errDiv = document.getElementById('loginError');
 
-            if (!email || !pass) {
+            errDiv.textContent = '';
+
+            if (!emailInput || !passInput) {
                 errDiv.textContent = 'يرجى إدخال البريد الإلكتروني وكلمة السر كاملة';
                 return;
             }
 
             // 1. فحص دخول المطور المعتمد
-            if (email.toLowerCase() === 'admin@netlamkhem.com' && pass === 'admin123') {
+            if (emailInput === 'admin@netlamkhem.com' && passInput === 'admin123') {
                 closeLoginModal();
                 showDevAlert('مرحباً بك عزيزي المطور! تم فتح لوحة التحكم');
                 navigateTo('developerScreen');
@@ -720,10 +744,16 @@
                 return;
             }
 
-            // 2. فحص دخول الطلاب
-            const sub = subscriptions.find(s => s.email.toLowerCase() === email.toLowerCase());
+            // 2. فحص دخول الطلاب المحدث المباشر من الذاكرة
+            const subs = getSubscriptions();
+            const sub = subs.find(s => s.email.trim().toLowerCase() === emailInput);
 
-            if (!sub || sub.password !== pass) {
+            if (!sub) {
+                errDiv.textContent = 'كلمة السر أو البريد الإلكتروني غير صحيح!';
+                return;
+            }
+
+            if (sub.password.trim() !== passInput) {
                 errDiv.textContent = 'كلمة السر أو البريد الإلكتروني غير صحيح!';
                 return;
             }
@@ -731,11 +761,11 @@
             const now = Date.now();
             if (now > sub.expireTimestamp) {
                 const expDate = new Date(sub.expireTimestamp).toLocaleString('ar-IQ');
-                errDiv.textContent = `عذراً، اشتراكك انتهى منذ: ${expDate}`;
+                errDiv.textContent = `عذراً، انتهى اشتراكك منذ: ${expDate}`;
                 return;
             }
 
-            // دخول ناجح للطالب المشترك
+            // دخول ناجح للطالب
             closeLoginModal();
             startVIPStudentSession(sub);
             requestNotificationPermission();
@@ -778,30 +808,50 @@
             navigateTo('homeMenuScreen');
         }
 
-        // لوحة تحكم المطور - توليد اشتراك جديد
+        // توليد اشتراك جديد مع حفظ وتأكيد حتمي
         function generateNewSubscription() {
             const days = parseInt(document.getElementById('subDurationSelect').value);
             const randomNum = Math.floor(1000 + Math.random() * 9000);
-            const email = `student${randomNum}@vip.com`;
-            const password = `vip${Math.floor(100 + Math.random() * 900)}`;
+            const email = `student${randomNum}@vip.com`.toLowerCase().trim();
+            const password = `vip${Math.floor(1000 + Math.random() * 9000)}`.trim();
             const expireTimestamp = Date.now() + (days * 24 * 60 * 60 * 1000);
 
-            const newSub = { email, password, days, expireTimestamp };
-            subscriptions.push(newSub);
-            localStorage.setItem('netlamkhem_subs', JSON.stringify(subscriptions));
+            let subs = getSubscriptions();
+            const existingIndex = subs.findIndex(s => s.email.trim().toLowerCase() === email);
+            
+            if (existingIndex !== -1) {
+                subs[existingIndex] = { email, password, days, expireTimestamp };
+            } else {
+                subs.push({ email, password, days, expireTimestamp });
+            }
+            saveSubscriptions(subs);
 
             const out = document.getElementById('generatedOutput');
             out.style.display = 'block';
-            out.innerHTML = `<b>تم التوليد بنجاح!</b><br>الإيميل: ${email}<br>رمز السر: ${password}<br>المدة: ${days} يوم`;
-            showDevAlert('تم إنشاء اشتراك الطالب وحفظه بنجاح!');
+            out.innerHTML = `
+                <div style="color: #4ade80; font-weight: bold; margin-bottom: 4px;">
+                    <i class="fa-solid fa-circle-check"></i> تم التوليد والتفعيل بنجاح!
+                </div>
+                <div><b>الإيميل:</b> <span style="color:#FFF;">${email}</span></div>
+                <div><b>رمز السر:</b> <span style="color:#FFF;">${password}</span></div>
+                <div><b>المدة:</b> <span style="color:#FFF;">${days} أيام</span></div>
+            `;
+            showDevAlert('تم إنشاء وتفعيل اشتراك الطالب في الذاكرة بنجاح!');
         }
 
         // تجديد اشتراك سابق
         function renewStudentSubscription() {
-            const email = document.getElementById('renewEmailInput').value.trim();
+            const email = document.getElementById('renewEmailInput').value.trim().toLowerCase();
             const extraDays = parseInt(document.getElementById('renewDurationSelect').value);
 
-            let sub = subscriptions.find(s => s.email.toLowerCase() === email.toLowerCase());
+            if (!email) {
+                showDevAlert('يرجى إدخال إيميل الطالب لتجديده!');
+                return;
+            }
+
+            let subs = getSubscriptions();
+            let sub = subs.find(s => s.email.trim().toLowerCase() === email);
+
             if (!sub) {
                 showDevAlert('البريد الإلكتروني غير موجود بالاشتراكات!');
                 return;
@@ -810,11 +860,36 @@
             const baseTime = Math.max(Date.now(), sub.expireTimestamp);
             sub.expireTimestamp = baseTime + (extraDays * 24 * 60 * 60 * 1000);
 
-            localStorage.setItem('netlamkhem_subs', JSON.stringify(subscriptions));
-            showDevAlert(`تم تجديد اشتراك ${email} بـ +${extraDays} أيام!`);
+            saveSubscriptions(subs);
+            showDevAlert(`تم تجديد اشتراك (${email}) بـ +${extraDays} أيام بنجاح!`);
         }
 
-        // إذاعة الإشعارات الحقيقية عبر المتصفح والجهاز
+        // إنهاء/إلغاء اشتراك طالب (القسم الجديد)
+        function terminateStudentSubscription() {
+            const email = document.getElementById('terminateEmailInput').value.trim().toLowerCase();
+            
+            if (!email) {
+                showDevAlert('يرجى إدخال إيميل الطالب أولاً!');
+                return;
+            }
+
+            let subs = getSubscriptions();
+            const index = subs.findIndex(s => s.email.trim().toLowerCase() === email);
+
+            if (index === -1) {
+                showDevAlert('لم يتم العثور على هذا الطالب بالاشتراكات المفعلة!');
+                return;
+            }
+
+            // حذف الطالب نهائياً من الذاكرة
+            subs.splice(index, 1);
+            saveSubscriptions(subs);
+
+            document.getElementById('terminateEmailInput').value = '';
+            showDevAlert(`تم إنهاء وإلغاء اشتراك الطالب (${email}) بنجاح!`);
+        }
+
+        // إذاعة الإشعارات الحقيقية
         function requestNotificationPermission() {
             if ("Notification" in window && Notification.permission !== "granted") {
                 Notification.requestPermission();
@@ -853,8 +928,7 @@
             showDevAlert(`جاري تجهيز ${title} بأعلى جودة`);
         }
 
-        // بيانات الفيديوهات العامة والتصفح
-        let categorizedVideos = [];
+        // التنقل بين الأقسام العامة
         let state = { stage: '', branch: '', subject: '', chapter: '' };
 
         function navigateTo(screenId) {
