@@ -418,8 +418,14 @@
                 Notification.requestPermission();
             }
 
+            // التحقق من حالة الدخول المحفوظة مسبقاً (أدمن أو طالب)
+            const rememberedRole = localStorage.getItem('netlamkhem_remembered_role');
             const rememberedEmail = localStorage.getItem('netlamkhem_remembered_email');
-            if (rememberedEmail && ALLOWED_ACCOUNTS[rememberedEmail]) {
+
+            if (rememberedRole === 'admin') {
+                initEmailSelect();
+                navigateTo('developerScreen');
+            } else if (rememberedEmail && ALLOWED_ACCOUNTS[rememberedEmail]) {
                 const expireTimestamp = localStorage.getItem(`expire_${rememberedEmail}`);
                 if (expireTimestamp && Date.now() < parseInt(expireTimestamp)) {
                     startVipSession(rememberedEmail, parseInt(expireTimestamp));
@@ -428,16 +434,20 @@
             
             checkBroadcastMessages();
 
-            // فحص دوري كل 3 ثوانٍ لالتقاط أي إذاعة جديدة فور إرسالها دون الحاجة لتحديث الصفحة
+            // فحص دوري كل 3 ثوانٍ لالتقاط أي إذاعة جديدة فور إرسالها للجميع
             setInterval(() => {
                 checkBroadcastMessages();
             }, 3000);
         });
 
-        // مراقبة أحداث التخزين بين التبويبات إن وجدت
+        // مراقبة أحداث التخزين بين التبويبات أو الحسابات المختلفة
         window.addEventListener('storage', (e) => {
             if (e.key === 'netlamkhem_latest_broadcast' && e.newValue) {
-                triggerRealNotification(e.newValue);
+                const currentRole = localStorage.getItem('netlamkhem_remembered_role');
+                // إذا لم يكن المستخدم هو الأدمن المرسل، قم بإظهار الإشعار فوراً
+                if (currentRole !== 'admin') {
+                    triggerRealNotification(e.newValue);
+                }
             }
         });
 
@@ -468,8 +478,15 @@
         }
         drawParticles();
 
-        // زر دخول VIP الذكي
+        // زر دخول VIP الذكي (يوجه الأدمن مباشرة للوحة التحكم إذا كان مسجلاً)
         function handleVipClick() {
+            const rememberedRole = localStorage.getItem('netlamkhem_remembered_role');
+            if (rememberedRole === 'admin') {
+                initEmailSelect();
+                navigateTo('developerScreen');
+                return;
+            }
+
             const rememberedEmail = localStorage.getItem('netlamkhem_remembered_email');
             if (rememberedEmail && ALLOWED_ACCOUNTS[rememberedEmail]) {
                 const expireTimestamp = localStorage.getItem(`expire_${rememberedEmail}`);
@@ -498,7 +515,9 @@
             const days = parseInt(document.getElementById('genDurationSelect').value);
             const expireTimestamp = Date.now() + (days * 24 * 60 * 60 * 1000);
             
-            const payload = `${email}|${expireTimestamp}|${SECRET_SALT}`;
+            // إضافة رمز عشوائي فريد مع كل عملية توليد (حتى لو كان لنفس الإيميل بعد انتهاء الاشتراك أو الغائه)
+            const uniqueNonce = Math.random().toString(36).substring(2, 11) + Date.now().toString(36);
+            const payload = `${email}|${expireTimestamp}|${uniqueNonce}|${SECRET_SALT}`;
             const code = btoa(payload);
 
             localStorage.setItem(`expire_${email}`, expireTimestamp);
@@ -508,10 +527,10 @@
             box.innerHTML = `
                 <b>الإيميل:</b> ${email}<br>
                 <b>المدة:</b> ${days} أيام<br>
-                <b>كود التفعيل (أرسله للطالب):</b><br>
+                <b>كود التفعيل الجديد (فريد):</b><br>
                 <textarea style="width:100%; height:50px; background:#111; color:#00f2fe; border:1px solid #333; margin-top:5px; border-radius:8px; padding:6px; font-size:11px;" readonly>${code}</textarea>
             `;
-            showDevAlert("تم إنتاج الكود وتفعيله بنجاح!");
+            showDevAlert("تم إنتاج كود تفعيل جديد وفريد بنجاح!");
             renderDevAccountsTable();
         }
 
@@ -519,8 +538,8 @@
             try {
                 const decoded = atob(code);
                 const parts = decoded.split('|');
-                if (parts.length !== 3) return null;
-                if (parts[0] === email && parts[2] === SECRET_SALT) {
+                if (parts.length < 3) return null;
+                if (parts[0] === email && parts[parts.length - 1] === SECRET_SALT) {
                     return parseInt(parts[1]);
                 }
                 return null;
@@ -580,7 +599,15 @@
                 return;
             }
 
+            // التحقق من حساب الأدمن
             if (emailInput === 'admin@netlamkhem.com' && passInput === 'admin123') {
+                if (rememberMe) {
+                    localStorage.setItem('netlamkhem_remembered_role', 'admin');
+                    localStorage.setItem('netlamkhem_remembered_email', 'admin@netlamkhem.com');
+                } else {
+                    localStorage.removeItem('netlamkhem_remembered_role');
+                    localStorage.removeItem('netlamkhem_remembered_email');
+                }
                 closeLoginModal();
                 showDevAlert('أهلاً بك يا أدمن!');
                 initEmailSelect();
@@ -618,8 +645,10 @@
 
             if (rememberMe) {
                 localStorage.setItem('netlamkhem_remembered_email', emailInput);
+                localStorage.removeItem('netlamkhem_remembered_role');
             } else {
                 localStorage.removeItem('netlamkhem_remembered_email');
+                localStorage.removeItem('netlamkhem_remembered_role');
             }
 
             errDiv.textContent = '';
@@ -653,19 +682,21 @@
             timerInterval = setInterval(updateTimer, 1000);
         }
 
-        // إرسال الإذاعة مع تفعيل التحديث الفوري
+        // إرسال الإذاعة لجميع المشتركين مع ضمان وصولها للجميع
         function sendBroadcast() {
             const msg = document.getElementById('broadcastMsgInput').value.trim();
             if (!msg) {
                 showDevAlert("يرجى كتابة نص الإذاعة أولاً!");
                 return;
             }
-            localStorage.setItem('netlamkhem_latest_broadcast', msg);
-            localStorage.removeItem('netlamkhem_seen_broadcast'); // مسح سجل المشاهدة لضمان وصولها للجميع فوراً
+            
+            // حفظ وقت الإذاعة والنص لكي يتم رصده من باقي الأجهزة والتبويبات
+            const broadcastObj = { text: msg, time: Date.now() };
+            localStorage.setItem('netlamkhem_latest_broadcast', JSON.stringify(broadcastObj));
             document.getElementById('broadcastMsgInput').value = '';
             
             triggerRealNotification(msg);
-            showDevAlert("✅ تم بث الإذاعة بنجاح إلى جميع مشتركي VIP النشطين!");
+            showDevAlert("✅ تم بث الإذاعة بنجاح إلى جميع مشتركي VIP!");
         }
 
         function triggerRealNotification(text) {
@@ -696,17 +727,27 @@
         }
 
         function checkBroadcastMessages() {
-            const lastMsg = localStorage.getItem('netlamkhem_latest_broadcast');
-            const seenMsg = localStorage.getItem('netlamkhem_seen_broadcast');
+            const stored = localStorage.getItem('netlamkhem_latest_broadcast');
+            if (!stored) return;
             
-            if (lastMsg && lastMsg !== seenMsg) {
-                triggerRealNotification(lastMsg);
-                localStorage.setItem('netlamkhem_seen_broadcast', lastMsg);
-            }
+            try {
+                const broadcastObj = JSON.parse(stored);
+                const lastSeenTime = parseInt(localStorage.getItem('netlamkhem_seen_broadcast_time') || '0');
+                
+                // إذا وُجدت إذاعة جديدة بوقت أحدث مما شاهده هذا المستخدم سابقاً
+                if (broadcastObj.time > lastSeenTime) {
+                    const currentRole = localStorage.getItem('netlamkhem_remembered_role');
+                    // إذا لم يكن المستخدم الحالي هو الأدمن المرسل في نفس اللحظة أو لجعلها تظهر للجميع:
+                    triggerRealNotification(broadcastObj.text);
+                    localStorage.setItem('netlamkhem_seen_broadcast_time', broadcastObj.time);
+                }
+            } catch(e) {}
         }
 
         function logoutVIP() { 
             if (timerInterval) clearInterval(timerInterval);
+            localStorage.removeItem('netlamkhem_remembered_role');
+            localStorage.removeItem('netlamkhem_remembered_email');
             navigateTo('homeMenuScreen'); 
         }
 
