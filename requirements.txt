@@ -3,4 +3,3 @@ requests
 Pillow
 arabic-reshaper
 python-bidi
-flask
