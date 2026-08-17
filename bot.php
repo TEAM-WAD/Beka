@@ -150,7 +150,7 @@ if($text === "/start" || $text === "main_menu") {
         // نفرض أن الـ API يرجع مصفوفة طلبات أو نقوم بعمل فلترة للطلبات المكتملة
         $completedCount = 0;
         if(is_array($orders)) {
-            foreach($orders as ord) {
+            foreach($orders as $ord) {
                 if(isset($ord['status']) && strtolower($ord['status']) == 'completed') {
                     $completedCount++;
                 }
@@ -322,7 +322,7 @@ if($isUserAdmin) {
         $filteredServices = [];
         
         if(is_array($allServices)) {
-            foreach($allServices as srv) {
+            foreach($allServices as $srv) {
                 $nameLower = mb_strtolower($srv['name'] ?? '');
                 $categoryLower = mb_strtolower($srv['category'] ?? '');
                 
@@ -352,7 +352,7 @@ if($isUserAdmin) {
         $pageServices = array_slice($filteredServices, $offset, $perPage);
 
         $inlineBtns = [];
-        foreach($pageServices as srv) {
+        foreach($pageServices as $srv) {
             $sId = $srv['service'];
             $sName = $srv['name'];
             $sRate = $srv['rate'];
@@ -389,7 +389,7 @@ if($isUserAdmin) {
         $allServices = apiRequest('services');
         $selectedSrvDetails = null;
         if(is_array($allServices)) {
-            foreach($allServices as srv) {
+            foreach($allServices as $srv) {
                 if($srv['service'] == $serviceId) {
                     $selectedSrvDetails = $srv;
                     break;
@@ -472,7 +472,7 @@ if($isUserAdmin) {
         $freeServices = [];
         
         if(is_array($allServices)) {
-            foreach($allServices as srv) {
+            foreach($allServices as $srv) {
                 $rate = floatval($srv['rate'] ?? 1);
                 if($rate == 0.000 || $rate == 0) {
                     $freeServices[] = $srv;
@@ -487,7 +487,7 @@ if($isUserAdmin) {
         }
 
         $inlineBtns = [];
-        foreach($freeServices as srv) {
+        foreach($freeServices as $srv) {
             $sId = $srv['service'];
             $sName = $srv['name'];
             $shortName = mb_substr($sName, 0, 40) . " (0.000$)";
@@ -505,7 +505,7 @@ if($isUserAdmin) {
         $txt = "📦 <b>آخر طلباتك في الموقع:</b>\n\n";
         if(is_array($orders) && !empty($orders)) {
             $count = 0;
-            foreach($orders as ord) {
+            foreach($orders as $ord) {
                 if($count >= 5) break; // عرض آخر 5 طلبات
                 $txt .= "🆔 رقم: " . $ord['order'] . "\n" .
                         "📌 الحالة: " . $ord['status'] . "\n" .
