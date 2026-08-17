@@ -15,7 +15,7 @@ import arabic_reshaper
 from bidi.algorithm import get_display
 
 # ==================== الإعدادات الأساسية ====================
-BOT_TOKEN = "8892595660:AAGdvZaZtRSVNKeH7hP-mFsnNKxBgsrMIZo"
+BOT_TOKEN = "8892595660:AAErIF3uBxbi8_CjYJwIelpuRN__16ug-Ng"
 API_URL = "https://ylafollow.com/api/v2"  
 API_KEY = "2ff0c9c3dbf8db742196dd1d4215bbe2"
 ADMIN_ID = 6805697054 
