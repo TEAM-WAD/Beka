@@ -39,11 +39,11 @@ class TelegramAuthOrMainScreen extends StatefulWidget {
 
 class _TelegramAuthOrMainScreenState extends State<TelegramAuthOrMainScreen> {
   final Tdlib _tdlib = Tdlib();
-  int _clientId = 0;
+  int _clientId = 1;
   
   bool _isLoading = true;
   bool _isAuthorized = false;
-  String _authState = 'wait_parameters'; // wait_parameters, wait_phone, wait_code, ready
+  String _authState = 'wait_parameters';
   
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _codeController = TextEditingController();
@@ -61,7 +61,9 @@ class _TelegramAuthOrMainScreenState extends State<TelegramAuthOrMainScreen> {
 
   Future<void> _initTdlib() async {
     try {
-      _clientId = _tdlib.createclient();
+      // إسناد clientId صريحاً لإصلاح خطأ البناء
+      _clientId = 1;
+      _tdlib.createclient(clientId: _clientId);
       
       _tdlib.on(_tdlib.event_update, (UpdateTelegramClientTdlib update) {
         if (update.client_id == _clientId && update.raw is Map) {
@@ -201,9 +203,7 @@ class _TelegramAuthOrMainScreenState extends State<TelegramAuthOrMainScreen> {
     setState(() => _isLoading = false);
   }
 
-  /// مشاهدة الاستوري بدون إرسال إشعار للمرسل (وضع التخفي Stealth Mode)
   Future<void> _viewStoryStealth(int chatId, int storyId) async {
-    // نجلب بيانات وسائط الاستوري دون استدعاء openStory أو viewMessages
     final storyData = await _tdlib.invoke(
       'getStory',
       parameters: {
