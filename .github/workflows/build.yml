@@ -22,11 +22,12 @@ jobs:
         with:
           channel: 'stable'
 
-      # إعادة إنشاء مجلد أندرويد وإضافة صلاحية الإنترنت تلقائياً
-      - name: Recreate Android Folder & Add Permissions
+      # إعادة إنشاء مجلد أندرويد وحقن صلاحية الإنترنت مباشرة داخل AndroidManifest.xml
+      - name: Recreate Android Folder & Inject Internet Permission
         run: |
           rm -rf android
           flutter create . --platforms=android --org com.example
+          sed -i '/<application/i \    <uses-permission android:name="android.permission.INTERNET"/>' android/app/src/main/AndroidManifest.xml
 
       - name: Install Dependencies
         run: flutter pub get
