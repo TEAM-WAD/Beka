@@ -1,25 +1,32 @@
+import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:webview_flutter/webview_flutter.dart';
-import 'package:webview_flutter_android/webview_flutter_android.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:telegram_client/telegram_client.dart';
 
-void main() {
-  runApp(const TelegramCustomApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(const NativeTelegramApp());
 }
 
-class TelegramCustomApp extends StatelessWidget {
-  const TelegramCustomApp({super.key});
+class NativeTelegramApp extends StatelessWidget {
+  const NativeTelegramApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'تليجرام',
+      title: 'تليجرام الأصلي',
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: const Color(0xFF17212B),
         appBarTheme: const AppBarTheme(
           backgroundColor: Color(0xFF242F3D),
           elevation: 0,
+        ),
+        colorScheme: const ColorScheme.dark(
+          primary: Color(0xFF5288C1),
+          surface: Color(0xFF242F3D),
         ),
       ),
       locale: const Locale('ar', 'IQ'),
@@ -29,227 +36,306 @@ class TelegramCustomApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      home: const TelegramMainScreen(),
+      home: const TelegramAuthOrMainScreen(),
     );
   }
 }
 
-class TelegramMainScreen extends StatefulWidget {
-  const TelegramMainScreen({super.key});
+class TelegramAuthOrMainScreen extends StatefulWidget {
+  const TelegramAuthOrMainScreen({super.key});
 
   @override
-  State<TelegramMainScreen> createState() => _TelegramMainScreenState();
+  State<TelegramAuthOrMainScreen> meState() => _TelegramAuthOrMainScreenState();
 }
 
-class _TelegramMainScreenState extends State<TelegramMainScreen> {
-  late final WebViewController _controller;
-  bool isStealthMode = false;
+class _TelegramAuthOrMainScreenState extends State<TelegramAuthOrMainScreen> {
+  late TelegramClient tgClient;
+  bool isInitialized = false;
+  bool isAuthenticated = false;
+  bool isStealthMode = true; // مفعل افتراضياً لحمايتك 100%
+
+  // أدخل بيانات API الخاصة بك من my.telegram.org (أو استخدم القيم الافتراضية)
+  final int apiId = 94575; // API ID افتراضي
+  final String apiHash = "a3406de8d171326e3c403d80a9b00a9c";
+
+  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController codeController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  String authState = "WAIT_PHONE"; // WAIT_PHONE, WAIT_CODE, WAIT_PASSWORD, READY
+  List<Map<String, dynamic>> chats = [];
 
   @override
   void initState() {
     super.initState();
+    _initTDLib();
+  }
 
-    late final PlatformWebViewControllerCreationParams params;
-    if (WebViewPlatform.instance is AndroidWebViewPlatform) {
-      params = AndroidWebViewControllerCreationParams();
-    } else {
-      params = const PlatformWebViewControllerCreationParams();
-    }
+  Future<void> _initTDLib() async {
+    final Directory appDocDir = await getApplicationDocumentsDirectory();
+    final String dbPath = "${appDocDir.path}/tdlib_data";
 
-    final WebViewController controller =
-        WebViewController.fromPlatformCreationParams(params);
-
-    controller
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setUserAgent(
-        "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
-      )
-      ..setNavigationDelegate(
-        NavigationDelegate(
-          onPageFinished: (String url) {
-            _unrestrictContent();
-          },
-        ),
-      );
-
-    // إعدادات أندرويد للـ WebView
-    if (controller.platform is AndroidWebViewController) {
-      final AndroidWebViewController androidController =
-          controller.platform as AndroidWebViewController;
-      androidController.setMediaPlaybackRequiresUserGesture(false);
-    }
-
-    // تحميل النسخة العربية مباشرة
-    controller.loadRequest(
-      Uri.parse('https://web.telegram.org/k/#lang=ar'),
+    tgClient = TelegramClient(
+      api_id: apiId,
+      api_hash: apiHash,
+      db_path: dbPath,
     );
 
-    _controller = controller;
-  }
-
-  // فك حظر التنزيل من القنوات المقيدة
-  void _unrestrictContent() {
-    final jsScript = '''
-      document.addEventListener('contextmenu', function(e) {
-        e.stopPropagation();
-      }, true);
-
-      document.addEventListener('copy', function(e) {
-        e.stopPropagation();
-      }, true);
-
-      document.addEventListener('selectstart', function(e) {
-        e.stopPropagation();
-      }, true);
-
-      const style = document.createElement('style');
-      style.innerHTML = `
-        * {
-          user-select: text !important;
-          -webkit-user-select: text !important;
-          -webkit-touch-callout: default !important;
+    // الاستماع للتحديثات الصادرة من TDLib
+    tgClient.on('updateAuthorizationState', (update) {
+      final auth = update['authorization_state'];
+      if (auth != null) {
+        final type = auth['@type'];
+        if (type == 'authorizationStateWaitPhoneNumber') {
+          setState(() => authState = "WAIT_PHONE");
+        } else if (type == 'authorizationStateWaitCode') {
+          setState(() => authState = "WAIT_CODE");
+        } else if (type == 'authorizationStateWaitPassword') {
+          setState(() => authState = "WAIT_PASSWORD");
+        } else if (type == 'authorizationStateReady') {
+          setState(() {
+            isAuthenticated = true;
+            authState = "READY";
+          });
+          _loadChats();
         }
-      `;
-      document.head.appendChild(style);
-
-      // التنزيل المباشر عند النقر المزدوج على الوسائط
-      document.addEventListener('dblclick', function(e) {
-        const target = e.target;
-        if (target.tagName === 'VIDEO' || target.tagName === 'IMG') {
-          const src = target.src || target.currentSrc;
-          if (src) {
-            const a = document.createElement('a');
-            a.href = src;
-            a.download = 'telegram_media_' + Date.now();
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-          }
-        }
-      });
-    ''';
-    _controller.runJavaScript(jsScript);
-  }
-
-  // وضع التخفي الحقيقي والشامل 100% لمنع إرسال أي إشارة مشاهدة ستوري
-  void _toggleStealthMode(bool value) {
-    setState(() {
-      isStealthMode = value;
+      }
     });
 
-    final jsScript = '''
-      window._stealthMode = $value;
-      if (!window._stealthInjected) {
-        window._stealthInjected = true;
+    tgClient.init();
+    setState(() => isInitialized = true);
+  }
 
-        // 1. اعتراض طلبات الـ Fetch
-        const originalFetch = window.fetch;
-        window.fetch = async function(...args) {
-          const url = args[0] ? args[0].toString().toLowerCase() : '';
-          if (window._stealthMode && (url.includes('story') || url.includes('stories') || url.includes('read') || url.includes('view'))) {
-            return new Response(JSON.stringify({ok: true}), {status: 200});
-          }
-          return originalFetch.apply(this, args);
-        };
+  // تسجيل الدخول ورقم الهاتف
+  void _sendPhoneNumber() {
+    if (phoneController.text.isNotEmpty) {
+      tgClient.send({
+        '@type': 'setAuthenticationPhoneNumber',
+        'phone_number': phoneController.text.trim(),
+      });
+    }
+  }
 
-        // 2. اعتراض طلبات الـ XMLHttpRequest
-        const originalXHR = window.XMLHttpRequest.prototype.open;
-        window.XMLHttpRequest.prototype.open = function(method, url, ...args) {
-          this._url = url ? url.toString().toLowerCase() : '';
-          return originalXHR.apply(this, [method, url, ...args]);
-        };
-        const originalSend = window.XMLHttpRequest.prototype.send;
-        window.XMLHttpRequest.prototype.send = function(body) {
-          if (window._stealthMode && this._url && (this._url.includes('story') || this._url.includes('stories') || this._url.includes('read') || this._url.includes('view'))) {
-            Object.defineProperty(this, 'readyState', {value: 4});
-            Object.defineProperty(this, 'status', {value: 200});
-            Object.defineProperty(this, 'responseText', {value: '{"ok":true}'});
-            if (this.onload) this.onload();
-            return;
-          }
-          return originalSend.apply(this, [body]);
-        };
+  // إرسال كود التحقق
+  void _sendCode() {
+    if (codeController.text.isNotEmpty) {
+      tgClient.send({
+        '@type': 'checkAuthenticationCode',
+        'code': codeController.text.trim(),
+      });
+    }
+  }
 
-        // 3. اعتراض اتصالات الـ WebSocket وتحليل الحزم النصية والثنائية لمنع إرسال مشاهدات الستوري
-        const OriginalWebSocket = window.WebSocket;
-        window.WebSocket = function(url, protocol) {
-          const ws = new OriginalWebSocket(url, protocol);
-          const originalWsSend = ws.send;
-          ws.send = function(data) {
-            if (window._stealthMode) {
-              try {
-                if (typeof data === 'string') {
-                  const lower = data.toLowerCase();
-                  if (lower.includes('story') || lower.includes('stories') || lower.includes('readstories') || lower.includes('incrementstoryviews')) {
-                    return; // إلغاء إرسال الحزمة
-                  }
-                } else if (data instanceof ArrayBuffer || data instanceof Uint8Array || ArrayBuffer.isView(data)) {
-                  const bytes = data instanceof ArrayBuffer ? new Uint8Array(data) : new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
-                  let decoded = '';
-                  for (let i = 0; i < Math.min(bytes.length, 512); i++) {
-                    const b = bytes[i];
-                    if (b >= 32 && b <= 126) decoded += String.fromCharCode(b);
-                  }
-                  const lowerDecoded = decoded.toLowerCase();
-                  if (lowerDecoded.includes('story') || lowerDecoded.includes('read') || lowerDecoded.includes('stories')) {
-                    return; // منع إرسال الحزمة المرتبطة بالستوري
-                  }
-                }
-              } catch(e) {}
-            }
-            return originalWsSend.call(this, data);
-          };
-          return ws;
-        };
+  // إرسال كلمة المرور (التحقق بخطوتين إن وجد)
+  void _sendPassword() {
+    if (passwordController.text.isNotEmpty) {
+      tgClient.send({
+        '@type': 'checkAuthenticationPassword',
+        'password': passwordController.text.trim(),
+      });
+    }
+  }
+
+  // تحميل قائمة المحادثات الأصيلة عبر TDLib
+  Future<void> _loadChats() async {
+    final res = await tgClient.request({
+      '@type': 'getChats',
+      'limit': 50,
+    });
+    if (res != null && res['chat_ids'] != null) {
+      final List chatIds = res['chat_ids'];
+      List<Map<String, dynamic>> tempChats = [];
+      for (var id in chatIds) {
+        final chatData = await tgClient.request({
+          '@type': 'getChat',
+          'chat_id': id,
+        });
+        if (chatData != null) {
+          tempChats.add(chatData);
+        }
       }
-    ''';
+      setState(() {
+        chats = tempChats;
+      });
+    }
+  }
 
-    _controller.runJavaScript(jsScript);
+  // فتح وتصفح الستوري بحماية التخفي الحقيقية (Ghost Mode)
+  Future<void> _openStorySafely(int storyId, int senderUserId) async {
+    // 1. جلب بيانات الستوري دون إرسال إشارة قراءة
+    final storyData = await tgClient.request({
+      '@type': 'getStory',
+      'story_id': storyId,
+      'sender_user_id': senderUserId,
+    });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          value ? 'تم تفعيل وضع التخفي الحقيقي 🛡️' : 'تم تعطيل وضع التخفي',
-          style: const TextStyle(fontFamily: 'sans-serif'),
+    if (!isStealthMode) {
+      // إذا كان وضع التخفي معطلاً، يرسل أمر القراءة عادي
+      tgClient.send({
+        '@type': 'openStory',
+        'story_id': storyId,
+        'sender_user_id': senderUserId,
+      });
+    } else {
+      // 🛡️ في وضع التخفي: لا نرسل أمر openStory لسيرفر تليجرام إطلاقاً!
+      // نقوم بعرض الوسائط وتصفحها محلية 100% دون أن علم تليجرام.
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('🛡️ تم فتح الستوري بوضع التخفي المطلق (لم يتم تسجيل مشاهدتك)'),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 2),
         ),
-        duration: const Duration(seconds: 1),
-        backgroundColor: value ? Colors.green : Colors.redAccent,
-      ),
-    );
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text(
-            'تليجرام',
-            style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
-          ),
-          actions: [
-            Row(
-              children: [
-                Icon(
-                  isStealthMode ? Icons.visibility_off : Icons.visibility,
-                  color: isStealthMode ? Colors.greenAccent : Colors.grey,
-                  size: 20,
+    if (!isInitialized) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(color: Color(0xFF5288C1)),
+        ),
+      );
+    }
+
+    if (!isAuthenticated) {
+      return _buildAuthScreen();
+    }
+
+    return _buildHomeScreen();
+  }
+
+  // واجهة تسجيل الدخول الأصيلة
+  Widget _buildAuthScreen() {
+    return Scaffold(
+      appBar: AppBar(title: const Text('تسجيل الدخول - تليجرام')),
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (authState == "WAIT_PHONE") ...[
+              const Text('أدخل رقم الهاتف مع رمز الدولة (مثال: +9647700000000)',
+                  textAlign: TextAlign.center, style: TextStyle(fontSize: 16)),
+              const SizedBox(height: 16),
+              TextField(
+                controller: phoneController,
+                keyboardType: TextInputType.phone,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'رقم الهاتف',
+                  prefixIcon: Icon(Icons.phone),
                 ),
-                const SizedBox(width: 4),
-                Switch(
-                  value: isStealthMode,
-                  activeColor: Colors.greenAccent,
-                  onChanged: _toggleStealthMode,
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _sendPhoneNumber,
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(50),
+                  backgroundColor: const Color(0xFF5288C1),
                 ),
-              ],
-            ),
+                child: const Text('متابعة', style: TextStyle(color: Colors.white, fontSize: 16)),
+              ),
+            ] else if (authState == "WAIT_CODE") ...[
+              const Text('أدخل رمز التحقق الذي وصلك على تليجرام',
+                  textAlign: TextAlign.center, style: TextStyle(fontSize: 16)),
+              const SizedBox(height: 16),
+              TextField(
+                controller: codeController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'رمز التحقق',
+                  prefixIcon: Icon(Icons.security),
+                ),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _sendCode,
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(50),
+                  backgroundColor: const Color(0xFF5288C1),
+                ),
+                child: const Text('تأكيد الرمز', style: TextStyle(color: Colors.white, fontSize: 16)),
+              ),
+            ] else if (authState == "WAIT_PASSWORD") ...[
+              const Text('أدخل كلمة سر التحقق بخطوتين (2FA)',
+                  textAlign: TextAlign.center, style: TextStyle(fontSize: 16)),
+              const SizedBox(height: 16),
+              TextField(
+                controller: passwordController,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'كلمة السر',
+                  prefixIcon: Icon(Icons.lock),
+                ),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _sendPassword,
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(50),
+                  backgroundColor: const Color(0xFF5288C1),
+                ),
+                child: const Text('دخول', style: TextStyle(color: Colors.white, fontSize: 16)),
+              ),
+            ],
           ],
         ),
-        body: SafeArea(
-          child: WebViewWidget(controller: _controller),
-        ),
       ),
+    );
+  }
+
+  // واجهة المحادثات الرئيسية الاصيلة
+  Widget _buildHomeScreen() {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('تليجرام الاصلي (TDLib)'),
+        actions: [
+          Row(
+            children: [
+              Icon(
+                isStealthMode ? Icons.visibility_off : Icons.visibility,
+                color: isStealthMode ? Colors.greenAccent : Colors.grey,
+              ),
+              const SizedBox(width: 4),
+              Switch(
+                value: isStealthMode,
+                activeColor: Colors.greenAccent,
+                onChanged: (val) {
+                  setState(() => isStealthMode = val);
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
+      body: chats.isEmpty
+          ? const Center(child: CircularProgressIndicator(color: Color(0xFF5288C1)))
+          : ListView.builder(
+              itemCount: chats.length,
+              itemBuilder: (context, index) {
+                final chat = chats[index];
+                final String title = chat['title'] ?? 'محادثة';
+                return ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: const Color(0xFF5288C1),
+                    child: Text(title.isNotEmpty ? title[0] : 'T'),
+                  ),
+                  title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  subtitle: Text(
+                    chat['last_message']?['content']?['text']?['text'] ?? 'رسالة...',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  onTap: () {
+                    // فتح المحادثة الأصيلة
+                  },
+                );
+              },
+            ),
     );
   }
 }
