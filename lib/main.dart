@@ -22,7 +22,6 @@ class TelegramCustomApp extends StatelessWidget {
           elevation: 0,
         ),
       ),
-      // إجبار التطبيق على اللغة العربية والاتجاه من اليمين لليسار
       locale: const Locale('ar', 'IQ'),
       supportedLocales: const [Locale('ar', 'IQ'), Locale('ar')],
       localizationsDelegates: const [
@@ -44,7 +43,7 @@ class TelegramMainScreen extends StatefulWidget {
 
 class _TelegramMainScreenState extends State<TelegramMainScreen> {
   late final WebViewController _controller;
-  bool isStealthMode = false; // حالة وضع التخفي
+  bool isStealthMode = false;
 
   @override
   void initState() {
@@ -64,16 +63,23 @@ class _TelegramMainScreenState extends State<TelegramMainScreen> {
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setUserAgent(
         "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+      )
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onPageFinished: (String url) {
+            _unrestrictContent();
+          },
+        ),
       );
 
     if (controller.platform is AndroidWebViewController) {
       final AndroidWebViewController androidController =
           controller.platform as AndroidWebViewController;
       androidController.setMediaPlaybackRequiresUserGesture(false);
-      androidController.setCacheMode(AndroidCacheMode.noCache);
     }
 
-    // تحميل النسخة العربية من تليجرام ويب
+    controller.clearCache();
+
     controller.loadRequest(
       Uri.parse('https://web.telegram.org/k/#lang=ar'),
     );
@@ -81,7 +87,48 @@ class _TelegramMainScreenState extends State<TelegramMainScreen> {
     _controller = controller;
   }
 
-  // تفعيل / تعطيل وضع التخفي لحجب تسجيل مشاهدات الستوري
+  void _unrestrictContent() {
+    final jsScript = '''
+      document.addEventListener('contextmenu', function(e) {
+        e.stopPropagation();
+      }, true);
+
+      document.addEventListener('copy', function(e) {
+        e.stopPropagation();
+      }, true);
+
+      document.addEventListener('selectstart', function(e) {
+        e.stopPropagation();
+      }, true);
+
+      const style = document.createElement('style');
+      style.innerHTML = `
+        * {
+          user-select: text !important;
+          -webkit-user-select: text !important;
+          -webkit-touch-callout: default !important;
+        }
+      `;
+      document.head.appendChild(style);
+
+      document.addEventListener('dblclick', function(e) {
+        const target = e.target;
+        if (target.tagName === 'VIDEO' || target.tagName === 'IMG') {
+          const src = target.src || target.currentSrc;
+          if (src) {
+            const a = document.createElement('a');
+            a.href = src;
+            a.download = 'telegram_media_' + Date.now();
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+          }
+        }
+      });
+    ''';
+    _controller.runJavaScript(jsScript);
+  }
+
   void _toggleStealthMode(bool value) {
     setState(() {
       isStealthMode = value;
@@ -108,9 +155,8 @@ class _TelegramMainScreenState extends State<TelegramMainScreen> {
       SnackBar(
         content: Text(
           value
-              ? 'تم تفعيل وضع التخفي (لن يتم تسجيل مشاهدتك للستوريات)'
+              ? 'تم تفعيل وضع التخفي'
               : 'تم تعطيل وضع التخفي',
-          style: const TextStyle(fontFamily: 'sans-serif'),
         ),
         duration: const Duration(seconds: 2),
         backgroundColor: value ? Colors.green : Colors.redAccent,
@@ -118,7 +164,6 @@ class _TelegramMainScreenState extends State<TelegramMainScreen> {
     );
   }
 
-  // التمرير السريع بين مجلدات المحادثات عبر محاكاة مفاتيح الكيبورد في التليجرام
   void _navigateFolder(bool next) {
     final direction = next ? 'Right' : 'Left';
     final jsCommand = '''
@@ -144,7 +189,6 @@ class _TelegramMainScreenState extends State<TelegramMainScreen> {
             style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
           ),
           actions: [
-            // زر وضع التخفي في السويتش
             Row(
               children: [
                 Icon(
@@ -163,14 +207,11 @@ class _TelegramMainScreenState extends State<TelegramMainScreen> {
           ],
         ),
         body: GestureDetector(
-          // التعرف على السحب لليمين واليسار للتنقل بين المجلدات بكفاءة
           onHorizontalDragEnd: (details) {
             if (details.primaryVelocity != null) {
               if (details.primaryVelocity! < -300) {
-                // سحب نحو اليسار (المجلد التالي)
                 _navigateFolder(true);
               } else if (details.primaryVelocity! > 300) {
-                // سحب نحو اليمين (المجلد السابق)
                 _navigateFolder(false);
               }
             }
