@@ -1,5 +1,5 @@
 name: telegramtm_app
-description: "Flutter App"
+description: "Telegram Web Flutter App"
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -10,6 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   webview_flutter: ^4.7.0
+  url_launcher: ^6.3.0
 
 dev_dependencies:
   flutter_test:
