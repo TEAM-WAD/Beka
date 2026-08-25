@@ -10,7 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   telegram_client: ^0.8.44
-  telegram_client_android: ^0.8.44
+  telegram_client_android: ^1.8.42
   cupertino_icons: ^1.0.8
 
 dev_dependencies:
