@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
@@ -15,155 +16,90 @@ class TelegramApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Telegram Native Custom',
+      title: 'Telegram Debug App',
       debugShowCheckedModeBanner: false,
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: const Color(0xFF17212B),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFF242F3D),
-          elevation: 0,
-        ),
-        colorScheme: const ColorScheme.dark(
-          primary: Color(0xFF64B5F6),
-          surface: Color(0xFF242F3D),
-        ),
+        appBarTheme: const AppBarTheme(backgroundColor: Color(0xFF242F3D)),
       ),
-      home: const TelegramAuthOrMainScreen(),
+      home: const TelegramDebugScreen(),
     );
   }
 }
 
-class TelegramAuthOrMainScreen extends StatefulWidget {
-  const TelegramAuthOrMainScreen({super.key});
+class TelegramDebugScreen extends StatefulWidget {
+  const TelegramDebugScreen({super.key});
 
   @override
-  State<TelegramAuthOrMainScreen> createState() => _TelegramAuthOrMainScreenState();
+  State<TelegramDebugScreen> createState() => _TelegramDebugScreenState();
 }
 
-class _TelegramAuthOrMainScreenState extends State<TelegramAuthOrMainScreen> {
+class _TelegramDebugScreenState extends State<TelegramDebugScreen> {
   final Tdlib _tdlib = Tdlib();
   final int _clientId = 1;
 
   final int _apiId = 94575;
   final String _apiHash = 'a3406de8d171326e3c403d80a9b00a9c';
 
-  bool _isSubmitting = false;
-  bool _isAuthorized = false;
-  
-  String _authState = 'init';
-  String _statusText = 'جاري تهيئة TDLib...';
-
-  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController(text: '+964777001246');
   final TextEditingController _codeController = TextEditingController();
 
-  List<Map<String, dynamic>> _chats = [];
-  Timer? _timeoutTimer;
+  final List<String> _logs = [];
+  bool _showCodeInput = false;
 
   @override
   void initState() {
     super.initState();
-    _initTdlib();
+    _addLog('بدء تشغيل التطبيق...');
+    _setupTdlib();
   }
 
-  @override
-  void dispose() {
-    _timeoutTimer?.cancel();
-    super.dispose();
-  }
-
-  void _startTimeout() {
-    _timeoutTimer?.cancel();
-    _timeoutTimer = Timer(const Duration(seconds: 7), () {
-      if (mounted && _isSubmitting) {
-        setState(() {
-          _isSubmitting = false;
-          _statusText = 'تأخرت الاستجابة من السيرفر، يرجى المحاولة مرة أخرى.';
-        });
-      }
+  void _addLog(String log) {
+    setState(() {
+      _logs.insert(0, "[${DateTime.now().toString().split(' ').last.substring(0, 8)}] $log");
     });
   }
 
-  Future<void> _initTdlib() async {
+  Future<void> _setupTdlib() async {
     try {
       _tdlib.createclient(clientId: _clientId);
+      _addLog('تم إنشاء العميل (Client Created)');
 
       _tdlib.on(_tdlib.event_update, (UpdateTelegramClientTdlib update) {
         if (update.client_id == _clientId && update.raw is Map) {
-          _handleUpdate(Map<String, dynamic>.from(update.raw));
-        }
-      });
+          final rawMap = Map<String, dynamic>.from(update.raw);
+          final type = rawMap['@type'];
+          _addLog('تحديث جديد: $type');
 
-      setState(() {
-        _statusText = 'تم إنشاء العميل، بانتظار استجابة المكتبة...';
+          if (type == 'updateAuthorizationState') {
+            final authState = rawMap['authorization_state']?['@type'];
+            _addLog('حالة التخويل: $authState');
+
+            if (authState == 'authorizationStateWaitTdlibParameters') {
+              _sendParameters();
+            } else if (authState == 'authorizationStateWaitCode') {
+              setState(() => _showCodeInput = true);
+            }
+          }
+        }
       });
     } catch (e) {
-      setState(() {
-        _statusText = 'خطأ في التهيئة: $e';
-      });
+      _addLog('خطأ استثناء بالتهيئة: $e');
     }
   }
 
-  void _handleUpdate(Map<String, dynamic> update) {
-    final type = update['@type'];
-
-    if (type == 'error') {
-      _timeoutTimer?.cancel();
-      setState(() {
-        _isSubmitting = false;
-        _statusText = 'خطأ من تليجرام: ${update['message']}';
-      });
-      return;
-    }
-
-    if (type == 'updateAuthorizationState') {
-      final authState = update['authorization_state'];
-      if (authState != null && authState is Map) {
-        final authType = authState['@type'];
-        _timeoutTimer?.cancel();
-
-        if (authType == 'authorizationStateWaitTdlibParameters') {
-          setState(() {
-            _authState = 'wait_params';
-            _statusText = 'جاري إرسال إعدادات API...';
-          });
-          _sendTdlibParametersAuto();
-        } else if (authType == 'authorizationStateWaitPhoneNumber') {
-          setState(() {
-            _authState = 'wait_phone';
-            _isSubmitting = false;
-            _statusText = 'جاهز: اضغط إرسال رمز التحقق';
-          });
-        } else if (authType == 'authorizationStateWaitCode') {
-          setState(() {
-            _authState = 'wait_code';
-            _isSubmitting = false;
-            _statusText = 'تم إرسال الكود إلى تطبيق تليجرام لديك!';
-          });
-        } else if (authType == 'authorizationStateReady') {
-          setState(() {
-            _isAuthorized = true;
-            _authState = 'ready';
-            _isSubmitting = false;
-            _statusText = 'تم تسجيل الدخول بنجاح!';
-          });
-          _loadChats();
-        }
-      }
-    }
-  }
-
-  Future<void> _sendTdlibParametersAuto() async {
+  Future<void> _sendParameters() async {
+    _addLog('جاري إرسال setTdlibParameters...');
     final Directory appDocDir = await getApplicationDocumentsDirectory();
-    final String dbPath = "${appDocDir.path}/tdlib_db";
+    final String dbPath = "${appDocDir.path}/td_db";
 
-    await _tdlib.invoke(
+    final res = await _tdlib.invoke(
       'setTdlibParameters',
       parameters: {
         'api_id': _apiId,
         'api_hash': _apiHash,
         'system_language_code': 'ar',
         'device_model': 'Android',
-        'system_version': 'Android 12',
         'application_version': '1.0.0',
         'database_directory': dbPath,
         'files_directory': dbPath,
@@ -173,146 +109,70 @@ class _TelegramAuthOrMainScreenState extends State<TelegramAuthOrMainScreen> {
       },
       clientId: _clientId,
     );
+    _addLog('استجابة المفاتيح: ${jsonEncode(res)}');
   }
 
-  Future<void> _sendPhoneNumber() async {
+  Future<void> _submitPhone() async {
     String phone = _phoneController.text.trim();
-
     if (phone.startsWith('+9640')) {
       phone = '+964${phone.substring(5)}';
       _phoneController.text = phone;
     }
 
-    if (phone.isEmpty) {
-      setState(() => _statusText = 'يرجى إدخال رقم الهاتف أولاً');
-      return;
-    }
+    _addLog('جاري إرسال الرقم: $phone');
 
-    setState(() {
-      _isSubmitting = true;
-      _statusText = 'جاري إرسال رقم الهاتف...';
-    });
-    _startTimeout();
+    // إرسال مباشر وبدون قيود
+    await _sendParameters();
 
-    await _tdlib.invoke(
-      'setAuthenticationPhoneNumber',
-      parameters: {
-        'phone_number': phone,
-      },
-      clientId: _clientId,
-    );
-  }
-
-  Future<void> _sendCode() async {
-    final code = _codeController.text.trim();
-    if (code.isEmpty) return;
-
-    setState(() {
-      _isSubmitting = true;
-      _statusText = 'جاري التحقق من الرمز...';
-    });
-    _startTimeout();
-
-    await _tdlib.invoke(
-      'checkAuthenticationCode',
-      parameters: {
-        'code': code,
-      },
-      clientId: _clientId,
-    );
-  }
-
-  Future<void> _loadChats() async {
     final res = await _tdlib.invoke(
-      'getChats',
-      parameters: {'limit': 30},
+      'setAuthenticationPhoneNumber',
+      parameters: {'phone_number': phone},
       clientId: _clientId,
     );
 
-    if (res is Map && res['chat_ids'] is List) {
-      final List chatIds = res['chat_ids'];
-      List<Map<String, dynamic>> loadedChats = [];
-      for (var id in chatIds) {
-        final chatData = await _tdlib.invoke(
-          'getChat',
-          parameters: {'chat_id': id},
-          clientId: _clientId,
-        );
-        if (chatData is Map) {
-          loadedChats.add(Map<String, dynamic>.from(chatData));
-        }
-      }
-      setState(() {
-        _chats = loadedChats;
-      });
-    }
+    _addLog('استجابة إرسال الرقم: ${jsonEncode(res)}');
+  }
+
+  Future<void> _submitCode() async {
+    final code = _codeController.text.trim();
+    _addLog('جاري إرسال كود التحقق: $code');
+
+    final res = await _tdlib.invoke(
+      'checkAuthenticationCode',
+      parameters: {'code': code},
+      clientId: _clientId,
+    );
+
+    _addLog('استجابة كود التحقق: ${jsonEncode(res)}');
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_isAuthorized) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text('تليجرام الأصلي (وضع التخفي)'),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.refresh),
-              onPressed: _loadChats,
-            ),
-          ],
-        ),
-        body: _chats.isEmpty
-            ? const Center(child: Text('لا توجد محادثات محملة حالياً'))
-            : ListView.builder(
-                itemCount: _chats.length,
-                itemBuilder: (context, index) {
-                  final chat = _chats[index];
-                  final title = chat['title'] ?? 'محادثة ${chat['id']}';
-                  return ListTile(
-                    leading: const CircleAvatar(
-                      backgroundColor: Color(0xFF64B5F6),
-                      child: Icon(Icons.person, color: Colors.white),
-                    ),
-                    title: Text(title, style: const TextStyle(color: Colors.white)),
-                    subtitle: Text('ID: ${chat['id']}', style: const TextStyle(color: Colors.grey)),
-                  );
-                },
-              ),
-      );
-    }
-
     return Scaffold(
-      appBar: AppBar(title: const Text('تسجيل الدخول - تليجرام')),
+      appBar: AppBar(title: const Text('تشخيص اتصال تليجرام')),
       body: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: const Color(0xFF242F3D),
-                borderRadius: BorderRadius.circular(8),
+            if (!_showCodeInput) ...[
+              TextField(
+                controller: _phoneController,
+                keyboardType: TextInputType.phone,
+                decoration: const InputDecoration(
+                  labelText: 'رقم الهاتف',
+                  border: OutlineInputBorder(),
+                ),
               ),
-              child: Row(
-                children: [
-                  const Icon(Icons.info_outline, color: Color(0xFF64B5F6), size: 20),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      _statusText,
-                      style: const TextStyle(color: Colors.white70, fontSize: 13),
-                    ),
-                  ),
-                ],
+              const SizedBox(height: 10),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _submitPhone, // مفعل دائماً لقطع التخمين
+                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF64B5F6)),
+                  child: const Text('إرسال الرقم الآن', style: TextStyle(color: Colors.black)),
+                ),
               ),
-            ),
-            const SizedBox(height: 24),
-
-            if (_authState == 'wait_code') ...[
-              const Text('أدخل رمز التحقق الذي وصلك على تطبيق تليجرام'),
-              const SizedBox(height: 12),
+            ] else ...[
               TextField(
                 controller: _codeController,
                 keyboardType: TextInputType.number,
@@ -321,35 +181,41 @@ class _TelegramAuthOrMainScreenState extends State<TelegramAuthOrMainScreen> {
                   border: OutlineInputBorder(),
                 ),
               ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _isSubmitting ? null : _sendCode,
-                style: ElevatedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                child: _isSubmitting
-                    ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                    : const Text('تأكيد الرمز والدخول'),
-              ),
-            ] else ...[
-              const Text('أدخل رقم الهاتف مع الرمز الدولي'),
-              const SizedBox(height: 12),
-              TextField(
-                controller: _phoneController,
-                keyboardType: TextInputType.phone,
-                decoration: const InputDecoration(
-                  labelText: 'رقم الهاتف',
-                  hintText: '+9647700000000',
-                  border: OutlineInputBorder(),
+              const SizedBox(height: 10),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _submitCode,
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                  child: const Text('تأكيد الكود', style: TextStyle(color: Colors.white)),
                 ),
               ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: (_isSubmitting || _authState == 'init') ? null : _sendPhoneNumber,
-                style: ElevatedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                child: _isSubmitting
-                    ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                    : const Text('إرسال رمز التحقق'),
-              ),
             ],
+            const SizedBox(height: 16),
+            const Align(
+              alignment: Alignment.centerRight,
+              child: Text('سجل الأحداث المباشر (Logs):', style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+            const SizedBox(height: 8),
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.black,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.white24),
+                ),
+                child: ListView.builder(
+                  itemCount: _logs.length,
+                  itemBuilder: (context, index) {
+                    return Text(
+                      _logs[index],
+                      style: const TextStyle(color: Colors.greenAccent, fontSize: 12, fontFamily: 'monospace'),
+                    );
+                  },
+                ),
+              ),
+            ),
           ],
         ),
       ),
