@@ -72,12 +72,11 @@ class _TelegramMainScreenState extends State<TelegramMainScreen> {
         ),
       );
 
-    // تفعيل إعدادات السرعة وتسريع الأداء للـ WebView
+    // إعدادات أندرويد للـ WebView
     if (controller.platform is AndroidWebViewController) {
       final AndroidWebViewController androidController =
           controller.platform as AndroidWebViewController;
       androidController.setMediaPlaybackRequiresUserGesture(false);
-      androidController.setDomStorageEnabled(true);
     }
 
     // تحميل النسخة العربية مباشرة
