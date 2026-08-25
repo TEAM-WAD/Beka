@@ -1,42 +1,80 @@
-name: Build Fresh Android APK
+name: Build Telegram APK
 
 on:
   push:
-    branches: [ main, master ]
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
 
-      - name: Set up Java
+    steps:
+      # 1. جلب كود المشروع من GitHub
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. إعداد بيئة Java
+      - name: Set up Java JDK
         uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
+          distribution: 'temurin'
           java-version: '17'
 
+      # 3. إعداد بيئة Flutter
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
+          cache: true
 
-      # إعادة إنشاء مجلد أندرويد وحقن صلاحية الإنترنت مباشرة داخل AndroidManifest.xml
-      - name: Recreate Android Folder & Inject Internet Permission
+      # 4. حذف مجلد الأندرويد القديم وإنشاء مجلد أندرويد جديد
+      - name: Recreate Android Folder
         run: |
           rm -rf android
-          flutter create . --platforms=android --org com.example
-          sed -i '/<application/i \    <uses-permission android:name="android.permission.INTERNET"/>' android/app/src/main/AndroidManifest.xml
+          flutter create . --platforms=android
 
-      - name: Install Dependencies
+      # 5. حقن كامل صلاحيات الأندرويد تلقائياً (الإنترنت، الملفات، الصوت، الكاميرا)
+      - name: Inject All Android Permissions
+        run: |
+          python3 -c "
+          manifest_path = 'android/app/src/main/AndroidManifest.xml'
+          with open(manifest_path, 'r') as f:
+              content = f.read()
+
+          permissions = '''
+              <uses-permission android:name=\"android.permission.INTERNET\"/>
+              <uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\"/>
+              <uses-permission android:name=\"android.permission.ACCESS_WIFI_STATE\"/>
+              <uses-permission android:name=\"android.permission.READ_EXTERNAL_STORAGE\"/>
+              <uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\"/>
+              <uses-permission android:name=\"android.permission.MANAGE_EXTERNAL_STORAGE\"/>
+              <uses-permission android:name=\"android.permission.CAMERA\"/>
+              <uses-permission android:name=\"android.permission.RECORD_AUDIO\"/>
+              <uses-permission android:name=\"android.permission.MODIFY_AUDIO_SETTINGS\"/>
+              <uses-permission android:name=\"android.permission.VIBRATE\"/>
+              <uses-permission android:name=\"android.permission.WAKE_LOCK\"/>
+          '''
+
+          if '<uses-permission' not in content:
+              content = content.replace('<application', permissions + '\n    <application')
+
+          with open(manifest_path, 'w') as f:
+              f.write(content)
+          "
+
+      # 6. تثبيت المكتبات والاعتماديات
+      - name: Install dependencies
         run: flutter pub get
 
-      - name: Build APK
+      # 7. بناء تطبيق الـ APK برقم إصدار Release
+      - name: Build Release APK
         run: flutter build apk --release
 
-      - name: Upload APK Artifact
+      # 8. رفع ملف الـ APK النهائي للتحميل
+      - name: Upload Release APK
         uses: actions/upload-artifact@v4
         with:
-          name: app-release
+          name: Telegram-Release-APK
           path: build/app/outputs/flutter-apk/app-release.apk
