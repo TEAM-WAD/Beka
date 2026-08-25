@@ -1,5 +1,5 @@
 name: telegram_custom_native
-description: "تطبيق تليجرام أصلي مع وضع التخفي باستخدام TDLib"
+description: "Telegram Native App using TDLib"
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -9,11 +9,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_localizations:
-    sdk: flutter
-  telegram_client: ^0.8.5
-  path_provider: ^2.1.2
-  permission_handler: ^11.3.1
+  telegram_client: ^0.8.44
+  telegram_client_android: ^0.8.44
+  cupertino_icons: ^1.0.8
 
 dev_dependencies:
   flutter_test:
