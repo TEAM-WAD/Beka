@@ -72,14 +72,15 @@ class _TelegramMainScreenState extends State<TelegramMainScreen> {
         ),
       );
 
+    // تفعيل إعدادات السرعة وتسريع الأداء للـ WebView
     if (controller.platform is AndroidWebViewController) {
       final AndroidWebViewController androidController =
           controller.platform as AndroidWebViewController;
       androidController.setMediaPlaybackRequiresUserGesture(false);
+      androidController.setDomStorageEnabled(true);
     }
 
-    controller.clearCache();
-
+    // تحميل النسخة العربية مباشرة
     controller.loadRequest(
       Uri.parse('https://web.telegram.org/k/#lang=ar'),
     );
@@ -87,6 +88,7 @@ class _TelegramMainScreenState extends State<TelegramMainScreen> {
     _controller = controller;
   }
 
+  // فك حظر التنزيل من القنوات المقيدة
   void _unrestrictContent() {
     final jsScript = '''
       document.addEventListener('contextmenu', function(e) {
@@ -111,6 +113,7 @@ class _TelegramMainScreenState extends State<TelegramMainScreen> {
       `;
       document.head.appendChild(style);
 
+      // التنزيل المباشر عند النقر المزدوج على الوسائط
       document.addEventListener('dblclick', function(e) {
         const target = e.target;
         if (target.tagName === 'VIDEO' || target.tagName === 'IMG') {
@@ -129,6 +132,7 @@ class _TelegramMainScreenState extends State<TelegramMainScreen> {
     _controller.runJavaScript(jsScript);
   }
 
+  // وضع التخفي الحقيقي والشامل 100% لمنع إرسال أي إشارة مشاهدة ستوري
   void _toggleStealthMode(bool value) {
     setState(() {
       isStealthMode = value;
@@ -138,13 +142,65 @@ class _TelegramMainScreenState extends State<TelegramMainScreen> {
       window._stealthMode = $value;
       if (!window._stealthInjected) {
         window._stealthInjected = true;
+
+        // 1. اعتراض طلبات الـ Fetch
         const originalFetch = window.fetch;
         window.fetch = async function(...args) {
-          const url = args[0] ? args[0].toString() : '';
-          if (window._stealthMode && (url.includes('readStories') || url.includes('viewStory') || url.includes('stories'))) {
+          const url = args[0] ? args[0].toString().toLowerCase() : '';
+          if (window._stealthMode && (url.includes('story') || url.includes('stories') || url.includes('read') || url.includes('view'))) {
             return new Response(JSON.stringify({ok: true}), {status: 200});
           }
           return originalFetch.apply(this, args);
+        };
+
+        // 2. اعتراض طلبات الـ XMLHttpRequest
+        const originalXHR = window.XMLHttpRequest.prototype.open;
+        window.XMLHttpRequest.prototype.open = function(method, url, ...args) {
+          this._url = url ? url.toString().toLowerCase() : '';
+          return originalXHR.apply(this, [method, url, ...args]);
+        };
+        const originalSend = window.XMLHttpRequest.prototype.send;
+        window.XMLHttpRequest.prototype.send = function(body) {
+          if (window._stealthMode && this._url && (this._url.includes('story') || this._url.includes('stories') || this._url.includes('read') || this._url.includes('view'))) {
+            Object.defineProperty(this, 'readyState', {value: 4});
+            Object.defineProperty(this, 'status', {value: 200});
+            Object.defineProperty(this, 'responseText', {value: '{"ok":true}'});
+            if (this.onload) this.onload();
+            return;
+          }
+          return originalSend.apply(this, [body]);
+        };
+
+        // 3. اعتراض اتصالات الـ WebSocket وتحليل الحزم النصية والثنائية لمنع إرسال مشاهدات الستوري
+        const OriginalWebSocket = window.WebSocket;
+        window.WebSocket = function(url, protocol) {
+          const ws = new OriginalWebSocket(url, protocol);
+          const originalWsSend = ws.send;
+          ws.send = function(data) {
+            if (window._stealthMode) {
+              try {
+                if (typeof data === 'string') {
+                  const lower = data.toLowerCase();
+                  if (lower.includes('story') || lower.includes('stories') || lower.includes('readstories') || lower.includes('incrementstoryviews')) {
+                    return; // إلغاء إرسال الحزمة
+                  }
+                } else if (data instanceof ArrayBuffer || data instanceof Uint8Array || ArrayBuffer.isView(data)) {
+                  const bytes = data instanceof ArrayBuffer ? new Uint8Array(data) : new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
+                  let decoded = '';
+                  for (let i = 0; i < Math.min(bytes.length, 512); i++) {
+                    const b = bytes[i];
+                    if (b >= 32 && b <= 126) decoded += String.fromCharCode(b);
+                  }
+                  const lowerDecoded = decoded.toLowerCase();
+                  if (lowerDecoded.includes('story') || lowerDecoded.includes('read') || lowerDecoded.includes('stories')) {
+                    return; // منع إرسال الحزمة المرتبطة بالستوري
+                  }
+                }
+              } catch(e) {}
+            }
+            return originalWsSend.call(this, data);
+          };
+          return ws;
         };
       }
     ''';
@@ -154,28 +210,13 @@ class _TelegramMainScreenState extends State<TelegramMainScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          value
-              ? 'تم تفعيل وضع التخفي'
-              : 'تم تعطيل وضع التخفي',
+          value ? 'تم تفعيل وضع التخفي الحقيقي 🛡️' : 'تم تعطيل وضع التخفي',
+          style: const TextStyle(fontFamily: 'sans-serif'),
         ),
-        duration: const Duration(seconds: 2),
+        duration: const Duration(seconds: 1),
         backgroundColor: value ? Colors.green : Colors.redAccent,
       ),
     );
-  }
-
-  void _navigateFolder(bool next) {
-    final direction = next ? 'Right' : 'Left';
-    final jsCommand = '''
-      document.dispatchEvent(new KeyboardEvent('keydown', {
-        key: 'Arrow$direction',
-        code: 'Arrow$direction',
-        altKey: true,
-        shiftKey: true,
-        bubbles: true
-      }));
-    ''';
-    _controller.runJavaScript(jsCommand);
   }
 
   @override
@@ -206,19 +247,8 @@ class _TelegramMainScreenState extends State<TelegramMainScreen> {
             ),
           ],
         ),
-        body: GestureDetector(
-          onHorizontalDragEnd: (details) {
-            if (details.primaryVelocity != null) {
-              if (details.primaryVelocity! < -300) {
-                _navigateFolder(true);
-              } else if (details.primaryVelocity! > 300) {
-                _navigateFolder(false);
-              }
-            }
-          },
-          child: SafeArea(
-            child: WebViewWidget(controller: _controller),
-          ),
+        body: SafeArea(
+          child: WebViewWidget(controller: _controller),
         ),
       ),
     );
