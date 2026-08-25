@@ -1,5 +1,5 @@
-name: telegramtm_app
-description: "Telegram Web Flutter App"
+name: telegram_custom_native
+description: "تطبيق تليجرام أصلي مع وضع التخفي باستخدام TDLib"
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -11,9 +11,9 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  webview_flutter: ^4.7.0
-  webview_flutter_android: ^3.16.0
-  url_launcher: ^6.3.0
+  telegram_client: ^0.8.5
+  path_provider: ^2.1.2
+  permission_handler: ^11.3.1
 
 dev_dependencies:
   flutter_test:
