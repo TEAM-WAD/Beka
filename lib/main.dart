@@ -41,17 +41,16 @@ class _TelegramAuthOrMainScreenState extends State<TelegramAuthOrMainScreen> {
   final Tdlib _tdlib = Tdlib();
   final int _clientId = 1;
 
-  bool _isInitializing = true;
-  bool _isAuthorized = false;
+  // مفاتيح API الرسمية مدمجة تلقائياً لتخطي خطوة الإدخال اليدوي
+  final int _apiId = 94575;
+  final String _apiHash = 'a3406de8d171326e3c403d80a9b00a9c';
+
   bool _isSubmitting = false;
-  
-  String _authState = 'wait_parameters'; // wait_parameters, wait_phone, wait_code, ready
-  String _statusMessage = 'جاري التهيئة...';
+  bool _isAuthorized = false;
+  String _authState = 'loading'; // loading, wait_phone, wait_code, ready
 
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _codeController = TextEditingController();
-  final TextEditingController _apiIdController = TextEditingController();
-  final TextEditingController _apiHashController = TextEditingController();
 
   List<Map<String, dynamic>> _chats = [];
 
@@ -70,15 +69,8 @@ class _TelegramAuthOrMainScreenState extends State<TelegramAuthOrMainScreen> {
           _handleUpdate(Map<String, dynamic>.from(update.raw));
         }
       });
-
-      setState(() {
-        _isInitializing = false;
-      });
     } catch (e) {
-      setState(() {
-        _isInitializing = false;
-        _statusMessage = 'خطأ في تهيئة المكتبة: $e';
-      });
+      debugPrint('TDLib Init Error: $e');
     }
   }
 
@@ -88,42 +80,38 @@ class _TelegramAuthOrMainScreenState extends State<TelegramAuthOrMainScreen> {
       final authState = update['authorization_state'];
       if (authState != null && authState is Map) {
         final authType = authState['@type'];
-        setState(() {
-          _isSubmitting = false;
-          if (authType == 'authorizationStateWaitTdlibParameters') {
-            _authState = 'wait_parameters';
-          } else if (authType == 'authorizationStateWaitPhoneNumber') {
+        
+        // إرسال الإعدادات تلقائياً بمجرد طلب TDLib لها
+        if (authType == 'authorizationStateWaitTdlibParameters') {
+          _sendTdlibParametersAuto();
+        } else if (authType == 'authorizationStateWaitPhoneNumber') {
+          setState(() {
             _authState = 'wait_phone';
-          } else if (authType == 'authorizationStateWaitCode') {
+            _isSubmitting = false;
+          });
+        } else if (authType == 'authorizationStateWaitCode') {
+          setState(() {
             _authState = 'wait_code';
-          } else if (authType == 'authorizationStateReady') {
+            _isSubmitting = false;
+          });
+        } else if (authType == 'authorizationStateReady') {
+          setState(() {
             _isAuthorized = true;
             _authState = 'ready';
-            _loadChats();
-          }
-        });
+            _isSubmitting = false;
+          });
+          _loadChats();
+        }
       }
     }
   }
 
-  Future<void> _sendTdlibParameters() async {
-    final apiId = int.tryParse(_apiIdController.text.trim()) ?? 0;
-    final apiHash = _apiHashController.text.trim();
-
-    if (apiId == 0 || apiHash.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('يرجى إدخال API ID و API Hash')),
-      );
-      return;
-    }
-
-    setState(() => _isSubmitting = true);
-
+  Future<void> _sendTdlibParametersAuto() async {
     await _tdlib.invoke(
       'setTdlibParameters',
       parameters: {
-        'api_id': apiId,
-        'api_hash': apiHash,
+        'api_id': _apiId,
+        'api_hash': _apiHash,
         'system_language_code': 'ar',
         'device_model': 'Android Mobile',
         'application_version': '1.0.0',
@@ -225,130 +213,97 @@ class _TelegramAuthOrMainScreenState extends State<TelegramAuthOrMainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isInitializing) {
+    if (_isAuthorized) {
       return Scaffold(
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const CircularProgressIndicator(),
-              const SizedBox(height: 16),
-              Text(_statusMessage, style: const TextStyle(color: Colors.white70)),
-            ],
-          ),
+        appBar: AppBar(
+          title: const Text('محادثات تليجرام (وضع التخفي)'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: _loadChats,
+            ),
+          ],
         ),
-      );
-    }
-
-    if (!_isAuthorized) {
-      return Scaffold(
-        appBar: AppBar(title: const Text('تسجيل الدخول - تليجرام الأصلي')),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(height: 20),
-              TextField(
-                controller: _apiIdController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'API ID',
-                  border: OutlineInputBorder(),
-                ),
+        body: _chats.isEmpty
+            ? const Center(child: Text('لا توجد محادثات محملة حالياً'))
+            : ListView.builder(
+                itemCount: _chats.length,
+                itemBuilder: (context, index) {
+                  final chat = _chats[index];
+                  final title = chat['title'] ?? 'محادثة ${chat['id']}';
+                  return ListTile(
+                    leading: const CircleAvatar(
+                      backgroundColor: Color(0xFF64B5F6),
+                      child: Icon(Icons.person, color: Colors.white),
+                    ),
+                    title: Text(title, style: const TextStyle(color: Colors.white)),
+                    subtitle: Text('ID: ${chat['id']}', style: const TextStyle(color: Colors.grey)),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.visibility_off, color: Colors.lightBlueAccent),
+                      tooltip: 'مشاهدة الاستوري بدون علم صاحبها',
+                      onPressed: () => _viewStoryStealth(chat['id'], 1),
+                    ),
+                  );
+                },
               ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: _apiHashController,
-                decoration: const InputDecoration(
-                  labelText: 'API Hash',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 12),
-              ElevatedButton(
-                onPressed: _isSubmitting ? null : _sendTdlibParameters,
-                child: _isSubmitting
-                    ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                    : const Text('1. إرسال مفاتيح API'),
-              ),
-              const Divider(height: 40),
-              if (_authState == 'wait_phone' || _authState == 'wait_parameters') ...[
-                TextField(
-                  controller: _phoneController,
-                  keyboardType: TextInputType.phone,
-                  decoration: const InputDecoration(
-                    labelText: 'رقم الهاتف (مع الرمز الدولي)',
-                    hintText: '+964xxxxxxxxx',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: _isSubmitting ? null : _sendPhoneNumber,
-                  style: ElevatedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                  child: _isSubmitting
-                      ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                      : const Text('2. إرسال رقم الهاتف'),
-                ),
-              ],
-              if (_authState == 'wait_code') ...[
-                const SizedBox(height: 16),
-                TextField(
-                  controller: _codeController,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: 'رمز التحقق (SMS Code)',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: _isSubmitting ? null : _sendCode,
-                  style: ElevatedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                  child: _isSubmitting
-                      ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                      : const Text('3. تأكيد الرمز ودخول التطبيق'),
-                ),
-              ],
-            ],
-          ),
-        ),
       );
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('محادثات تليجرام (وضع التخفي)'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadChats,
-          ),
-        ],
+      appBar: AppBar(title: const Text('تسجيل الدخول - تليجرام')),
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (_authState == 'loading') ...[
+              const Center(child: CircularProgressIndicator()),
+              const SizedBox(height: 16),
+              const Text('جاري الاتصال بسيرفرات تليجرام...', textAlign: TextAlign.center),
+            ] else if (_authState == 'wait_phone') ...[
+              const Text('أدخل رقم الهاتف مع الرمز الدولي', style: TextStyle(fontSize: 16)),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _phoneController,
+                keyboardType: TextInputType.phone,
+                decoration: const InputDecoration(
+                  labelText: 'رقم الهاتف',
+                  hintText: '+9647700000000',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _isSubmitting ? null : _sendPhoneNumber,
+                style: ElevatedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                child: _isSubmitting
+                    ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                    : const Text('إرسال رمز التحقق'),
+              ),
+            ] else if (_authState == 'wait_code') ...[
+              const Text('أدخل رمز التحقق الذي وصلك على تليجرام', style: TextStyle(fontSize: 16)),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _codeController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'رمز التحقق (Code)',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _isSubmitting ? null : _sendCode,
+                style: ElevatedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                child: _isSubmitting
+                    ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                    : const Text('تأكيد الرمز والدخول'),
+              ),
+            ],
+          ],
+        ),
       ),
-      body: _chats.isEmpty
-          ? const Center(child: Text('لا توجد محادثات محملة حالياً'))
-          : ListView.builder(
-              itemCount: _chats.length,
-              itemBuilder: (context, index) {
-                final chat = _chats[index];
-                final title = chat['title'] ?? 'محادثة ${chat['id']}';
-                return ListTile(
-                  leading: const CircleAvatar(
-                    backgroundColor: Color(0xFF64B5F6),
-                    child: Icon(Icons.person, color: Colors.white),
-                  ),
-                  title: Text(title, style: const TextStyle(color: Colors.white)),
-                  subtitle: Text('ID: ${chat['id']}', style: const TextStyle(color: Colors.grey)),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.visibility_off, color: Colors.lightBlueAccent),
-                    tooltip: 'مشاهدة الاستوري بدون علم صاحبها',
-                    onPressed: () => _viewStoryStealth(chat['id'], 1),
-                  ),
-                );
-              },
-            ),
     );
   }
 }
