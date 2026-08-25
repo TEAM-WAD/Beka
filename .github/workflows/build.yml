@@ -1,4 +1,4 @@
-name: Build Release APK
+name: Build Fresh Android APK
 
 on:
   push:
@@ -21,6 +21,12 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
+
+      # حذف مجلد أندرويد القديم وإنشاء مجلد جديد خالي من الأخطاء
+      - name: Recreate Android Folder
+        run: |
+          rm -rf android
+          flutter create . --platforms=android --org com.example
 
       - name: Install Dependencies
         run: flutter pub get
