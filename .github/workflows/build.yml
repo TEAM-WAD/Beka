@@ -22,8 +22,8 @@ jobs:
         with:
           channel: 'stable'
 
-      # حذف مجلد أندرويد القديم وإنشاء مجلد جديد خالي من الأخطاء
-      - name: Recreate Android Folder
+      # إعادة إنشاء مجلد أندرويد وإضافة صلاحية الإنترنت تلقائياً
+      - name: Recreate Android Folder & Add Permissions
         run: |
           rm -rf android
           flutter create . --platforms=android --org com.example
