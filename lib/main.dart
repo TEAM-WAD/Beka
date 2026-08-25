@@ -1,23 +1,19 @@
-import 'dart:async';
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:telegram_client/telegram_client.dart';
 
-void main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const NativeTelegramApp());
+  runApp(const TelegramApp());
 }
 
-class NativeTelegramApp extends StatelessWidget {
-  const NativeTelegramApp({super.key});
+class TelegramApp extends StatelessWidget {
+  const TelegramApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      title: 'Telegram Native Custom',
       debugShowCheckedModeBanner: false,
-      title: 'تليجرام الأصلي',
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: const Color(0xFF17212B),
         appBarTheme: const AppBarTheme(
@@ -25,17 +21,10 @@ class NativeTelegramApp extends StatelessWidget {
           elevation: 0,
         ),
         colorScheme: const ColorScheme.dark(
-          primary: Color(0xFF5288C1),
+          primary: Color(0xFF64B5F6),
           surface: Color(0xFF242F3D),
         ),
       ),
-      locale: const Locale('ar', 'IQ'),
-      supportedLocales: const [Locale('ar', 'IQ'), Locale('ar')],
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
       home: const TelegramAuthOrMainScreen(),
     );
   }
@@ -45,145 +34,201 @@ class TelegramAuthOrMainScreen extends StatefulWidget {
   const TelegramAuthOrMainScreen({super.key});
 
   @override
-  State<TelegramAuthOrMainScreen> meState() => _TelegramAuthOrMainScreenState();
+  State<TelegramAuthOrMainScreen> createState() => _TelegramAuthOrMainScreenState();
 }
 
 class _TelegramAuthOrMainScreenState extends State<TelegramAuthOrMainScreen> {
-  late TelegramClient tgClient;
-  bool isInitialized = false;
-  bool isAuthenticated = false;
-  bool isStealthMode = true; // مفعل افتراضياً لحمايتك 100%
+  final Tdlib _tdlib = Tdlib();
+  int _clientId = 0;
+  
+  bool _isLoading = true;
+  bool _isAuthorized = false;
+  String _authState = 'wait_parameters'; // wait_parameters, wait_phone, wait_code, ready
+  
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _codeController = TextEditingController();
+  final TextEditingController _apiIdController = TextEditingController();
+  final TextEditingController _apiHashController = TextEditingController();
 
-  // أدخل بيانات API الخاصة بك من my.telegram.org (أو استخدم القيم الافتراضية)
-  final int apiId = 94575; // API ID افتراضي
-  final String apiHash = "a3406de8d171326e3c403d80a9b00a9c";
-
-  final TextEditingController phoneController = TextEditingController();
-  final TextEditingController codeController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-
-  String authState = "WAIT_PHONE"; // WAIT_PHONE, WAIT_CODE, WAIT_PASSWORD, READY
-  List<Map<String, dynamic>> chats = [];
+  List<Map<String, dynamic>> _chats = [];
+  String _statusMessage = 'جاري التهيئة...';
 
   @override
   void initState() {
     super.initState();
-    _initTDLib();
+    _initTdlib();
   }
 
-  Future<void> _initTDLib() async {
-    final Directory appDocDir = await getApplicationDocumentsDirectory();
-    final String dbPath = "${appDocDir.path}/tdlib_data";
+  Future<void> _initTdlib() async {
+    try {
+      _clientId = _tdlib.createclient();
+      
+      _tdlib.on(_tdlib.event_update, (UpdateTelegramClientTdlib update) {
+        if (update.client_id == _clientId && update.raw is Map) {
+          _handleUpdate(Map<String, dynamic>.from(update.raw));
+        }
+      });
 
-    tgClient = TelegramClient(
-      api_id: apiId,
-      api_hash: apiHash,
-      db_path: dbPath,
+      setState(() {
+        _isLoading = false;
+        _statusMessage = 'جاهز للتسجيل';
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _statusMessage = 'خطأ في تهيئة TDLib: $e';
+      });
+    }
+  }
+
+  void _handleUpdate(Map<String, dynamic> update) {
+    final type = update['@type'];
+    if (type == 'updateAuthorizationState') {
+      final authState = update['authorization_state'];
+      if (authState != null && authState is Map) {
+        final authType = authState['@type'];
+        setState(() {
+          if (authType == 'authorizationStateWaitTdlibParameters') {
+            _authState = 'wait_parameters';
+          } else if (authType == 'authorizationStateWaitPhoneNumber') {
+            _authState = 'wait_phone';
+          } else if (authType == 'authorizationStateWaitCode') {
+            _authState = 'wait_code';
+          } else if (authType == 'authorizationStateReady') {
+            _isAuthorized = true;
+            _authState = 'ready';
+            _loadChats();
+          }
+        });
+      }
+    }
+  }
+
+  Future<void> _sendTdlibParameters() async {
+    final apiId = int.tryParse(_apiIdController.text.trim()) ?? 0;
+    final apiHash = _apiHashController.text.trim();
+
+    if (apiId == 0 || apiHash.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('يرجى إدخال API ID و API Hash بشكل صحيح')),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    await _tdlib.invoke(
+      'setTdlibParameters',
+      parameters: {
+        'api_id': apiId,
+        'api_hash': apiHash,
+        'system_language_code': 'ar',
+        'device_model': 'Android Mobile',
+        'application_version': '1.0.0',
+        'use_secret_chats': true,
+        'use_message_database': true,
+        'use_file_database': true,
+      },
+      clientId: _clientId,
     );
 
-    // الاستماع للتحديثات الصادرة من TDLib
-    tgClient.on('updateAuthorizationState', (update) {
-      final auth = update['authorization_state'];
-      if (auth != null) {
-        final type = auth['@type'];
-        if (type == 'authorizationStateWaitPhoneNumber') {
-          setState(() => authState = "WAIT_PHONE");
-        } else if (type == 'authorizationStateWaitCode') {
-          setState(() => authState = "WAIT_CODE");
-        } else if (type == 'authorizationStateWaitPassword') {
-          setState(() => authState = "WAIT_PASSWORD");
-        } else if (type == 'authorizationStateReady') {
-          setState(() {
-            isAuthenticated = true;
-            authState = "READY";
-          });
-          _loadChats();
-        }
-      }
-    });
-
-    tgClient.init();
-    setState(() => isInitialized = true);
+    setState(() => _isLoading = false);
   }
 
-  // تسجيل الدخول ورقم الهاتف
-  void _sendPhoneNumber() {
-    if (phoneController.text.isNotEmpty) {
-      tgClient.send({
-        '@type': 'setAuthenticationPhoneNumber',
-        'phone_number': phoneController.text.trim(),
-      });
-    }
+  Future<void> _sendPhoneNumber() async {
+    final phone = _phoneController.text.trim();
+    if (phone.isEmpty) return;
+
+    setState(() => _isLoading = true);
+
+    await _tdlib.invoke(
+      'setAuthenticationPhoneNumber',
+      parameters: {
+        'phone_number': phone,
+      },
+      clientId: _clientId,
+    );
+
+    setState(() => _isLoading = false);
   }
 
-  // إرسال كود التحقق
-  void _sendCode() {
-    if (codeController.text.isNotEmpty) {
-      tgClient.send({
-        '@type': 'checkAuthenticationCode',
-        'code': codeController.text.trim(),
-      });
-    }
+  Future<void> _sendCode() async {
+    final code = _codeController.text.trim();
+    if (code.isEmpty) return;
+
+    setState(() => _isLoading = true);
+
+    await _tdlib.invoke(
+      'checkAuthenticationCode',
+      parameters: {
+        'code': code,
+      },
+      clientId: _clientId,
+    );
+
+    setState(() => _isLoading = false);
   }
 
-  // إرسال كلمة المرور (التحقق بخطوتين إن وجد)
-  void _sendPassword() {
-    if (passwordController.text.isNotEmpty) {
-      tgClient.send({
-        '@type': 'checkAuthenticationPassword',
-        'password': passwordController.text.trim(),
-      });
-    }
-  }
-
-  // تحميل قائمة المحادثات الأصيلة عبر TDLib
   Future<void> _loadChats() async {
-    final res = await tgClient.request({
-      '@type': 'getChats',
-      'limit': 50,
-    });
-    if (res != null && res['chat_ids'] != null) {
+    setState(() => _isLoading = true);
+
+    final res = await _tdlib.invoke(
+      'getChats',
+      parameters: {
+        'limit': 30,
+      },
+      clientId: _clientId,
+    );
+
+    if (res is Map && res['chat_ids'] is List) {
       final List chatIds = res['chat_ids'];
-      List<Map<String, dynamic>> tempChats = [];
+      List<Map<String, dynamic>> loadedChats = [];
       for (var id in chatIds) {
-        final chatData = await tgClient.request({
-          '@type': 'getChat',
-          'chat_id': id,
-        });
-        if (chatData != null) {
-          tempChats.add(chatData);
+        final chatData = await _tdlib.invoke(
+          'getChat',
+          parameters: {'chat_id': id},
+          clientId: _clientId,
+        );
+        if (chatData is Map) {
+          loadedChats.add(Map<String, dynamic>.from(chatData));
         }
       }
       setState(() {
-        chats = tempChats;
+        _chats = loadedChats;
       });
     }
+
+    setState(() => _isLoading = false);
   }
 
-  // فتح وتصفح الستوري بحماية التخفي الحقيقية (Ghost Mode)
-  Future<void> _openStorySafely(int storyId, int senderUserId) async {
-    // 1. جلب بيانات الستوري دون إرسال إشارة قراءة
-    final storyData = await tgClient.request({
-      '@type': 'getStory',
-      'story_id': storyId,
-      'sender_user_id': senderUserId,
-    });
-
-    if (!isStealthMode) {
-      // إذا كان وضع التخفي معطلاً، يرسل أمر القراءة عادي
-      tgClient.send({
-        '@type': 'openStory',
+  /// مشاهدة الاستوري بدون إرسال إشعار للمرسل (وضع التخفي Stealth Mode)
+  Future<void> _viewStoryStealth(int chatId, int storyId) async {
+    // نجلب بيانات وسائط الاستوري دون استدعاء openStory أو viewMessages
+    final storyData = await _tdlib.invoke(
+      'getStory',
+      parameters: {
+        'story_sender_chat_id': chatId,
         'story_id': storyId,
-        'sender_user_id': senderUserId,
-      });
-    } else {
-      // 🛡️ في وضع التخفي: لا نرسل أمر openStory لسيرفر تليجرام إطلاقاً!
-      // نقوم بعرض الوسائط وتصفحها محلية 100% دون أن علم تليجرام.
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('🛡️ تم فتح الستوري بوضع التخفي المطلق (لم يتم تسجيل مشاهدتك)'),
-          backgroundColor: Colors.green,
-          duration: Duration(seconds: 2),
+      },
+      clientId: _clientId,
+    );
+
+    if (mounted) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          backgroundColor: const Color(0xFF242F3D),
+          title: const Text('مشاهدة الاستوري (مخفي)', style: TextStyle(color: Colors.white)),
+          content: Text(
+            'تم جلب الاستوري بنجاح دون إرسال إشعار مشاهدة للسيرفر!\n\n$storyData',
+            style: const TextStyle(color: Colors.white70),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('إغلاق'),
+            ),
+          ],
         ),
       );
     }
@@ -191,148 +236,120 @@ class _TelegramAuthOrMainScreenState extends State<TelegramAuthOrMainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (!isInitialized) {
-      return const Scaffold(
+    if (_isLoading) {
+      return Scaffold(
         body: Center(
-          child: CircularProgressIndicator(color: Color(0xFF5288C1)),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const CircularProgressIndicator(),
+              const SizedBox(height: 16),
+              Text(_statusMessage, style: const TextStyle(color: Colors.white70)),
+            ],
+          ),
         ),
       );
     }
 
-    if (!isAuthenticated) {
-      return _buildAuthScreen();
-    }
-
-    return _buildHomeScreen();
-  }
-
-  // واجهة تسجيل الدخول الأصيلة
-  Widget _buildAuthScreen() {
-    return Scaffold(
-      appBar: AppBar(title: const Text('تسجيل الدخول - تليجرام')),
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (authState == "WAIT_PHONE") ...[
-              const Text('أدخل رقم الهاتف مع رمز الدولة (مثال: +9647700000000)',
-                  textAlign: TextAlign.center, style: TextStyle(fontSize: 16)),
-              const SizedBox(height: 16),
+    if (!_isAuthorized) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('تسجيل الدخول - تليجرام الأصلي')),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: 20),
               TextField(
-                controller: phoneController,
-                keyboardType: TextInputType.phone,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'رقم الهاتف',
-                  prefixIcon: Icon(Icons.phone),
-                ),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _sendPhoneNumber,
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size.fromHeight(50),
-                  backgroundColor: const Color(0xFF5288C1),
-                ),
-                child: const Text('متابعة', style: TextStyle(color: Colors.white, fontSize: 16)),
-              ),
-            ] else if (authState == "WAIT_CODE") ...[
-              const Text('أدخل رمز التحقق الذي وصلك على تليجرام',
-                  textAlign: TextAlign.center, style: TextStyle(fontSize: 16)),
-              const SizedBox(height: 16),
-              TextField(
-                controller: codeController,
+                controller: _apiIdController,
                 keyboardType: TextInputType.number,
                 decoration: const InputDecoration(
+                  labelText: 'API ID',
                   border: OutlineInputBorder(),
-                  labelText: 'رمز التحقق',
-                  prefixIcon: Icon(Icons.security),
                 ),
               ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _sendCode,
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size.fromHeight(50),
-                  backgroundColor: const Color(0xFF5288C1),
-                ),
-                child: const Text('تأكيد الرمز', style: TextStyle(color: Colors.white, fontSize: 16)),
-              ),
-            ] else if (authState == "WAIT_PASSWORD") ...[
-              const Text('أدخل كلمة سر التحقق بخطوتين (2FA)',
-                  textAlign: TextAlign.center, style: TextStyle(fontSize: 16)),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               TextField(
-                controller: passwordController,
-                obscureText: true,
+                controller: _apiHashController,
                 decoration: const InputDecoration(
+                  labelText: 'API Hash',
                   border: OutlineInputBorder(),
-                  labelText: 'كلمة السر',
-                  prefixIcon: Icon(Icons.lock),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               ElevatedButton(
-                onPressed: _sendPassword,
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size.fromHeight(50),
-                  backgroundColor: const Color(0xFF5288C1),
-                ),
-                child: const Text('دخول', style: TextStyle(color: Colors.white, fontSize: 16)),
+                onPressed: _sendTdlibParameters,
+                child: const Text('1. إرسال مفاتيح API'),
               ),
+              const Divider(height: 40),
+              if (_authState == 'wait_phone' || _authState == 'wait_parameters') ...[
+                TextField(
+                  controller: _phoneController,
+                  keyboardType: TextInputType.phone,
+                  decoration: const InputDecoration(
+                    labelText: 'رقم الهاتف (مع الرمز الدولي)',
+                    hintText: '+964xxxxxxxxx',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: _sendPhoneNumber,
+                  style: ElevatedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                  child: const Text('2. إرسال رقم الهاتف'),
+                ),
+              ],
+              if (_authState == 'wait_code') ...[
+                TextField(
+                  controller: _codeController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: 'رمز التحقق (SMS Code)',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: _sendCode,
+                  style: ElevatedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                  child: const Text('3. تأكيد الرمز ودخول التطبيق'),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
-      ),
-    );
-  }
+      );
+    }
 
-  // واجهة المحادثات الرئيسية الاصيلة
-  Widget _buildHomeScreen() {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('تليجرام الاصلي (TDLib)'),
+        title: const Text('محادثات تليجرام (وضع التخفي)'),
         actions: [
-          Row(
-            children: [
-              Icon(
-                isStealthMode ? Icons.visibility_off : Icons.visibility,
-                color: isStealthMode ? Colors.greenAccent : Colors.grey,
-              ),
-              const SizedBox(width: 4),
-              Switch(
-                value: isStealthMode,
-                activeColor: Colors.greenAccent,
-                onChanged: (val) {
-                  setState(() => isStealthMode = val);
-                },
-              ),
-            ],
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _loadChats,
           ),
         ],
       ),
-      body: chats.isEmpty
-          ? const Center(child: CircularProgressIndicator(color: Color(0xFF5288C1)))
+      body: _chats.isEmpty
+          ? const Center(child: Text('لا توجد محادثات محملة حالياً'))
           : ListView.builder(
-              itemCount: chats.length,
+              itemCount: _chats.length,
               itemBuilder: (context, index) {
-                final chat = chats[index];
-                final String title = chat['title'] ?? 'محادثة';
+                final chat = _chats[index];
+                final title = chat['title'] ?? 'محادثة ${chat['id']}';
                 return ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: const Color(0xFF5288C1),
-                    child: Text(title.isNotEmpty ? title[0] : 'T'),
+                  leading: const CircleAvatar(
+                    backgroundColor: Color(0xFF64B5F6),
+                    child: Icon(Icons.person, color: Colors.white),
                   ),
-                  title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: Text(
-                    chat['last_message']?['content']?['text']?['text'] ?? 'رسالة...',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  title: Text(title, style: const TextStyle(color: Colors.white)),
+                  subtitle: Text('ID: ${chat['id']}', style: const TextStyle(color: Colors.grey)),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.visibility_off, color: Colors.lightBlueAccent),
+                    tooltip: 'مشاهدة الاستوري بدون علم صاحبها',
+                    onPressed: () => _viewStoryStealth(chat['id'], 1),
                   ),
-                  onTap: () {
-                    // فتح المحادثة الأصيلة
-                  },
                 );
               },
             ),
