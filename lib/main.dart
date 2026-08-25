@@ -39,19 +39,21 @@ class TelegramAuthOrMainScreen extends StatefulWidget {
 
 class _TelegramAuthOrMainScreenState extends State<TelegramAuthOrMainScreen> {
   final Tdlib _tdlib = Tdlib();
-  int _clientId = 1;
-  
-  bool _isLoading = true;
+  final int _clientId = 1;
+
+  bool _isInitializing = true;
   bool _isAuthorized = false;
-  String _authState = 'wait_parameters';
+  bool _isSubmitting = false;
   
+  String _authState = 'wait_parameters'; // wait_parameters, wait_phone, wait_code, ready
+  String _statusMessage = 'جاري التهيئة...';
+
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _codeController = TextEditingController();
   final TextEditingController _apiIdController = TextEditingController();
   final TextEditingController _apiHashController = TextEditingController();
 
   List<Map<String, dynamic>> _chats = [];
-  String _statusMessage = 'جاري التهيئة...';
 
   @override
   void initState() {
@@ -61,10 +63,8 @@ class _TelegramAuthOrMainScreenState extends State<TelegramAuthOrMainScreen> {
 
   Future<void> _initTdlib() async {
     try {
-      // إسناد clientId صريحاً لإصلاح خطأ البناء
-      _clientId = 1;
       _tdlib.createclient(clientId: _clientId);
-      
+
       _tdlib.on(_tdlib.event_update, (UpdateTelegramClientTdlib update) {
         if (update.client_id == _clientId && update.raw is Map) {
           _handleUpdate(Map<String, dynamic>.from(update.raw));
@@ -72,13 +72,12 @@ class _TelegramAuthOrMainScreenState extends State<TelegramAuthOrMainScreen> {
       });
 
       setState(() {
-        _isLoading = false;
-        _statusMessage = 'جاهز للتسجيل';
+        _isInitializing = false;
       });
     } catch (e) {
       setState(() {
-        _isLoading = false;
-        _statusMessage = 'خطأ في تهيئة TDLib: $e';
+        _isInitializing = false;
+        _statusMessage = 'خطأ في تهيئة المكتبة: $e';
       });
     }
   }
@@ -90,6 +89,7 @@ class _TelegramAuthOrMainScreenState extends State<TelegramAuthOrMainScreen> {
       if (authState != null && authState is Map) {
         final authType = authState['@type'];
         setState(() {
+          _isSubmitting = false;
           if (authType == 'authorizationStateWaitTdlibParameters') {
             _authState = 'wait_parameters';
           } else if (authType == 'authorizationStateWaitPhoneNumber') {
@@ -112,12 +112,12 @@ class _TelegramAuthOrMainScreenState extends State<TelegramAuthOrMainScreen> {
 
     if (apiId == 0 || apiHash.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('يرجى إدخال API ID و API Hash بشكل صحيح')),
+        const SnackBar(content: Text('يرجى إدخال API ID و API Hash')),
       );
       return;
     }
 
-    setState(() => _isLoading = true);
+    setState(() => _isSubmitting = true);
 
     await _tdlib.invoke(
       'setTdlibParameters',
@@ -127,21 +127,20 @@ class _TelegramAuthOrMainScreenState extends State<TelegramAuthOrMainScreen> {
         'system_language_code': 'ar',
         'device_model': 'Android Mobile',
         'application_version': '1.0.0',
+        'database_directory': '/data/user/0/com.example.telegram_custom_native/app_flutter/tdlib',
         'use_secret_chats': true,
         'use_message_database': true,
         'use_file_database': true,
       },
       clientId: _clientId,
     );
-
-    setState(() => _isLoading = false);
   }
 
   Future<void> _sendPhoneNumber() async {
     final phone = _phoneController.text.trim();
     if (phone.isEmpty) return;
 
-    setState(() => _isLoading = true);
+    setState(() => _isSubmitting = true);
 
     await _tdlib.invoke(
       'setAuthenticationPhoneNumber',
@@ -150,15 +149,13 @@ class _TelegramAuthOrMainScreenState extends State<TelegramAuthOrMainScreen> {
       },
       clientId: _clientId,
     );
-
-    setState(() => _isLoading = false);
   }
 
   Future<void> _sendCode() async {
     final code = _codeController.text.trim();
     if (code.isEmpty) return;
 
-    setState(() => _isLoading = true);
+    setState(() => _isSubmitting = true);
 
     await _tdlib.invoke(
       'checkAuthenticationCode',
@@ -167,18 +164,12 @@ class _TelegramAuthOrMainScreenState extends State<TelegramAuthOrMainScreen> {
       },
       clientId: _clientId,
     );
-
-    setState(() => _isLoading = false);
   }
 
   Future<void> _loadChats() async {
-    setState(() => _isLoading = true);
-
     final res = await _tdlib.invoke(
       'getChats',
-      parameters: {
-        'limit': 30,
-      },
+      parameters: {'limit': 30},
       clientId: _clientId,
     );
 
@@ -199,8 +190,6 @@ class _TelegramAuthOrMainScreenState extends State<TelegramAuthOrMainScreen> {
         _chats = loadedChats;
       });
     }
-
-    setState(() => _isLoading = false);
   }
 
   Future<void> _viewStoryStealth(int chatId, int storyId) async {
@@ -220,7 +209,7 @@ class _TelegramAuthOrMainScreenState extends State<TelegramAuthOrMainScreen> {
           backgroundColor: const Color(0xFF242F3D),
           title: const Text('مشاهدة الاستوري (مخفي)', style: TextStyle(color: Colors.white)),
           content: Text(
-            'تم جلب الاستوري بنجاح دون إرسال إشعار مشاهدة للسيرفر!\n\n$storyData',
+            'تم جلب الاستوري بنجاح دون تسجيل أي مشاهدة للسيرفر!\n\n$storyData',
             style: const TextStyle(color: Colors.white70),
           ),
           actions: [
@@ -236,7 +225,7 @@ class _TelegramAuthOrMainScreenState extends State<TelegramAuthOrMainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
+    if (_isInitializing) {
       return Scaffold(
         body: Center(
           child: Column(
@@ -278,8 +267,10 @@ class _TelegramAuthOrMainScreenState extends State<TelegramAuthOrMainScreen> {
               ),
               const SizedBox(height: 12),
               ElevatedButton(
-                onPressed: _sendTdlibParameters,
-                child: const Text('1. إرسال مفاتيح API'),
+                onPressed: _isSubmitting ? null : _sendTdlibParameters,
+                child: _isSubmitting
+                    ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                    : const Text('1. إرسال مفاتيح API'),
               ),
               const Divider(height: 40),
               if (_authState == 'wait_phone' || _authState == 'wait_parameters') ...[
@@ -294,12 +285,15 @@ class _TelegramAuthOrMainScreenState extends State<TelegramAuthOrMainScreen> {
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
-                  onPressed: _sendPhoneNumber,
+                  onPressed: _isSubmitting ? null : _sendPhoneNumber,
                   style: ElevatedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                  child: const Text('2. إرسال رقم الهاتف'),
+                  child: _isSubmitting
+                      ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                      : const Text('2. إرسال رقم الهاتف'),
                 ),
               ],
               if (_authState == 'wait_code') ...[
+                const SizedBox(height: 16),
                 TextField(
                   controller: _codeController,
                   keyboardType: TextInputType.number,
@@ -310,9 +304,11 @@ class _TelegramAuthOrMainScreenState extends State<TelegramAuthOrMainScreen> {
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
-                  onPressed: _sendCode,
+                  onPressed: _isSubmitting ? null : _sendCode,
                   style: ElevatedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                  child: const Text('3. تأكيد الرمز ودخول التطبيق'),
+                  child: _isSubmitting
+                      ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                      : const Text('3. تأكيد الرمز ودخول التطبيق'),
                 ),
               ],
             ],
