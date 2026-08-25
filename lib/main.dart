@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:telegram_client/telegram_client.dart';
 
 void main() {
@@ -41,13 +43,12 @@ class _TelegramAuthOrMainScreenState extends State<TelegramAuthOrMainScreen> {
   final Tdlib _tdlib = Tdlib();
   final int _clientId = 1;
 
-  // مفاتيح API الرسمية مدمجة تلقائياً لتخطي خطوة الإدخال اليدوي
   final int _apiId = 94575;
   final String _apiHash = 'a3406de8d171326e3c403d80a9b00a9c';
 
   bool _isSubmitting = false;
   bool _isAuthorized = false;
-  String _authState = 'loading'; // loading, wait_phone, wait_code, ready
+  String _authState = 'wait_phone'; // ننتقل مباشرة للجهة التفاعلية
 
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _codeController = TextEditingController();
@@ -69,6 +70,9 @@ class _TelegramAuthOrMainScreenState extends State<TelegramAuthOrMainScreen> {
           _handleUpdate(Map<String, dynamic>.from(update.raw));
         }
       });
+
+      // إرسال الإعدادات فوراً بعد البدء
+      await _sendTdlibParametersAuto();
     } catch (e) {
       debugPrint('TDLib Init Error: $e');
     }
@@ -81,7 +85,6 @@ class _TelegramAuthOrMainScreenState extends State<TelegramAuthOrMainScreen> {
       if (authState != null && authState is Map) {
         final authType = authState['@type'];
         
-        // إرسال الإعدادات تلقائياً بمجرد طلب TDLib لها
         if (authType == 'authorizationStateWaitTdlibParameters') {
           _sendTdlibParametersAuto();
         } else if (authType == 'authorizationStateWaitPhoneNumber') {
@@ -107,6 +110,9 @@ class _TelegramAuthOrMainScreenState extends State<TelegramAuthOrMainScreen> {
   }
 
   Future<void> _sendTdlibParametersAuto() async {
+    final Directory appDocDir = await getApplicationDocumentsDirectory();
+    final String dbPath = "${appDocDir.path}/tdlib_db";
+
     await _tdlib.invoke(
       'setTdlibParameters',
       parameters: {
@@ -115,7 +121,7 @@ class _TelegramAuthOrMainScreenState extends State<TelegramAuthOrMainScreen> {
         'system_language_code': 'ar',
         'device_model': 'Android Mobile',
         'application_version': '1.0.0',
-        'database_directory': '/data/user/0/com.example.telegram_custom_native/app_flutter/tdlib',
+        'database_directory': dbPath,
         'use_secret_chats': true,
         'use_message_database': true,
         'use_file_database': true,
@@ -257,11 +263,7 @@ class _TelegramAuthOrMainScreenState extends State<TelegramAuthOrMainScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (_authState == 'loading') ...[
-              const Center(child: CircularProgressIndicator()),
-              const SizedBox(height: 16),
-              const Text('جاري الاتصال بسيرفرات تليجرام...', textAlign: TextAlign.center),
-            ] else if (_authState == 'wait_phone') ...[
+            if (_authState == 'wait_phone') ...[
               const Text('أدخل رقم الهاتف مع الرمز الدولي', style: TextStyle(fontSize: 16)),
               const SizedBox(height: 12),
               TextField(
